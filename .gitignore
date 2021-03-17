@@ -1,0 +1,10 @@
+.idea/
+.vscode/
+
+ci/dev/.env
+ci/dev/docker-compose.local.yml
+
+.DS_Store
+
+app/backend/static
+app/backend/media

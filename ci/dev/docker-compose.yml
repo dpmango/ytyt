@@ -1,0 +1,31 @@
+
+version: '3.7'
+
+x-backend-env:
+  &backend-env
+    DATABASE_URL: 'psql://${PSQL_USER}:${PSQL_PASS}@psql:5432/${PSQL_DB}'
+    DEBUG: ${APP_DEBUG}
+    REDIS_URL: 'redis://redis:6379/1'
+    # TODO: set SENTRY_DSN
+    DJANGO_LOG_LEVEL: ${DJANGO_LOG_LEVEL}
+
+x-backend:
+  &backend
+  build:
+    context: ../../
+    dockerfile: ci/dev/docker/Dockerfile
+  restart: on-failure
+  tty: true
+  volumes:
+    - "../../app/:/var/app"
+  environment:
+    <<: *backend-env
+
+
+services:
+
+  # ####################################################################################################################
+  # Веб-сервисы (backend)
+  # ####################################################################################################################
+  backend:
+    <<: *backend
