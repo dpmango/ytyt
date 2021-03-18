@@ -1,0 +1,17 @@
+[
+  {
+    "model": "users.user",
+    "pk": 1,
+    "fields": {
+      "last_login": "2019-12-26T00:12:27.683Z",
+      "is_superuser": true,
+      "email": "admin@admin.ad",
+      "password": "pbkdf2_sha256$150000$oS1E7wVmLK6p$Hrqq4n+BtlqGstFHp4kyzW2pPmiHbeloTc2tgm8e8AM=",
+      "is_staff": true,
+      "is_active": true,
+      "date_joined": "2019-12-18T01:20:26.957Z",
+      "groups": [],
+      "user_permissions": []
+    }
+  }
+]
