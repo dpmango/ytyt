@@ -42,9 +42,11 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'rest_framework.authtoken',
+    'martor',
 
     'allauth',
     'allauth.account',
+    'allauth.socialaccount',
 
     'rest_auth',
     'rest_auth.registration',
@@ -52,7 +54,9 @@ INSTALLED_APPS = [
     'corsheaders',
 
     'users',
+    'courses',
 ]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -143,6 +147,18 @@ STATICFILES_DIRS = (
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
+MARTOR_ENABLE_CONFIGS = {
+    'imgur': 'true',     # to enable/disable imgur uploader/custom uploader.
+    'mention': 'true',   # to enable/disable mention
+    'jquery': 'true',    # to include/revoke jquery (require for admin default django)
+}
+
+MAX_IMAGE_UPLOAD_SIZE = 20971520  # 20MB
+
+MARTOR_UPLOAD_PATH = 'uploads/lessons/{}'.format(datetime.datetime.now().strftime('%Y/%m/'))
+MARTOR_UPLOAD_URL = '/api/uploader/'  # change to local uploader
 
 
 AUTHENTICATION_BACKENDS = (

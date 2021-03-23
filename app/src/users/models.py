@@ -74,7 +74,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     gender = models.PositiveIntegerField('Пол', choices=GENDERS, default=GENDER_UNKNOWN)
 
     birthday = models.DateField('Дата рождения', blank=True, null=True)
-    experience = models.IntegerField('Стаж', blank=True, null=True)
     phone = models.CharField('Телефон', max_length=64, blank=True, null=True)
 
     objects = UserManager()
@@ -84,8 +83,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     REQUIRED_FIELDS = []
 
     class Meta(AbstractBaseUser.Meta):
-        verbose_name = _('user')
-        verbose_name_plural = _('users')
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
         swappable = 'AUTH_USER_MODEL'
 
     def clean(self):
