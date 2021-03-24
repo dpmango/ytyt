@@ -5,7 +5,7 @@ from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from users import permissions
+from users.mixins import CoursesAccessMixin
 
 
 class UserManager(BaseUserManager):
@@ -38,7 +38,7 @@ class UserManager(BaseUserManager):
         return self._create_user(email, password, **extra_fields)
 
 
-class User(AbstractBaseUser, PermissionsMixin):
+class User(AbstractBaseUser, PermissionsMixin, CoursesAccessMixin):
 
     GENDER_UNKNOWN = 0
     GENDER_FEMALE = 1
@@ -104,32 +104,3 @@ class User(AbstractBaseUser, PermissionsMixin):
     def email_user(self, subject, message, from_email=None, **kwargs):
         """Send an email to this user."""
         send_mail(subject, message, from_email, [self.email], **kwargs)
-
-    def get_group_id(self):
-        if self.is_superuser:
-            group_ids = [permissions.GROUP_ADMINISTRATOR]
-        else:
-            group_ids = [group.id for group in self.groups.all()]
-        return group_ids[0] if len(group_ids) > 0 else None
-
-    def get_group_ids(self):
-        if self.is_superuser:
-            group_ids = [permissions.GROUP_ADMINISTRATOR]
-        else:
-            group_ids = [group.id for group in self.groups.all()]
-        return group_ids
-
-    def get_group_title(self):
-        if self.is_superuser:
-            group_ids = [permissions.GROUP_ADMINISTRATOR]
-        else:
-            group_ids = [group.id for group in self.groups.all()]
-
-        group_title = 'Без группы'
-        for group_id in group_ids:
-            group_info = list(filter(lambda x: x[0] == group_id, permissions.GROUPS))
-            if len(group_info):
-                group_title = group_info[0][1]
-                break
-        return group_title
-

@@ -19,6 +19,3 @@ class CourseBlockLessonAdmin(admin.ModelAdmin):
     formfield_overrides = {
         models.TextField: {'widget': AdminMartorWidget},
     }
-
-
-

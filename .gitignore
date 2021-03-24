@@ -1,7 +1,7 @@
 .idea/
 .vscode/
 
-ci/dev/.env
+ci/.env
 ci/dev/docker-compose.local.yml
 
 .DS_Store

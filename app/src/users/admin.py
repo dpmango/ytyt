@@ -1,9 +1,10 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin as BaseUserAdmin, Group
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.sites.models import Site
 from django.utils.translation import gettext_lazy as _
 
 from users.forms import UserCreationForm
+from users.mixins import CourseAccess, CourseBlockAccess, CourseBlockLessonAccess
 from users.models import User
 
 
@@ -23,6 +24,9 @@ class UserAdmin(BaseUserAdmin):
         (_('Permissions'), {
             'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions'),
         }),
+        (_('Courses Access'), {  # TODO: Обработатть добавление как в user_permissions
+            'fields': ('user_access_course', 'user_access_course_block', 'user_access_course_block_lesson'),
+        }),
     )
 
     add_fieldsets = (
@@ -36,5 +40,19 @@ class UserAdmin(BaseUserAdmin):
     ordering = ('email',)
 
 
-# admin.site.unregister(Group)
+@admin.register(CourseAccess)
+class CourseAccessAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(CourseBlockAccess)
+class CourseBlockAccessAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(CourseBlockLessonAccess)
+class CourseBlockLessonAccessAdmin(admin.ModelAdmin):
+    pass
+
+
 admin.site.unregister(Site)
