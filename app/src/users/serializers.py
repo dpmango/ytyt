@@ -3,7 +3,6 @@ from rest_auth import serializers as rest_auth_serializers
 from rest_auth.registration import serializers as rest_auth_registration_serializers
 from rest_framework import serializers
 
-from users import permissions
 
 User = get_user_model()
 
@@ -13,7 +12,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
         model = User
         fields = (
             'email', 'id', 'groups', 'first_name', 'user_permissions',
-            'last_name', 'middle_name', 'phone', 'birthday', 'phone', 'gender', 'test_courses'
+            'last_name', 'middle_name', 'phone', 'birthday', 'phone', 'gender',
         )
         read_only_fields = ('email', 'id', )
 
