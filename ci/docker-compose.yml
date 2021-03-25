@@ -5,8 +5,8 @@ x-backend-env:
     DATABASE_URL: 'psql://${PSQL_USER}:${PSQL_PASS}@psql:5432/${PSQL_DB}'
     DEBUG: ${APP_DEBUG}
     REDIS_URL: 'redis://redis:6379/1'
-    # TODO: set SENTRY_DSN
     DJANGO_LOG_LEVEL: ${DJANGO_LOG_LEVEL}
+    SENTRY_DSN: ${SENTRY_DSN}
 
 x-backend:
   &backend
