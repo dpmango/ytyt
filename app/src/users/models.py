@@ -66,7 +66,7 @@ class User(AbstractBaseUser, PermissionsMixin, CoursesAccessMixin):
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
     email_confirmed = models.BooleanField(default=False)
 
-    avatar = models.ImageField('Фотография', upload_to='avatars', default='static/default_avatar.png')
+    avatar = models.ImageField('Фотография', upload_to='avatars', default='static/default_avatar.jpg')
     last_name = models.CharField('Фамилия', max_length=255, blank=False, null=True)
     first_name = models.CharField('Имя', max_length=255, blank=False, null=True)
     middle_name = models.CharField('Отчество', max_length=255, blank=True, null=True)

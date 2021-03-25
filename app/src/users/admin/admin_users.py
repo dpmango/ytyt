@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 from users.forms import UserCreationForm
@@ -17,7 +18,7 @@ class UserAdmin(BaseUserAdmin):
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
         (_('Personal info'), {
-            'fields': ('first_name', 'last_name', 'middle_name', 'gender', 'birthday', 'phone')
+            'fields': ('first_name', 'last_name', 'middle_name', 'gender', 'birthday', 'phone', 'get_avatar')
         }),
         (_('Permissions'), {
             'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions'),
@@ -36,3 +37,13 @@ class UserAdmin(BaseUserAdmin):
 
     search_fields = ('email',)
     ordering = ('email',)
+    readonly_fields = ('get_avatar', )
+
+    def get_avatar(self, obj):
+        avatar = obj.avatar.url
+        avatar = avatar.replace('media/', '') if 'static' in avatar else avatar
+
+        return mark_safe(
+            '<img src="%s" width="150" height="150" />' % avatar
+        )
+    get_avatar.short_description = 'Аватар'
