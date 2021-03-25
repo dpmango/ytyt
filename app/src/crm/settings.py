@@ -53,7 +53,7 @@ INSTALLED_APPS = [
 
     'corsheaders',
 
-    'users',
+    'users.apps.UsersConfig',
     'courses',
 ]
 

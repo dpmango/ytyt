@@ -1,10 +1,8 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from django.contrib.sites.models import Site
 from django.utils.translation import gettext_lazy as _
 
 from users.forms import UserCreationForm
-from users.mixins import CourseAccess, CourseBlockAccess, CourseBlockLessonAccess
 from users.models import User
 
 
@@ -38,21 +36,3 @@ class UserAdmin(BaseUserAdmin):
 
     search_fields = ('email',)
     ordering = ('email',)
-
-
-@admin.register(CourseAccess)
-class CourseAccessAdmin(admin.ModelAdmin):
-    pass
-
-
-@admin.register(CourseBlockAccess)
-class CourseBlockAccessAdmin(admin.ModelAdmin):
-    pass
-
-
-@admin.register(CourseBlockLessonAccess)
-class CourseBlockLessonAccessAdmin(admin.ModelAdmin):
-    pass
-
-
-admin.site.unregister(Site)
