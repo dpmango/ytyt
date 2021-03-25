@@ -32,6 +32,6 @@ VOLUME /var/app/
 EXPOSE 8000
 WORKDIR /var/app/src/
 
-COPY --chown=www-data:www-data ci/dev/docker/entrypoint.sh /
+COPY --chown=www-data:www-data ci/docker/entrypoint.sh /
 
 CMD ["/entrypoint.sh"]

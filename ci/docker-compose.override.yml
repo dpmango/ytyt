@@ -22,11 +22,6 @@ services:
       POSTGRES_USER: ${PSQL_USER}
       POSTGRES_PASSWORD: ${PSQL_PASS}
       POSTGRES_DB: ${PSQL_DB}
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${PSQL_USER}" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
   redis:
     image: redis:alpine
@@ -34,11 +29,6 @@ services:
       - 6379
     volumes:
       - "redis_data:/data"
-    healthcheck:
-      test: [ "CMD-SHELL", "redis-cli", "ping" ]
-      interval: 1s
-      timeout: 3s
-      retries: 30
 
 volumes:
   psql_data: {}

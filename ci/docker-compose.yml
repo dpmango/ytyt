@@ -12,12 +12,12 @@ x-backend-env:
 x-backend:
   &backend
   build:
-    context: ../../
-    dockerfile: ci/dev/docker/Dockerfile
+    context: ../
+    dockerfile: ci/docker/Dockerfile
   restart: on-failure
   tty: true
   volumes:
-    - "../../app/:/var/app"
+    - "../app/:/var/app"
   environment:
     <<: *backend-env
 
