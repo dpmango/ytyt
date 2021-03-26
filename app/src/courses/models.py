@@ -1,4 +1,5 @@
 from django.db import models
+from markdownx.models import MarkdownxField
 from martor.models import MartorField
 
 
@@ -33,3 +34,8 @@ class CourseBlockLesson(models.Model):
     class Meta:
         verbose_name = 'Урок'
         verbose_name_plural = 'Уроки'
+
+
+class CTest(models.Model):
+
+    my_test_field = MarkdownxField()
