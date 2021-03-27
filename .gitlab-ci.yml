@@ -7,20 +7,21 @@ stages:
 # - SERVER_PORT
 # - SERVER_SSH_PRIVATE_KEY
 # - BOT_TOKEN
-deploy:prod:
+deploy:dev:
   stage: deploy
   image: ubuntu
   tags:
     - course-platform
-#  before_script:
-#    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
-#    - eval $(ssh-agent -s)
-#    - echo "$SERVER_SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
-#    - mkdir -p ~/.ssh
-#    - chmod 700 ~/.ssh
-#    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+  before_script:
+    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+    - eval $(ssh-agent -s)
+    - echo "$SERVER_SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
   script:
     - echo 'hello world'
+    - ls -a
 #    - ssh -tt $SERVER_USER@$SERVER_HOST -p $SERVER_PORT
 #      "
 #      cd ${PROJECT_ROOT} &&
