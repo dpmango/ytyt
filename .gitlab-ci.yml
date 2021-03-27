@@ -15,7 +15,7 @@ deploy:dev:
   before_script:
     - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
     - eval $(ssh-agent -s)
-    - echo "$SERVER_SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+    - echo "$SERVER_SSH_PRIVATE_KEY" | ssh-add - > /dev/null
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
