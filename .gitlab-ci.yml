@@ -6,7 +6,6 @@ stages:
 # - SERVER_HOST
 # - SERVER_PORT
 # - SERVER_SSH_PRIVATE_KEY
-# - BOT_TOKEN
 deploy:dev:
   stage: deploy
   image: ubuntu
@@ -15,9 +14,9 @@ deploy:dev:
   before_script:
     - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
     - eval $(ssh-agent -s)
-    - echo "$SERVER_SSH_PRIVATE_KEY" | ssh-add - > /dev/null
+    - echo "$SSH_PRIVATE_KEY" | ssh-add - > /dev/null
+    - ssh-add <(echo "$SSH_PRIVATE_KEY")
     - mkdir -p ~/.ssh
-    - chmod 700 ~/.ssh
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
   script:
     - echo 'hello world'
