@@ -1,0 +1,37 @@
+stages:
+  - deploy
+
+# Переменные необходимые для этой job
+# - SERVER_USER
+# - SERVER_HOST
+# - SERVER_PORT
+# - SERVER_SSH_PRIVATE_KEY
+# - BOT_TOKEN
+deploy:prod:
+  stage: deploy
+  image: ubuntu
+  tags:
+    - step-way-runner
+#  before_script:
+#    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+#    - eval $(ssh-agent -s)
+#    - echo "$SERVER_SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+#    - mkdir -p ~/.ssh
+#    - chmod 700 ~/.ssh
+#    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+  script:
+    - echo 'hello world'
+#    - ssh -tt $SERVER_USER@$SERVER_HOST -p $SERVER_PORT
+#      "
+#      cd ${PROJECT_ROOT} &&
+#      git reset --hard &&
+#      git checkout master &&
+#      git pull --recurse-submodules &&
+#      cd ci/dev &&
+#      export APP_BOT_TOKEN=$BOT_TOKEN &&
+#      export FRONTEND_MODE=start &&
+#      docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d --remove-orphans --build &&
+#      docker-compose -f docker-compose.yml -f docker-compose.dev.yml restart &&
+#      "
+  only:
+    - dev
