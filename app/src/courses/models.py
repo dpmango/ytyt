@@ -1,5 +1,6 @@
 from django.db import models
 from markdownx.models import MarkdownxField
+from markdownx.utils import markdownify
 
 
 class Course(models.Model):
@@ -40,6 +41,9 @@ class CourseLesson(models.Model):
     def __str__(self):
         return '%s' % self.title
 
+    def get_description(self) -> str:
+        return markdownify(self.description)
+
 
 class LessonFragment(models.Model):
     course_lesson = models.ForeignKey(CourseLesson, on_delete=models.PROTECT)
@@ -52,3 +56,6 @@ class LessonFragment(models.Model):
 
     def __str__(self):
         return '%s' % self.title
+
+    def get_description(self) -> str:
+        return markdownify(self.description)
