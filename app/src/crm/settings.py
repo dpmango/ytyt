@@ -43,7 +43,6 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'drf_yasg',
-    'martor',
     'markdownx',
 
     'allauth',
@@ -150,17 +149,7 @@ STATICFILES_DIRS = (
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-
-MARTOR_ENABLE_CONFIGS = {
-    'imgur': 'true',     # to enable/disable imgur uploader/custom uploader.
-    'mention': 'true',   # to enable/disable mention
-    'jquery': 'true',    # to include/revoke jquery (require for admin default django)
-}
-
-MAX_IMAGE_UPLOAD_SIZE = 20971520  # 20MB
-
-MARTOR_UPLOAD_PATH = 'uploads/lessons/{}'.format(datetime.datetime.now().strftime('%Y/%m/'))
-MARTOR_UPLOAD_URL = '/api/uploader/'  # change to local uploader
+MARKDOWNX_MEDIA_PATH = 'uploads/lessons/{}'.format(datetime.datetime.now().strftime('%Y/%m/'))
 
 
 AUTHENTICATION_BACKENDS = (

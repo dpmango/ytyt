@@ -23,8 +23,8 @@ class UserAdmin(BaseUserAdmin):
         (_('Permissions'), {
             'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions'),
         }),
-        (_('Courses Access'), {  # TODO: Обработатть добавление как в user_permissions
-            'fields': ('user_access_course', 'user_access_course_block', 'user_access_course_block_lesson'),
+        (_('Courses Access'), {
+            'fields': ('user_access_course', 'user_access_course_theme', 'user_access_course_lesson'),
         }),
     )
 
@@ -38,6 +38,7 @@ class UserAdmin(BaseUserAdmin):
     search_fields = ('email',)
     ordering = ('email',)
     readonly_fields = ('get_avatar', )
+    filter_horizontal = ('user_access_course', 'user_access_course_theme', 'user_access_course_lesson')
 
     def get_avatar(self, obj):
         avatar = obj.avatar.url

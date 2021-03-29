@@ -1,11 +1,5 @@
 from django.contrib import admin
-from .models import Course, CourseBlock, CourseBlockLesson, CTest
-from martor.widgets import AdminMartorWidget
-from django.db import models
-
-@admin.register(CTest)
-class CTestAdmin(admin.ModelAdmin):
-    pass
+from courses.models import Course, CourseTheme, CourseLesson, LessonFragment
 
 
 @admin.register(Course)
@@ -13,13 +7,16 @@ class CourseAdmin(admin.ModelAdmin):
     pass
 
 
-@admin.register(CourseBlock)
-class CourseBlockAdmin(admin.ModelAdmin):
+@admin.register(CourseTheme)
+class CourseThemeAdmin(admin.ModelAdmin):
     pass
 
 
-@admin.register(CourseBlockLesson)
-class CourseBlockLessonAdmin(admin.ModelAdmin):
-    formfield_overrides = {
-        models.TextField: {'widget': AdminMartorWidget},
-    }
+@admin.register(CourseLesson)
+class CourseLessonAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(LessonFragment)
+class LessonFragmentAdmin(admin.ModelAdmin):
+    pass

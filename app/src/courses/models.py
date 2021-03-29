@@ -1,10 +1,8 @@
 from django.db import models
 from markdownx.models import MarkdownxField
-from martor.models import MartorField
 
 
 class Course(models.Model):
-
     title = models.CharField('Название курса', max_length=130)
     description = models.TextField('Описание курса', null=True, blank=True, max_length=1200)
     cost = models.DecimalField('Стоимость курса', max_digits=11, decimal_places=2)
@@ -13,29 +11,44 @@ class Course(models.Model):
         verbose_name = 'Курс'
         verbose_name_plural = 'Курсы'
 
+    def __str__(self):
+        return '%s' % self.title
 
-class CourseBlock(models.Model):
 
+class CourseTheme(models.Model):
     course = models.ForeignKey(Course, on_delete=models.PROTECT)
     title = models.CharField('Название учебного блока', max_length=130)
     description = models.TextField('Описание учебного блока', null=True, blank=True, max_length=1200)
 
     class Meta:
-        verbose_name = 'Учебный блок'
-        verbose_name_plural = 'Учебные блоки'
+        verbose_name = 'Тема курса'
+        verbose_name_plural = 'Темы курсов'
+
+    def __str__(self):
+        return '%s' % self.title
 
 
-class CourseBlockLesson(models.Model):
-
-    course_block = models.ForeignKey(CourseBlock, on_delete=models.PROTECT)
+class CourseLesson(models.Model):
+    course_theme = models.ForeignKey(CourseTheme, on_delete=models.PROTECT)
     title = models.CharField('Название урока', max_length=130)
-    description = MartorField('Описание урока')
+    description = MarkdownxField('Описание урока')
 
     class Meta:
         verbose_name = 'Урок'
         verbose_name_plural = 'Уроки'
 
+    def __str__(self):
+        return '%s' % self.title
 
-class CTest(models.Model):
 
-    my_test_field = MarkdownxField()
+class LessonFragment(models.Model):
+    course_lesson = models.ForeignKey(CourseLesson, on_delete=models.PROTECT)
+    title = models.CharField('Название фрагмента урока', max_length=130, null=True, blank=True)
+    description = MarkdownxField('Фрагмент урока')
+
+    class Meta:
+        verbose_name = 'Фрагмент урока'
+        verbose_name_plural = 'Фрагменты урока'
+
+    def __str__(self):
+        return '%s' % self.title

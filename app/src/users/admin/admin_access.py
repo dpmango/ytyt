@@ -1,5 +1,5 @@
 from django.contrib import admin
-from users.mixins import CourseAccess, CourseBlockAccess, CourseBlockLessonAccess
+from users.mixins import CourseAccess, CourseThemeAccess, CourseLessonAccess
 
 
 @admin.register(CourseAccess)
@@ -7,11 +7,11 @@ class CourseAccessAdmin(admin.ModelAdmin):
     pass
 
 
-@admin.register(CourseBlockAccess)
-class CourseBlockAccessAdmin(admin.ModelAdmin):
+@admin.register(CourseThemeAccess)
+class CourseThemeAccessAdmin(admin.ModelAdmin):
     pass
 
 
-@admin.register(CourseBlockLessonAccess)
-class CourseBlockLessonAccessAdmin(admin.ModelAdmin):
+@admin.register(CourseLessonAccess)
+class CourseLessonAccessAdmin(admin.ModelAdmin):
     pass
