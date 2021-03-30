@@ -6,6 +6,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from users.mixins import CoursesAccessMixin
+from users import permissions
 
 
 class UserManager(BaseUserManager):
@@ -104,3 +105,8 @@ class User(AbstractBaseUser, PermissionsMixin, CoursesAccessMixin):
     def email_user(self, subject, message, from_email=None, **kwargs):
         """Send an email to this user."""
         send_mail(subject, message, from_email, [self.email], **kwargs)
+
+    def get_group_ids(self):
+        if self.is_superuser:
+            return [permissions.GROUP_ADMINISTRATOR]
+        return [group.id for group in self.groups.all()]

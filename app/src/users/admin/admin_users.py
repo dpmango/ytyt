@@ -38,7 +38,9 @@ class UserAdmin(BaseUserAdmin):
     search_fields = ('email',)
     ordering = ('email',)
     readonly_fields = ('get_avatar', )
-    filter_horizontal = ('user_access_course', 'user_access_course_theme', 'user_access_course_lesson')
+    filter_horizontal = (
+        'user_access_course', 'user_access_course_theme', 'user_access_course_lesson', 'groups', 'user_permissions'
+    )
 
     def get_avatar(self, obj):
         avatar = obj.avatar.url
