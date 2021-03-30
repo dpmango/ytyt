@@ -11,9 +11,7 @@ router = routers.DefaultRouter()
 router.register(r'search', SearchViewSet, basename='search')
 router.register(r'courses', CourseViewSet, basename='courses')
 router.register(r'courses/(?P<course_id>\d+)/themes', CourseThemeViewSet, basename='courses-theme')
-router.register(r'courses/(?P<course_id>\d+)/themes/(?P<course_theme_id>\d+)/lessons',
-                CourseLessonViewSet,
-                basename='courses-lesson')
+router.register(r'courses/(?P<course_id>\d+)/themes/(?P<course_theme_id>\d+)/lessons', CourseLessonViewSet, basename='courses-lesson')
 
 
 # Wire up our API using automatic URL routing.
