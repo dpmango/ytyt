@@ -53,6 +53,7 @@ class CourseThemeAccess(AccessBase):
 
 class CourseLessonAccess(AccessBase):
     model = models.ForeignKey(CourseLesson, on_delete=models.CASCADE)
+    fragments_passed = models.IntegerField('Количество пройденных фрагментов урока', default=0)
 
     class Meta(AccessBase.Meta):
         abstract = False
