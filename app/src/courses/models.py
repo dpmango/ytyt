@@ -45,6 +45,9 @@ class CourseLesson(models.Model):
     def get_description(self) -> str:
         return markdownify(self.description)
 
+    def get_text_description(self):
+        return ''.join(BeautifulSoup(self.get_description(), features='html.parser').findAll(text=True))
+
 
 class LessonFragment(models.Model):
     course_lesson = models.ForeignKey(CourseLesson, on_delete=models.PROTECT)

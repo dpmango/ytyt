@@ -39,6 +39,4 @@ class SearchViewSet(FlexibleSerializerModelViewSetMixin,
         queryset = queryset.distinct('id').select_related('course_lesson', 'course_lesson__course_theme')
 
         serializer = self.get_serializer_class()
-        serializer = serializer(queryset, many=True, context={'query_text': query_text})
-
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer(queryset, many=True).data, status=status.HTTP_200_OK)
