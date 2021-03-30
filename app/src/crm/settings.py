@@ -56,6 +56,7 @@ INSTALLED_APPS = [
 
     'users.apps.UsersConfig',
     'courses',
+    'search',
 ]
 
 

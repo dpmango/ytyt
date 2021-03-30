@@ -1,12 +1,14 @@
 from django.urls import include, path, re_path
 from rest_framework import routers
 
+from search.api.views import SearchViewSet
 from courses.api.course.views import CourseViewSet
 from courses.api.course_theme.views import CourseThemeViewSet
 from courses.api.course_lesson.views import CourseLessonViewSet
 
 
 router = routers.DefaultRouter()
+router.register(r'search', SearchViewSet, basename='search')
 router.register(r'courses', CourseViewSet, basename='courses')
 router.register(r'courses/(?P<course_id>\d+)/themes', CourseThemeViewSet, basename='courses-theme')
 router.register(r'courses/(?P<course_id>\d+)/themes/(?P<course_theme_id>\d+)/lessons',

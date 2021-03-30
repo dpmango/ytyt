@@ -1,3 +1,4 @@
+from bs4 import BeautifulSoup
 from django.db import models
 from markdownx.models import MarkdownxField
 from markdownx.utils import markdownify
@@ -59,3 +60,6 @@ class LessonFragment(models.Model):
 
     def get_description(self) -> str:
         return markdownify(self.description)
+
+    def get_text_description(self):
+        return ''.join(BeautifulSoup(self.get_description(), features='html.parser').findAll(text=True))
