@@ -18,13 +18,31 @@ class UserAdmin(BaseUserAdmin):
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
         (_('Personal info'), {
-            'fields': ('first_name', 'last_name', 'middle_name', 'gender', 'birthday', 'phone', 'get_avatar')
+            'fields': (
+                'first_name',
+                'last_name',
+                'middle_name',
+                'gender',
+                'birthday',
+                'phone',
+                'get_avatar'
+            )
         }),
         (_('Permissions'), {
-            'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions'),
+            'fields': (
+                'is_active',
+                'is_staff',
+                'is_superuser',
+                'groups',
+                'user_permissions'
+            ),
         }),
         (_('Courses Access'), {
-            'fields': ('user_access_course', 'user_access_course_theme', 'user_access_course_lesson'),
+            'fields': (
+                'user_access_course',
+                'user_access_course_theme',
+                'user_access_course_lesson',
+            ),
         }),
     )
 
@@ -39,7 +57,11 @@ class UserAdmin(BaseUserAdmin):
     ordering = ('email',)
     readonly_fields = ('get_avatar', )
     filter_horizontal = (
-        'user_access_course', 'user_access_course_theme', 'user_access_course_lesson', 'groups', 'user_permissions'
+        'groups',
+        'user_permissions',
+        'user_access_course',
+        'user_access_course_theme',
+        'user_access_course_lesson',
     )
 
     def get_avatar(self, obj):

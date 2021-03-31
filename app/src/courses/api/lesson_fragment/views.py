@@ -7,7 +7,6 @@ from api.permission_classes import ActionBasedPermission
 from api.mixins import FlexibleSerializerModelViewSetMixin
 from courses.api.course_theme.serializers import DefaultCourseThemeSerializers
 from courses.models import LessonFragment
-from users.mixins import CourseLessonAccess
 
 
 class LessonFragmentViewSet(FlexibleSerializerModelViewSetMixin,

@@ -19,8 +19,8 @@ class Course(models.Model):
 
 class CourseTheme(models.Model):
     course = models.ForeignKey(Course, on_delete=models.PROTECT)
-    title = models.CharField('Название учебного блока', max_length=130)
-    description = models.TextField('Описание учебного блока', null=True, blank=True, max_length=1200)
+    title = models.CharField('Название темы', max_length=130)
+    description = models.TextField('Описание темы', null=True, blank=True, max_length=1200)
 
     class Meta:
         verbose_name = 'Тема курса'
@@ -50,7 +50,7 @@ class CourseLesson(models.Model):
 
 
 class LessonFragment(models.Model):
-    course_lesson = models.ForeignKey(CourseLesson, on_delete=models.PROTECT)
+    course_lesson = models.ForeignKey(CourseLesson, on_delete=models.CASCADE)
     title = models.CharField('Название фрагмента урока', max_length=130, null=True, blank=True)
     description = MarkdownxField('Фрагмент урока')
 
