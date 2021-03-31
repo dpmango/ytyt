@@ -14,6 +14,7 @@ services:
 
   psql:
     image: postgres:11-alpine
+    restart: on-failure
     expose:
       - 5432
     volumes:
@@ -25,6 +26,7 @@ services:
 
   redis:
     image: redis:alpine
+    restart: on-failure
     expose:
       - 6379
     volumes:
