@@ -42,6 +42,7 @@ class UserAdmin(BaseUserAdmin):
                 'user_access_course',
                 'user_access_course_theme',
                 'user_access_course_lesson',
+                'user_access_lesson_fragment',
             ),
         }),
     )
@@ -62,6 +63,7 @@ class UserAdmin(BaseUserAdmin):
         'user_access_course',
         'user_access_course_theme',
         'user_access_course_lesson',
+        'user_access_lesson_fragment',
     )
 
     def get_avatar(self, obj):

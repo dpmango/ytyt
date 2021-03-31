@@ -34,6 +34,7 @@ class CourseLesson(models.Model):
     course_theme = models.ForeignKey(CourseTheme, on_delete=models.PROTECT)
     title = models.CharField('Название урока', max_length=130)
     description = MarkdownxField('Описание урока')
+    signature = models.TextField('Цифровая подпись урока')
 
     class Meta:
         verbose_name = 'Урок'
