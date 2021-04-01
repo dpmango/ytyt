@@ -21,6 +21,7 @@ class CourseTheme(models.Model):
     course = models.ForeignKey(Course, on_delete=models.PROTECT)
     title = models.CharField('Название темы', max_length=1000)
     description = models.TextField('Описание темы', null=True, blank=True)
+    free_access = models.BooleanField('Бесплатный доступ', default=False)
 
     class Meta:
         verbose_name = 'Тема курса'
