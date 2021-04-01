@@ -151,6 +151,7 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 MARKDOWNX_MEDIA_PATH = 'uploads/lessons/{}'.format(datetime.datetime.now().strftime('%Y/%m/'))
+MARKDOWNX_SERVER_CALL_LATENCY = 120000  # 2min
 
 
 AUTHENTICATION_BACKENDS = (

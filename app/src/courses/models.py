@@ -34,7 +34,6 @@ class CourseLesson(models.Model):
     course_theme = models.ForeignKey(CourseTheme, on_delete=models.PROTECT)
     title = models.CharField('Название урока', max_length=130)
     description = MarkdownxField('Описание урока')
-    signature = models.TextField('Цифровая подпись урока')
 
     class Meta:
         verbose_name = 'Урок'
@@ -53,17 +52,19 @@ class CourseLesson(models.Model):
 class LessonFragment(models.Model):
     course_lesson = models.ForeignKey(CourseLesson, on_delete=models.CASCADE)
     title = models.CharField('Название фрагмента урока', max_length=130, null=True, blank=True)
-    description = MarkdownxField('Фрагмент урока')
+    description = MarkdownxField('Фрагмент урока', null=True, blank=True)
+    date_created = models.DateTimeField('Дата создаения фрагмента', auto_now=True)
 
     class Meta:
         verbose_name = 'Фрагмент урока'
         verbose_name_plural = 'Фрагменты урока'
+        ordering = ('-date_created', )
 
     def __str__(self):
         return '%s' % self.title
 
     def get_description(self) -> str:
-        return markdownify(self.description)
+        return markdownify(self.description)  # TODO: Проверить наличие ошибки при пустом описании
 
     def get_text_description(self):
         return ''.join(BeautifulSoup(self.get_description(), features='html.parser').findAll(text=True))

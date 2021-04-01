@@ -1,4 +1,6 @@
 from django.contrib import admin
+
+from courses.forms import CourseLessonCreationForm
 from courses.models import Course, CourseTheme, CourseLesson, LessonFragment
 
 
@@ -14,7 +16,7 @@ class CourseThemeAdmin(admin.ModelAdmin):
 
 @admin.register(CourseLesson)
 class CourseLessonAdmin(admin.ModelAdmin):
-    pass
+    form = CourseLessonCreationForm
 
 
 @admin.register(LessonFragment)
