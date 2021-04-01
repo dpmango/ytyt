@@ -5,8 +5,8 @@ from markdownx.utils import markdownify
 
 
 class Course(models.Model):
-    title = models.CharField('Название курса', max_length=130)
-    description = models.TextField('Описание курса', null=True, blank=True, max_length=1200)
+    title = models.CharField('Название курса', max_length=1000)
+    description = models.TextField('Описание курса', null=True, blank=True)
     cost = models.DecimalField('Стоимость курса', max_digits=11, decimal_places=2)
 
     class Meta:
@@ -19,8 +19,8 @@ class Course(models.Model):
 
 class CourseTheme(models.Model):
     course = models.ForeignKey(Course, on_delete=models.PROTECT)
-    title = models.CharField('Название темы', max_length=130)
-    description = models.TextField('Описание темы', null=True, blank=True, max_length=1200)
+    title = models.CharField('Название темы', max_length=1000)
+    description = models.TextField('Описание темы', null=True, blank=True)
 
     class Meta:
         verbose_name = 'Тема курса'
@@ -32,7 +32,7 @@ class CourseTheme(models.Model):
 
 class CourseLesson(models.Model):
     course_theme = models.ForeignKey(CourseTheme, on_delete=models.PROTECT)
-    title = models.CharField('Название урока', max_length=130)
+    title = models.CharField('Название урока', max_length=1000)
     description = MarkdownxField('Описание урока')
 
     class Meta:
@@ -51,7 +51,7 @@ class CourseLesson(models.Model):
 
 class LessonFragment(models.Model):
     course_lesson = models.ForeignKey(CourseLesson, on_delete=models.CASCADE)
-    title = models.CharField('Название фрагмента урока', max_length=130, null=True, blank=True)
+    title = models.CharField('Название фрагмента урока', max_length=1000, null=True, blank=True)
     description = MarkdownxField('Фрагмент урока', null=True, blank=True)
     date_created = models.DateTimeField('Дата создаения фрагмента', auto_now=True)
 
@@ -61,7 +61,7 @@ class LessonFragment(models.Model):
         ordering = ('-date_created', )
 
     def __str__(self):
-        return '%s' % self.title
+        return '%s' % self.title[:30]
 
     def get_description(self) -> str:
         return markdownify(self.description)  # TODO: Проверить наличие ошибки при пустом описании

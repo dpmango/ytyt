@@ -1,5 +1,6 @@
-from courses.models import CourseLesson, LessonFragment
 from django import forms
+from markdownx.utils import markdownify
+from courses.models import CourseLesson, LessonFragment
 
 
 class CourseLessonCreationForm(forms.ModelForm):
@@ -19,7 +20,7 @@ class CourseLessonCreationForm(forms.ModelForm):
         if 'description' not in self.changed_data:
             return obj
 
-        description = self.cleaned_data['description']
+        description = markdownify(self.cleaned_data['description'])
 
         split_tag_start_ids = self.get_tag_ids(description, self.Meta.split_tag_start)
         split_tag_end_ids = self.get_tag_ids(description, self.Meta.split_tag_end)
