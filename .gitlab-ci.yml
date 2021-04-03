@@ -18,7 +18,6 @@ deploy:dev:
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
-
   script:
     - echo 'hello world'
     - ls -a
