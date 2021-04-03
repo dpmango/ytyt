@@ -33,4 +33,4 @@ deploy:dev:
 #      docker-compose -f docker-compose.yml -f docker-compose.dev.yml restart &&
 #      "
   only:
-    - master
+    - dev

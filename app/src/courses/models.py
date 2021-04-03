@@ -69,3 +69,34 @@ class LessonFragment(models.Model):
 
     def get_text_description(self):
         return ''.join(BeautifulSoup(self.get_description(), features='html.parser').findAll(text=True))
+
+
+class CourseAccess(models.Model):
+    """
+    Разряженная модель доступов к курсу с дополнительной ифнормацией
+    Модель связывает пользователя и доступы к :
+        - необходимым курсам
+        - темам курса
+        - урокам
+        - фрагментам урока
+    """
+    COURSES_STATUS_AVAILABLE = 1
+    COURSES_STATUS_IN_PROGRESS = 2
+    COURSES_STATUS_COMPLETED = 3
+    COURSES_STATUS_BLOCK = 4
+
+    COURSES_STATUSES = (
+        (COURSES_STATUS_AVAILABLE, 'Доступен'),
+        (COURSES_STATUS_IN_PROGRESS, 'В процессе'),
+        (COURSES_STATUS_COMPLETED, 'Завершен'),
+        (COURSES_STATUS_BLOCK, 'Заблокирован'),
+    )
+
+    user = models.ForeignKey('users.User', on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, null=True, blank=True)
+    coursetheme = models.ForeignKey(CourseTheme, on_delete=models.CASCADE, null=True, blank=True)
+    courselesson = models.ForeignKey(CourseLesson, on_delete=models.CASCADE, null=True, blank=True)
+    lessonfragment = models.ForeignKey(LessonFragment, on_delete=models.CASCADE, null=True, blank=True)
+
+    status = models.PositiveSmallIntegerField('Статус', choices=COURSES_STATUSES, default=COURSES_STATUS_BLOCK)
+    date_created = models.DateTimeField('Дата создаения фрагмента', auto_now=True)

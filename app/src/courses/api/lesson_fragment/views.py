@@ -17,15 +17,15 @@ class LessonFragmentViewSet(FlexibleSerializerModelViewSetMixin,
     #     'ping': 'courses.view_course'
     # }
 
-    @action(methods=['POST'], detail=True)
-    def check(self, request, pk=None, *args, **kwargs):
-
-        user = request.user
-
-        last_fragment = user.user_access_course_lesson.all()
-        print(last_fragment)
-
-
-
-
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    # @action(methods=['POST'], detail=True)
+    # def check(self, request, pk=None, *args, **kwargs):
+    #
+    #     user = request.user
+    #
+    #     last_fragment = user.user_access_course_lesson.all()
+    #     print(last_fragment)
+    #
+    #
+    #
+    #
+    #     return Response(status=status.HTTP_204_NO_CONTENT)

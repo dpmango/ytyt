@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from courses.models import Course, CourseTheme, CourseLesson, LessonFragment
+from courses.models import Course, CourseTheme, CourseLesson, LessonFragment, CourseAccess
 
 
 class CoursesAccessMixin(models.Model):
@@ -43,3 +43,11 @@ class CoursesAccessMixin(models.Model):
 
     class Meta:
         abstract = True
+
+    def _create_access(self, *args, **kwargs):
+
+        course = Course.objects.get_or_create(title='abc', cost=1000.12)
+        CourseAccess.objects.get_or_create(
+            user=self, status=1, course=course
+        )
+
