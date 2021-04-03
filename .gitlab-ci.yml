@@ -20,7 +20,6 @@ deploy:dev:
   script:
     - echo 'hello world'
     - ls -a
-    - echo 'hello world'
 #    - ssh -tt $SERVER_USER@$SERVER_HOST -p $SERVER_PORT
 #      "
 #      cd ${PROJECT_ROOT} &&
