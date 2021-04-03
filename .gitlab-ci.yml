@@ -9,8 +9,8 @@ stages:
 deploy:dev:
   stage: deploy
   image: ubuntu
-#  tags:
-#    - course-platform
+  tags:
+    - course-platform
   before_script:
     - apt-get update -qq
     - apt-get install -qq git
