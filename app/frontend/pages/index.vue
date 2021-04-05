@@ -1,65 +1,63 @@
 <template>
   <div class="container">
-    <div>
-      <Logo />
-      <h1 class="title">ytyt</h1>
-      <div class="links">
-        <a
-          href="https://nuxtjs.org/"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="button--green"
-        >
-          Documentation
-        </a>
-        <a
-          href="https://github.com/nuxt/nuxt.js"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="button--grey"
-        >
-          GitHub
-        </a>
-      </div>
-    </div>
+    <input type="text" placeholder="What needs to be done?" @keyup.enter="addTodo" />
+    <ul>
+      <li v-for="todo in todos" :key="todo.id">
+        <input :id="todo.id" :checked="todo.done" type="checkbox" @change="toggle(todo)" />
+        <label :class="{ done: todo.done }" :for="todo.id">{{ todo.text }}</label>
+        <button @click="removeTodo(todo)">remove</button>
+      </li>
+    </ul>
   </div>
 </template>
 
-<script lang="ts">
-import Vue from 'vue'
+<script>
+import { mapMutations } from 'vuex';
 
-export default Vue.extend({})
+export default {
+  computed: {
+    todos() {
+      return this.$store.state.todos.list;
+    },
+  },
+  methods: {
+    addTodo(event) {
+      this.$store.commit('todos/add', event.target.value);
+      event.target.value = '';
+    },
+    ...mapMutations({
+      toggle: 'todos/toggle',
+    }),
+    removeTodo(todo) {
+      this.$store.commit('todos/remove', todo);
+    },
+  },
+};
 </script>
 
-<style>
-.container {
-  margin: 0 auto;
-  min-height: 100vh;
+<style scoped>
+ul {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+li {
   display: flex;
-  justify-content: center;
   align-items: center;
-  text-align: center;
+  margin-bottom: 0.5rem;
 }
 
-.title {
-  font-family: 'Quicksand', 'Source Sans Pro', -apple-system, BlinkMacSystemFont,
-    'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  display: block;
-  font-weight: 300;
-  font-size: 100px;
-  color: #35495e;
-  letter-spacing: 1px;
+input[type='checkbox'] {
+  margin: 0.5rem;
 }
 
-.subtitle {
-  font-weight: 300;
-  font-size: 42px;
-  color: #526488;
-  word-spacing: 5px;
-  padding-bottom: 15px;
+button {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
 }
 
-.links {
-  padding-top: 15px;
+.done {
+  text-decoration: line-through;
 }
 </style>
