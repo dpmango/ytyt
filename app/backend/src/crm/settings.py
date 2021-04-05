@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'corsheaders',
 
     'users.apps.UsersConfig',
+    'courses_access.apps.CoursesAccessConfig',
     'courses',
     'search',
 ]

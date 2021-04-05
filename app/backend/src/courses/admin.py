@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from courses.forms import CourseLessonCreationForm
-from courses.models import Course, CourseTheme, CourseLesson, LessonFragment, CourseAccess
+from courses.models import Course, CourseTheme, CourseLesson, LessonFragment
 
 
 @admin.register(Course)
@@ -21,9 +21,4 @@ class CourseLessonAdmin(admin.ModelAdmin):
 
 @admin.register(LessonFragment)
 class LessonFragmentAdmin(admin.ModelAdmin):
-    pass
-
-
-@admin.register(CourseAccess)
-class CourseAccessAdmin(admin.ModelAdmin):
     pass

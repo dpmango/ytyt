@@ -5,7 +5,6 @@ from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from users.mixins import CoursesAccessMixin
 from users import permissions
 
 
@@ -39,7 +38,7 @@ class UserManager(BaseUserManager):
         return self._create_user(email, password, **extra_fields)
 
 
-class User(AbstractBaseUser, PermissionsMixin, CoursesAccessMixin):
+class User(AbstractBaseUser, PermissionsMixin):
 
     GENDER_UNKNOWN = 0
     GENDER_FEMALE = 1

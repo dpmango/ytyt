@@ -37,14 +37,6 @@ class UserAdmin(BaseUserAdmin):
                 'user_permissions'
             ),
         }),
-        (_('Courses Access'), {
-            'fields': (
-                'user_access_course',
-                'user_access_course_theme',
-                'user_access_course_lesson',
-                'user_access_lesson_fragment',
-            ),
-        }),
     )
 
     add_fieldsets = (
@@ -60,10 +52,6 @@ class UserAdmin(BaseUserAdmin):
     filter_horizontal = (
         'groups',
         'user_permissions',
-        'user_access_course',
-        'user_access_course_theme',
-        'user_access_course_lesson',
-        'user_access_lesson_fragment',
     )
 
     def get_avatar(self, obj):
