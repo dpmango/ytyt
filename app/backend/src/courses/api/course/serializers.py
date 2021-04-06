@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from courses.api.course_theme.serializers import DefaultCourseThemeSerializers
 from courses.models import Course
-from courses_access.models import CourseAccess
+from courses_access.common.serializers import AccessBaseSerializers
 
 
 class DefaultCourseSerializers(serializers.ModelSerializer):
@@ -11,20 +11,8 @@ class DefaultCourseSerializers(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class DetailCourseSerializers(serializers.ModelSerializer):
-    status = serializers.SerializerMethodField()
+class DetailCourseSerializers(AccessBaseSerializers):
     course_themes = serializers.SerializerMethodField()
-
-    def get_status(self, obj: Course) -> bool:
-        """
-        Метод вернет информацию о доустпе к курсу
-        Если пользователь ранее не имел доступ, то его необходимо запросить
-        :param obj: Объект курса
-        """
-        try:
-            return obj.courseaccess_set.get(user=self.context.get('user')).status
-        except CourseAccess.DoesNotExist:
-            return CourseAccess.COURSES_STATUS_BLOCK
 
     def get_course_themes(self, obj: Course):
         """

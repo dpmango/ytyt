@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'courses_access.apps.CoursesAccessConfig',
     'courses',
     'search',
+    'constants',
 ]
 
 
