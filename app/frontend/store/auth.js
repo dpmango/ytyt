@@ -1,4 +1,3 @@
-import Cookies from 'js-cookie';
 import { loginService, signupService, recoverService } from '~/api/auth';
 
 export const state = () => ({
@@ -22,7 +21,7 @@ export const mutations = {
   updateToken(state, token) {
     if (token) {
       state.token = token;
-      Cookies.set('ytyt_token', token);
+      this.$cookies.set('ytyt_token', token);
       this.$api.setToken(token, 'Bearer');
       // axios.defaults.headers.common.Authorization = 'Bearer ' + token;
     }
@@ -37,7 +36,7 @@ export const mutations = {
 
 export const actions = {
   checkToken({ commit }) {
-    const token = Cookies.get('ytyt_token');
+    const token = this.$cookies.get('ytyt_token');
 
     if (token) {
       commit('updateToken', token);
