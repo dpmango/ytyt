@@ -1,0 +1,12 @@
+// buttons
+button{
+  -webkit-appearance: none;
+  border: 0;
+  box-shadow: none;
+  cursor: pointer;
+  background: transparent;
+  &:focus{
+    outline: none
+  }
+}
+
