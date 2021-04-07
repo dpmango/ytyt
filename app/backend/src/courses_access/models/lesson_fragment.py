@@ -2,6 +2,7 @@ from django.db import models
 
 from courses.models import LessonFragment
 from courses_access.common.models import AccessManagerBase, AccessBase
+from users.models import User
 
 
 class LessonFragmentAccessManager(AccessManagerBase):
@@ -11,6 +12,13 @@ class LessonFragmentAccessManager(AccessManagerBase):
 
     def set_trial(self, lesson_fragment: LessonFragment, **kwargs):
         self.set_access(lesson_fragment=lesson_fragment, **kwargs)
+
+    def set_available_access(self, user: User, second_fragment: LessonFragment) -> models.Model:
+        return self.objects.set_access(
+            status=self.COURSES_STATUS_AVAILABLE,
+            lesson_fragment=second_fragment,
+            user=user,
+        )
 
 
 class LessonFragmentAccess(AccessBase):

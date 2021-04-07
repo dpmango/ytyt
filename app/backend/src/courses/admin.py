@@ -1,3 +1,4 @@
+from adminsortable2.admin import SortableAdminMixin
 from django.contrib import admin
 
 from courses.forms import CourseLessonCreationForm
@@ -10,13 +11,14 @@ class CourseAdmin(admin.ModelAdmin):
 
 
 @admin.register(CourseTheme)
-class CourseThemeAdmin(admin.ModelAdmin):
-    pass
+class CourseThemeAdmin(SortableAdminMixin, admin.ModelAdmin):
+    exclude = ('order', )
 
 
 @admin.register(CourseLesson)
-class CourseLessonAdmin(admin.ModelAdmin):
+class CourseLessonAdmin(SortableAdminMixin, admin.ModelAdmin):
     form = CourseLessonCreationForm
+    exclude = ('order',)
 
 
 @admin.register(LessonFragment)

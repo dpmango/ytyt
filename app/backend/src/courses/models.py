@@ -4,12 +4,20 @@ from markdownx.models import MarkdownxField
 from markdownx.utils import markdownify
 
 
-class Course(models.Model):
+class CourseBase(models.Model):
+    order = models.PositiveIntegerField('Порядок следования', default=0, null=True, blank=True)
+
+    class Meta:
+        abstract = True
+        ordering = ('order',)
+
+
+class Course(CourseBase):
     title = models.CharField('Название курса', max_length=1000)
     description = models.TextField('Описание курса', null=True, blank=True)
     cost = models.DecimalField('Стоимость курса', max_digits=11, decimal_places=2)
 
-    class Meta:
+    class Meta(CourseBase.Meta):
         verbose_name = 'Курс'
         verbose_name_plural = 'Курсы'
 
@@ -17,13 +25,13 @@ class Course(models.Model):
         return '%s' % self.title
 
 
-class CourseTheme(models.Model):
+class CourseTheme(CourseBase):
     course = models.ForeignKey(Course, on_delete=models.PROTECT)
     title = models.CharField('Название темы', max_length=1000)
     description = models.TextField('Описание темы', null=True, blank=True)
     free_access = models.BooleanField('Бесплатный доступ', default=False)
 
-    class Meta:
+    class Meta(CourseBase.Meta):
         verbose_name = 'Тема курса'
         verbose_name_plural = 'Темы курсов'
 
@@ -31,12 +39,12 @@ class CourseTheme(models.Model):
         return '%s' % self.title
 
 
-class CourseLesson(models.Model):
+class CourseLesson(CourseBase):
     course_theme = models.ForeignKey(CourseTheme, on_delete=models.PROTECT)
     title = models.CharField('Название урока', max_length=1000)
     description = MarkdownxField('Описание урока')
 
-    class Meta:
+    class Meta(CourseBase.Meta):
         verbose_name = 'Урок'
         verbose_name_plural = 'Уроки'
 

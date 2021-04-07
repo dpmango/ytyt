@@ -12,4 +12,4 @@ class DefaultLessonFragmentSerializers(AccessBaseSerializers):
 
     class Meta:
         model = LessonFragment
-        exclude = ('course_lesson', )
+        fields = '__all__'

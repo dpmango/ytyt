@@ -51,13 +51,29 @@ class AccessManagerBase(models.Manager):
         :param obj: Объект к которому проверяется доступ
         :param user: Объект пользователя
         """
-        access_model = self.model.objects.filter(**{
-            self._to_snake_case(obj.__class__.__name__): obj, 'user': user
-        }).first()
+        access_model = self.model.objects.filter(**{self._get_obj_name(obj): obj, 'user': user}).first()
 
         if access_model is not None:
             return access_model.status
         return AccessBase.COURSES_STATUS_BLOCK
+
+    def set_status(self, obj: models.Model, user: User, status: int) -> models.Model:
+        """
+        Метод обновляет статус прохождения курса пользователем
+        :param obj: Некоторый объект из courses-app
+        :param user: Пользователь
+        :param status: Статус доступа к курсу
+        :return: Обновленная модель obj: models.Model
+        """
+        model = self.get(**{self._get_obj_name(obj): obj, 'user': user})
+        model.status = status
+        return model.save(update_fields=['status'])
+
+    def is_accessible(self, **kwargs) -> bool:
+        return self.filter(**kwargs).exists()
+
+    def _get_obj_name(self, obj):
+        return self._to_snake_case(obj.__class__.__name__)
 
     def set_access(self, **kwargs) -> models.Model:
         """
@@ -66,9 +82,6 @@ class AccessManagerBase(models.Manager):
         :return: models.Model
         """
         return self.model.objects.get_or_create(**kwargs)
-
-    def is_accessible(self, **kwargs) -> bool:
-        return self.filter(**kwargs).exists()
 
     @staticmethod
     def _to_snake_case(string: str) -> str:
