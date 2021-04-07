@@ -1,5 +1,10 @@
 # ytyt
 
+## Materials
+[Figma](https://www.figma.com/file/ufNp4pKYlap6G7AEH2rRl6/YtYt)
+
+[Swagger Hub](https://ytyt.ru/swagger/)
+
 ## Build Setup
 
 ```bash

@@ -10,5 +10,8 @@ module.exports = {
   rules: {
     quotes: ['error', 'single'],
     // 'prettier/prettier': 'error',
+    'vue/require-default-prop': 'off',
+    'vue/no-unused-vars': 'off',
+    '@typescript-eslint/no-unused-vars': 'off',
   },
 };

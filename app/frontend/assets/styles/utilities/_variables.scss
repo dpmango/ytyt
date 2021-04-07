@@ -8,7 +8,6 @@ $hd: 1440;
 
 // FONTS
 $baseFont: "Roboto", sans-serif;
-
 $systemFont: -apple-system, "BlinkMacSystemFont", "Segoe UI", "Roboto", "Helvetica", "Ubuntu", "Cantarell", "Arial", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 
 // OPTIONS
@@ -17,14 +16,15 @@ $ease: ease-in-out;
 
 // COLORS
 // Color-names https://htmlcolorcodes.com/color-names/
-$fontColor: #000;
-$colorPrimary: #3F51B5;
+$fontColor: #171818;
+$colorGray: rgba($fontColor, .5);
+$colorPrimary: #1E88E5;
 $colorAccent: teal;
-$colorGreen: #3CB93A;
-$colorRed: #F22C00;
+$colorGreen: #00AD45;
+$colorRed: #F15525;
 $colorRedHover: lighten($colorRed, 15%);
 $borderColor: #C4C4C4;
-$colorBg: #F7F7F7;
+$colorBg: #FAFAFA;
 
 // SOCIAL colors
 $twitter: #00aced;

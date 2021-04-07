@@ -12,7 +12,10 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .h2-title {
-  font-size: 46px;
+  font-family: $baseFont;
+  font-weight: 500;
+  font-size: 28px;
+  line-height: 150%;
 }
 
 .h3-title {

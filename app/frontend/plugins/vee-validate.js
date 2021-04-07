@@ -2,12 +2,12 @@ import Vue from 'vue';
 import { extend, ValidationProvider, ValidationObserver } from 'vee-validate';
 import { required, email, alpha, confirmed, min, max } from 'vee-validate/dist/rules';
 
-extend('required', required);
-extend('email', email);
-extend('alpha', alpha);
-extend('confirmed', confirmed);
-extend('min', min);
-extend('max', max);
+extend('required', { ...required, message: 'Это поле не может быть пустым' });
+extend('email', { ...email, message: 'Неверный формат E-mail' });
+extend('alpha', { ...alpha, message: 'Поле должно содержать только буквы' });
+extend('confirmed', { ...confirmed, message: 'Пароль не совпадает' });
+extend('min', { ...min, message: 'Минимум {length} символов' });
+extend('max', { ...max, message: 'Максимум {length} символов' });
 
 extend('tel', {
   validate: (value) => {
