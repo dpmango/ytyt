@@ -1,10 +1,11 @@
 import endpoints from './endpoints';
 import { mapApiError, mapData } from './helpers';
 
-// SERVICES
-export const loginService = async (request) => {
+export const loginService = async ($api, request) => {
   try {
-    const { data } = await loginRequest(request);
+    const { data } = await $api.post(endpoints.auth.login, {
+      ...request,
+    });
 
     return [null, mapData(data)];
   } catch (error) {
@@ -12,9 +13,11 @@ export const loginService = async (request) => {
   }
 };
 
-export const signupService = async (request) => {
+export const signupService = async ($api, request) => {
   try {
-    const { data } = await signupRequest(request);
+    const { data } = await $api.post(endpoints.auth.registration, {
+      ...request,
+    });
 
     return [null, mapData(data)];
   } catch (error) {
@@ -22,9 +25,11 @@ export const signupService = async (request) => {
   }
 };
 
-export const recoverService = async (request) => {
+export const recoverService = async ($api, request) => {
   try {
-    const { data } = await recoverRequest(request);
+    const { data } = await $api.post(endpoints.auth.passwordReset, {
+      ...request,
+    });
 
     return [null, mapData(data)];
   } catch (error) {
@@ -32,22 +37,22 @@ export const recoverService = async (request) => {
   }
 };
 
-// REQUEST (API ROUTE MAPPERS)
-const loginRequest = (request) => {
-  // TODO - any other way to acces nuxt api ?
-  return window.$nuxt.$api.post(endpoints.auth.login, {
-    ...request,
-  });
+export const logoutService = async ($api, request) => {
+  try {
+    const { data } = await $api.post(endpoints.auth.logout);
+
+    return [null, mapData(data)];
+  } catch (error) {
+    return [mapApiError(error), null];
+  }
 };
 
-const signupRequest = (request) => {
-  return window.$nuxt.$api.post(endpoints.auth.registration, {
-    ...request,
-  });
-};
+export const userService = async ($api) => {
+  try {
+    const { data } = await $api.get(endpoints.auth.user);
 
-const recoverRequest = (request) => {
-  return window.$nuxt.$api.post(endpoints.auth.passwordReset, {
-    ...request,
-  });
+    return [null, mapData(data)];
+  } catch (error) {
+    return [mapApiError(error), null];
+  }
 };

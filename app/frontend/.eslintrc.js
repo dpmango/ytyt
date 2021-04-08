@@ -12,6 +12,7 @@ module.exports = {
     // 'prettier/prettier': 'error',
     'vue/require-default-prop': 'off',
     'vue/no-unused-vars': 'off',
+    'vue/no-v-html': 'off',
     '@typescript-eslint/no-unused-vars': 'off',
   },
 };

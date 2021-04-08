@@ -1,16 +1,16 @@
 <template>
-  <div class="container">
-    <h1>Mainpage</h1>
-  </div>
+  <CourseList :list="list" />
 </template>
 
 <script>
 export default {
-  // middleware({ store }) {
-  //   store.dispatch('auth/checkToken');
-  // },
+  async asyncData({ params, store, error }) {
+    const list = await store.dispatch('courses/list');
+
+    return { list };
+  },
   head: {
-    title: 'Главная',
+    title: 'Курсы',
   },
 };
 </script>
