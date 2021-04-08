@@ -12,7 +12,7 @@ x-backend:
   &backend
   build:
     context: ../
-    dockerfile: ci/docker/Dockerfile
+    dockerfile: ci/docker/backend/Dockerfile
   restart: on-failure
   tty: true
   volumes:

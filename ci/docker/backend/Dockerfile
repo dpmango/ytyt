@@ -25,13 +25,13 @@ RUN apt-get update -qq >/dev/null \
  && rm -rf /var/lib/apt/lists/* \
  && pip install -U pip wheel
 
-COPY --chown=www-data:www-data app/build/pip/ /var/app/build/pip/
+COPY --chown=www-data:www-data app/backend/build/pip/ /var/app/build/pip/
 RUN pip install -r /var/app/build/pip/requirements.txt
 
 VOLUME /var/app/
 EXPOSE 8000
 WORKDIR /var/app/src/
 
-COPY --chown=www-data:www-data ci/docker/entrypoint.sh /
+COPY --chown=www-data:www-data ci/docker/backend/entrypoint.sh /
 
 CMD ["/entrypoint.sh"]
