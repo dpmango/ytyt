@@ -33,6 +33,35 @@ class ConstantsViewSet(viewsets.ViewSet):
         return result
 
     def list(self, request):
+        """
+        Данный метод выводит списки всех доступных константных значений для всех моделей
+        ```
+        {
+            "accessbase.courses_statuses": [
+                {
+                    "id": 1,
+                    "code": "COURSES_STATUS_AVAILABLE",
+                    "title": "Доступен"
+                },
+                {
+                    "id": 2,
+                    "code": "COURSES_STATUS_IN_PROGRESS",
+                    "title": "В процессе"
+                },
+                {
+                    "id": 3,
+                    "code": "COURSES_STATUS_COMPLETED",
+                    "title": "Завершен"
+                },
+                {
+                    "id": 4,
+                    "code": "COURSES_STATUS_BLOCK",
+                    "title": "Заблокирован"
+                }
+            ]
+        }
+        ```
+        """
         return Response(self.export_constants([
             [AccessBase, 'COURSES_STATUS_', 'COURSES_STATUSES'],
         ]))
