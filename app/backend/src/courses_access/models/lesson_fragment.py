@@ -13,13 +13,6 @@ class LessonFragmentAccessManager(AccessManagerBase):
     def set_trial(self, lesson_fragment: LessonFragment, **kwargs):
         self.set_access(lesson_fragment=lesson_fragment, **kwargs)
 
-    def set_available_access(self, user: User, second_fragment: LessonFragment) -> models.Model:
-        return self.objects.set_access(
-            status=self.COURSES_STATUS_AVAILABLE,
-            lesson_fragment=second_fragment,
-            user=user,
-        )
-
 
 class LessonFragmentAccess(AccessBase):
     lesson_fragment = models.ForeignKey(LessonFragment, on_delete=models.CASCADE)

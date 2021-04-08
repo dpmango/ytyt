@@ -7,9 +7,9 @@ from api.mixins import (
     FlexibleSerializerModelViewSetMixin, ParamsAutoFilterModelViewSetMixin
 )
 from courses.api.course_theme.serializers import DefaultCourseThemeSerializers
-from courses.models import CourseTheme, Course
+from courses.models import CourseTheme, Course, CourseLesson
 from courses_access.common.models import AccessBase
-from courses_access.models import CourseThemeAccess
+from courses_access.models import CourseThemeAccess, CourseLessonAccess
 
 
 class CourseThemeViewSet(FlexibleSerializerModelViewSetMixin,
@@ -41,26 +41,22 @@ class CourseThemeViewSet(FlexibleSerializerModelViewSetMixin,
         """
         course_theme: CourseTheme = self.get_object()
         course: Course = course_theme.course
-
         themes = course.coursetheme_set.filter(order__lt=course_theme.order)
+
         if len(themes) == 0:
-            CourseThemeAccess.objects.set_access(
-                status=AccessBase.COURSES_STATUS_IN_PROGRESS, course_theme=course_theme, user=request.user
-            )
+            CourseThemeAccess.objects.set_access_with_lesson(course_theme, user=request.user)
 
         else:
-            previous_theme = max(themes, key=lambda theme: theme.order)
+            previous_theme = themes.latest('order')
             previous_theme_access = CourseThemeAccess.objects.filter(
                 course_theme=previous_theme, user=request.user, status=AccessBase.COURSES_STATUS_COMPLETED
             ).first()
 
             if previous_theme_access is None:
-                msg = 'Для доступа к теме `%s` необхожимо пройти тему `%s`' % (course_theme.title, previous_theme.title)
+                msg = 'Для доступа к теме `%s` необходимо пройти тему `%s`' % (course_theme.title, previous_theme.title)
                 return Response({'detail': msg}, status=status.HTTP_400_BAD_REQUEST)
 
-            CourseThemeAccess.objects.set_access(
-                status=AccessBase.COURSES_STATUS_IN_PROGRESS, course_theme=course_theme, user=request.user
-            )
+            CourseThemeAccess.objects.set_access_with_lesson(course_theme, user=request.user)
 
         serializer = DefaultCourseThemeSerializers(course_theme, context=self.get_serializer_context())
         return Response(serializer.data, status=status.HTTP_201_CREATED)
