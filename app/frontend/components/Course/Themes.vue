@@ -4,13 +4,34 @@
       <div class="back" @click="goBack">Вернуться к списку</div>
       <div class="list">
         <div v-for="theme in list" :key="theme.id" class="list__row">
-          <NuxtLink class="card" :to="`/course/${$route.params.id}/${theme.id}`">
+          <NuxtLink
+            class="card"
+            :class="[theme.status === 3 && 'is-compleated', theme.status === 4 && 'is-locked']"
+            :to="`/course/${$route.params.id}/${theme.id}`"
+          >
             <div class="card__num">{{ theme.id }}</div>
             <div class="card__content">
               <div class="card__title">{{ theme.title }}</div>
               <div class="card__description">{{ theme.description }}</div>
             </div>
-            <div class="card__status">TBD (status)</div>
+            <div class="card__status">
+              <template v-if="theme.status === 1">
+                <UiSvgIcon name="lock" />
+                <span>Доступен</span>
+              </template>
+              <template v-if="theme.status === 2">
+                <UiSvgIcon name="time" />
+                <span>В процессе</span>
+              </template>
+              <template v-if="theme.status === 3">
+                <UiSvgIcon name="checkmark" />
+                <span>Завершен</span>
+              </template>
+              <template v-if="theme.status === 4">
+                <UiSvgIcon name="lock" />
+                <span>Заблокирован</span>
+              </template>
+            </div>
           </NuxtLink>
         </div>
       </div>
@@ -56,6 +77,7 @@ export default {
 
 .card {
   display: flex;
+  align-items: flex-start;
   background: #fff;
   box-shadow: 0 6px 24px -4px rgba(23, 24, 24, 0.1);
   border-radius: 8px;
@@ -66,6 +88,7 @@ export default {
   }
   &__num {
     flex: 0 0 10px;
+    margin-top: 2px;
     font-size: 17px;
     line-height: 1.5;
     color: #939598;
@@ -77,9 +100,14 @@ export default {
   }
   &__status {
     flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    margin-top: 6px;
     font-size: 14px;
-    line-height: 150%;
-    opacity: 0.7;
+    line-height: 1;
+    .svg-icon {
+      margin-right: 8px;
+    }
   }
   &__title {
     font-weight: 500;
@@ -90,6 +118,21 @@ export default {
     margin-top: 6px;
     font-size: 14px;
     line-height: 1.5;
+  }
+  &.is-compleated {
+    border: 1px solid rgba(23, 24, 24, 0.15);
+    background: transparent;
+    box-shadow: none;
+    .card__status {
+      color: $colorGreen;
+    }
+  }
+  &.is-locked {
+    background: rgba(#fff, 0.6);
+    box-shadow: none;
+    .card__status {
+      color: rgba($fontColor, 0.7);
+    }
   }
 }
 </style>

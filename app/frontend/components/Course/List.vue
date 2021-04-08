@@ -9,8 +9,8 @@
             <div class="card__description">TBD - no need ? {{ course.description }}</div>
             <div class="card__cost">TBD {{ course.cost }} рублей</div>
             <div class="card__stats">
-              <span>0/0 уроков</span>
-              <span>5/7 заданий</span>
+              <span>{{ course.count_themes }} темы</span>
+              <span>{{ course.count_lessons }} урока</span>
             </div>
             <div class="card__progress">
               <div class="card__progress-inner" :style="{ width: '30%' }"></div>
