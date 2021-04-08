@@ -63,7 +63,7 @@ export default {
       if (this.href) {
         return 'a';
       } else if (this.to) {
-        return 'nuxt-link';
+        return 'NuxtLink';
       }
 
       return 'button';
@@ -130,7 +130,7 @@ export default {
     }
   }
   &.outline {
-    color: white;
+    color: $fontColor;
     background: transparent;
     border-color: $colorPrimary;
     &:hover {

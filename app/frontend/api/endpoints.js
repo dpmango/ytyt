@@ -9,8 +9,11 @@ export default {
     registration: '/rest-auth/registration/',
     verifyEmail: '/rest-auth/registration/verify-email/',
   },
-  courses: {
-    list: '/api/courses/',
-    search: '/api/search',
+  course: {
+    courses: '/api/courses/',
+    themes: '/api/courses/:id/themes/',
+    lessons: '/api/courses/:course_id/themes/:theme_id/lessons/',
+    lesson: '/api/courses/:course_id/themes/:theme_id/lessons/:fragment_id',
+    search: '/api/search/',
   },
 };

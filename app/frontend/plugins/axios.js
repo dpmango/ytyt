@@ -1,13 +1,15 @@
 /* eslint-disable no-console */
 
 // https://axios.nuxtjs.org/helpers
-export default function ({ $axios, $config, redirect }, inject) {
+export default function ({ $axios, store, $config, redirect }, inject) {
   const api = $axios.create({
     baseURL: $config.baseURL,
     headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-      'X-Requested-With': 'XMLHttpRequest',
+      common: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+      },
     },
   });
 
@@ -17,6 +19,9 @@ export default function ({ $axios, $config, redirect }, inject) {
   // Interceptors
   api.onRequest((x) => {
     console.log(`${x.method.toUpperCase()} | ${x.url}`, x.params, x.data);
+
+    const token = store.state.auth.token;
+    if (token) x.headers.common.Authorization = `JWT ${token}`;
 
     return x;
   });
