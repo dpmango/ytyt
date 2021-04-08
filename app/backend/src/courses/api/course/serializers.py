@@ -1,3 +1,4 @@
+from django.db.models import Count
 from rest_framework import serializers
 
 from courses.models import Course
@@ -14,7 +15,9 @@ class DefaultCourseSerializers(serializers.ModelSerializer):
         Метод возвращает общее количество урококов к курсу
         :param obj: Course
         """
-        return obj.coursetheme_set.all().prefetch_related('courselesson_set').values_list('courselesson').count()
+        themes = obj.coursetheme_set.all()
+        themes = themes.prefetch_related('courselesson_set')
+        return themes.aggregate(cnt=Count('courselesson')).get('cnt')
 
     @staticmethod
     def get_count_themes(obj: Course) -> int:
