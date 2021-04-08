@@ -7,7 +7,7 @@ from courses.models import Course, CourseTheme, CourseLesson, LessonFragment
 
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
-    pass
+    exclude = ('order', )
 
 
 @admin.register(CourseTheme)
