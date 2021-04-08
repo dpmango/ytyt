@@ -1,6 +1,7 @@
 <template>
   <div class="page">
-    <div class="page__content">
+    <LayoutHeader />
+    <div class="page__content header-pad">
       <Nuxt />
     </div>
   </div>
@@ -11,3 +12,9 @@ export default {
   middleware: ['auth'],
 };
 </script>
+
+<style lang="scss">
+.header-pad {
+  padding-top: 68px;
+}
+</style>

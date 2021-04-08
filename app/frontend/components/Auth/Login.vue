@@ -18,7 +18,7 @@
             @onChange="(v) => (email = v)"
           />
         </ValidationProvider>
-        <ValidationProvider v-slot="{ errors }" rules="required|min:8">
+        <ValidationProvider v-slot="{ errors }" rules="required">
           <UiInput
             :value="password"
             label="Пароль"
