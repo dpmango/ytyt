@@ -16,7 +16,7 @@ x-backend:
   restart: on-failure
   tty: true
   volumes:
-    - "../app/:/var/app"
+    - "../app/backend/:/var/app"
   environment:
     <<: *backend-env
 
