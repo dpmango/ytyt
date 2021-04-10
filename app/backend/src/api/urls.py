@@ -19,7 +19,6 @@ router.register(r'courses/(?P<course_id>\d+)/themes/(?P<course_theme_id>\d+)/les
 router.register(r'lessons-fragments', LessonFragmentViewSet, basename='lessons-fragments')
 
 
-# Wire up our API using automatic URL routing.
 urlpatterns = [
     path('api/', include(router.urls)),
     re_path(r'^rest-auth/', include('rest_auth.urls')),

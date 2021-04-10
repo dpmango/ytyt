@@ -1,6 +1,8 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from courses_access.models.course import CourseAccess
+from courses.models import Course
 
 
 class UserCreationForm(forms.ModelForm):
@@ -27,4 +29,10 @@ class UserCreationForm(forms.ModelForm):
         user.set_password(self.cleaned_data["password1"])
         if commit:
             user.save()
+
+        # При регистрации юзера даем ему триал-доступ к курсу
+        # Если проводилась регистрация персонала (Ревьюер), то предоставить полный доступ к курсу  # TODO:
+        course = Course.objects.first()
+        CourseAccess.objects.set_trial(course, user)
+
         return user

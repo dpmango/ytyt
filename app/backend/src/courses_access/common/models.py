@@ -5,11 +5,7 @@ from django.db import models
 from users.models import User
 
 
-class AccessBase(models.Model):
-    """
-    Базовй класс для получения доступа к любой модели из courses-app
-    """
-
+class AccessStatuses:
     COURSES_STATUS_AVAILABLE = 1
     COURSES_STATUS_IN_PROGRESS = 2
     COURSES_STATUS_COMPLETED = 3
@@ -22,8 +18,44 @@ class AccessBase(models.Model):
         (COURSES_STATUS_BLOCK, 'Заблокирован'),
     )
 
+    AVAILABLE_STATUSES = (
+        COURSES_STATUS_AVAILABLE,
+        COURSES_STATUS_IN_PROGRESS,
+        COURSES_STATUS_COMPLETED
+    )
+
+    COURSE_ACCESS_TYPE_TRIAL = 1
+    COURSE_ACCESS_TYPE_FULL_PAID = 2
+    COURSE_ACCESS_TYPE_FULL_UNPAID = 3
+    COURSE_ACCESS_TYPE_NONE = 4
+
+    COURSE_ACCESS_TYPES = (
+        (COURSE_ACCESS_TYPE_TRIAL, 'Пробный доступ'),
+        (COURSE_ACCESS_TYPE_FULL_PAID, 'Оплаченный доступ'),
+        (COURSE_ACCESS_TYPE_FULL_UNPAID, 'Полный неоплаченный доступ'),
+        (COURSE_ACCESS_TYPE_NONE, 'Без доступа'),
+    )
+
+    AVAILABLE_ACCESS_TYPES_FULL = (
+        COURSE_ACCESS_TYPE_FULL_PAID,
+        COURSE_ACCESS_TYPE_FULL_UNPAID
+    )
+
+    AVAILABLE_ACCESS_TYPES = (
+        *AVAILABLE_ACCESS_TYPES_FULL,
+        COURSE_ACCESS_TYPE_TRIAL
+    )
+
+
+class AccessBase(models.Model, AccessStatuses):
+    """
+    Базовй класс для получения доступа к любой модели из courses-app
+    """
+
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    status = models.PositiveSmallIntegerField('Статус', choices=COURSES_STATUSES, default=COURSES_STATUS_BLOCK)
+    status = models.PositiveSmallIntegerField(
+        'Статус', choices=AccessStatuses.COURSES_STATUSES, default=AccessStatuses.COURSES_STATUS_BLOCK
+    )
     date_created = models.DateTimeField('Дата создаения фрагмента', auto_now=True)
 
     class Meta:
@@ -40,6 +72,15 @@ class AccessManagerBase(models.Manager):
         """
         Обязательный метод для переопределения во всех наследуемых менеджерах
         Требуется для определения зависимостей и связей между бесплатным доступом к курсу
+        :param args: Аргументы для метода
+        :param kwargs: Ключевые аргументы для метода
+        """
+        pass
+
+    @abstractmethod
+    def check_permission(self, *args, **kwargs) -> bool:
+        """
+        Метод который проверяет необходимые доступы к моделям courses-app
         :param args: Аргументы для метода
         :param kwargs: Ключевые аргументы для метода
         """
@@ -68,9 +109,6 @@ class AccessManagerBase(models.Manager):
         model = self.get(**{self._get_obj_name(obj): obj, 'user': user})
         model.status = status
         return model.save(update_fields=['status'])
-
-    def is_accessible(self, **kwargs) -> bool:
-        return self.filter(**kwargs).exists()
 
     def _get_obj_name(self, obj):
         return self._to_snake_case(obj.__class__.__name__)

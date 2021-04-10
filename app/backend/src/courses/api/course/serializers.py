@@ -2,10 +2,10 @@ from django.db.models import Count
 from rest_framework import serializers
 
 from courses.models import Course
-from courses_access.common.serializers import AccessBaseSerializers
+from courses_access.common.serializers import AccessSerializers
 
 
-class DefaultCourseSerializers(serializers.ModelSerializer):
+class DefaultCourseSerializers(AccessSerializers):
     count_lessons = serializers.SerializerMethodField()
     count_themes = serializers.SerializerMethodField()
 
@@ -29,10 +29,10 @@ class DefaultCourseSerializers(serializers.ModelSerializer):
 
     class Meta:
         model = Course
-        fields = '__all__'
+        exclude = ('order', )
 
 
-class DetailCourseSerializers(AccessBaseSerializers):
+class DetailCourseSerializers(AccessSerializers):
     class Meta:
         model = Course
-        fields = '__all__'
+        exclude = ('order', )

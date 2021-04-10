@@ -3,11 +3,14 @@ from rest_auth import serializers as rest_auth_serializers
 from rest_auth.registration import serializers as rest_auth_registration_serializers
 from rest_framework import serializers
 
+from courses.models import Course
+from courses_access.models.course import CourseAccess
 
 User = get_user_model()
 
 
 class UserDetailSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = User
         fields = (
@@ -18,6 +21,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
 
 
 class PasswordResetSerializer(rest_auth_serializers.PasswordResetSerializer):
+
     def get_email_options(self):
         """Override this method to change default e-mail options"""
         request = self.context.get('request')
@@ -28,6 +32,7 @@ class PasswordResetSerializer(rest_auth_serializers.PasswordResetSerializer):
 
 
 class PasswordChangeSerializer(rest_auth_serializers.PasswordChangeSerializer):
+
     def validate_old_password(self, value):
         invalid_password_conditions = (
             self.old_password_field_enabled,
@@ -41,4 +46,12 @@ class PasswordChangeSerializer(rest_auth_serializers.PasswordChangeSerializer):
 
 
 class RegisterSerializer(rest_auth_registration_serializers.RegisterSerializer):
-    pass
+
+    def save(self, request):
+        user = super().save(request)
+
+        # При регистрации юзера даем триал-доступ к курсу
+        course = Course.objects.first()
+        CourseAccess.objects.set_trial(course, user)
+
+        return user

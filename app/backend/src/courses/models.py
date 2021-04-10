@@ -28,7 +28,6 @@ class Course(CourseBase):
 class CourseTheme(CourseBase):
     course = models.ForeignKey(Course, on_delete=models.PROTECT)
     title = models.CharField('Название темы', max_length=1000)
-    description = models.TextField('Описание темы', null=True, blank=True)
     free_access = models.BooleanField('Бесплатный доступ', default=False)
 
     class Meta(CourseBase.Meta):
@@ -42,7 +41,8 @@ class CourseTheme(CourseBase):
 class CourseLesson(CourseBase):
     course_theme = models.ForeignKey(CourseTheme, on_delete=models.PROTECT)
     title = models.CharField('Название урока', max_length=1000)
-    description = MarkdownxField('Описание урока')
+    description = models.CharField('Описание урока', max_length=1000)
+    content = MarkdownxField('Содержание урока')
 
     class Meta(CourseBase.Meta):
         verbose_name = 'Урок'
@@ -51,29 +51,23 @@ class CourseLesson(CourseBase):
     def __str__(self):
         return '%s' % self.title
 
-    def get_description(self) -> str:
-        return markdownify(self.description)
-
-    def get_text_description(self):
-        return ''.join(BeautifulSoup(self.get_description(), features='html.parser').findAll(text=True))
-
 
 class LessonFragment(models.Model):
     course_lesson = models.ForeignKey(CourseLesson, on_delete=models.CASCADE)
     title = models.CharField('Название фрагмента урока', max_length=1000, null=True, blank=True)
-    description = MarkdownxField('Фрагмент урока', null=True, blank=True)
+    content = MarkdownxField('Содержание фрагмента', null=True, blank=True)
     date_created = models.DateTimeField('Дата создаения фрагмента', auto_now=True)
 
     class Meta:
         verbose_name = 'Фрагмент урока'
         verbose_name_plural = 'Фрагменты урока'
-        ordering = ('-date_created', )
+        ordering = ('date_created', )
 
     def __str__(self):
         return '%s' % self.title[:30]
 
-    def get_description(self) -> str:
-        return markdownify(self.description)  # TODO: Проверить наличие ошибки при пустом описании
+    def get_content(self) -> str:
+        return markdownify(self.content)  # TODO: Проверить наличие ошибки при пустом описании
 
-    def get_text_description(self):
-        return ''.join(BeautifulSoup(self.get_description(), features='html.parser').findAll(text=True))
+    def get_text_content(self):
+        return ''.join(BeautifulSoup(self.content(), features='html.parser').findAll(text=True))

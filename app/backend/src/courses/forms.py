@@ -12,18 +12,17 @@ class CourseLessonCreationForm(forms.ModelForm):
         3. Метод удаляет лишние объекты фрагментов, если новых фрагментов текста меньше
         :param commit: Фиксировать ли изменения
         """
-
         obj = super().save(commit=False)
         obj.save()
 
         instance: CourseLesson = self.instance
-        if 'description' not in self.changed_data:
+        if 'content' not in self.changed_data:
             return obj
 
-        description = markdownify(self.cleaned_data['description'])
+        content = markdownify(self.cleaned_data['content'])
 
-        split_tag_start_ids = self.get_tag_ids(description, self.Meta.split_tag_start)
-        split_tag_end_ids = self.get_tag_ids(description, self.Meta.split_tag_end)
+        split_tag_start_ids = self.get_tag_ids(content, self.Meta.split_tag_start)
+        split_tag_end_ids = self.get_tag_ids(content, self.Meta.split_tag_end)
 
         lesson_fragments = list(instance.lessonfragment_set.all().order_by('date_created'))
         for i in range(len(split_tag_start_ids)):
@@ -31,12 +30,12 @@ class CourseLessonCreationForm(forms.ModelForm):
             start_tag_idx = split_tag_start_ids[i]
             end_tag_idx = split_tag_end_ids[i]
 
-            title = description[start_tag_idx + len(self.Meta.split_tag_start):end_tag_idx]
+            title = content[start_tag_idx + len(self.Meta.split_tag_start):end_tag_idx]
 
             try:
-                fragment_description = description[start_tag_idx: split_tag_start_ids[i+1]]
+                fragment_content = content[start_tag_idx: split_tag_start_ids[i+1]]
             except IndexError:
-                fragment_description = description[start_tag_idx:]
+                fragment_content = content[start_tag_idx:]
 
             try:
                 lesson_fragment_to_update = lesson_fragments[i]
@@ -44,7 +43,7 @@ class CourseLessonCreationForm(forms.ModelForm):
                 lesson_fragment_to_update = LessonFragment.objects.create(course_lesson=instance)
 
             lesson_fragment_to_update.title = title
-            lesson_fragment_to_update.description = fragment_description
+            lesson_fragment_to_update.content = fragment_content
             lesson_fragment_to_update.save()
 
         if len(split_tag_start_ids) < len(lesson_fragments):

@@ -2,7 +2,7 @@ from django.db.models import Q
 from drf_yasg.openapi import Parameter, IN_QUERY, TYPE_STRING
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import viewsets, status
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 
 from api.mixins import FlexibleSerializerModelViewSetMixin
@@ -14,7 +14,7 @@ class SearchViewSet(FlexibleSerializerModelViewSetMixin,
                     viewsets.mixins.ListModelMixin,
                     viewsets.GenericViewSet):
 
-    permission_classes = (AllowAny, )
+    permission_classes = (IsAuthenticatedOrReadOnly, )
     serializers = {
         'default': DefaultCourseSearchSerializers
     }

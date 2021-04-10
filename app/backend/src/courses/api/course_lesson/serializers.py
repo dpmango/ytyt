@@ -1,6 +1,8 @@
 from rest_framework import serializers
 
-from courses.api.lesson_fragment.serializers import DefaultLessonFragmentSerializers
+from courses.api.lesson_fragment.serializers import (
+    DetailLessonFragmentSerializers, DefaultLessonFragmentSerializers
+)
 from courses.models import CourseLesson
 from courses_access.common.serializers import AccessBaseSerializers
 from courses_access.models.lesson_fragment import LessonFragmentAccess
@@ -9,23 +11,19 @@ from courses_access.models.lesson_fragment import LessonFragmentAccess
 class DefaultCourseLessonSerializers(AccessBaseSerializers):
     class Meta:
         model = CourseLesson
-        exclude = ('description', )
+        exclude = ('content', 'order', 'course_theme')
 
 
 class DetailCourseLessonSerializers(DefaultCourseLessonSerializers):
-    count_lesson_fragments = serializers.SerializerMethodField()
-    lesson_fragments = serializers.SerializerMethodField()
-    description = serializers.SerializerMethodField()
+    lesson_fragments = DefaultLessonFragmentSerializers(source='lessonfragment_set', many=True)
+    accessible_lesson_fragments = serializers.SerializerMethodField()
 
-    @staticmethod
-    def get_description(obj: CourseLesson) -> str:
-        return obj.get_description()
-
-    def get_lesson_fragments(self, obj: CourseLesson) -> list:
+    def get_accessible_lesson_fragments(self, obj: CourseLesson) -> list:
         """
         Метод вернет все доступные фрагменты курса для пользователя
         :param obj: CourseLesson
         """
+        # TODO: Если у юзера есть доступ к курсу, то вернуть все фрагменты
         access_fragments = LessonFragmentAccess.objects.filter(
             lesson_fragment__course_lesson=obj, user=self.context.get('user')
         )
@@ -33,16 +31,8 @@ class DetailCourseLessonSerializers(DefaultCourseLessonSerializers):
         access_fragments = access_fragments.select_related('lesson_fragment')
         access_fragments = [f.lesson_fragment for f in access_fragments]
 
-        return DefaultLessonFragmentSerializers(access_fragments, many=True, context=self.context).data
-
-    @staticmethod
-    def get_count_lesson_fragments(obj: CourseLesson) -> int:
-        """
-        Метод возвращает общее количество фрагментов к уроку
-        :param obj: CourseLesson
-        """
-        return obj.lessonfragment_set.count()
+        return DetailLessonFragmentSerializers(access_fragments, many=True, context=self.context).data
 
     class Meta:
         model = CourseLesson
-        fields = '__all__'
+        exclude = ('content', 'order')

@@ -1,8 +1,8 @@
 from courses.models import CourseTheme
-from courses_access.common.serializers import AccessBaseSerializers
+from courses_access.common.serializers import AccessSerializers
 
 
-class DefaultCourseThemeSerializers(AccessBaseSerializers):
+class DefaultCourseThemeSerializers(AccessSerializers):
     class Meta:
         model = CourseTheme
-        exclude = ('course', 'free_access')
+        exclude = ('course', 'free_access', 'order')

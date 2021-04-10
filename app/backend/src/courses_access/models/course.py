@@ -22,31 +22,35 @@ class CourseAccessManager(AccessManagerBase):
             - LessonFragment.first()
         Метод по очереди вызывает `set_trial` из нужного класса и предоставляет доступ для юзера
         """
-        status = AccessBase.COURSES_STATUS_AVAILABLE
-        course_access, _ = CourseAccess.objects.get_or_create(
-            access_type=CourseAccess.COURSE_ACCESS_TYPE_TRIAL, status=status, course=course, user=user,
+        status = self.model.COURSES_STATUS_AVAILABLE
+        course_access, _ = self.model.objects.get_or_create(
+            access_type=self.model.COURSE_ACCESS_TYPE_TRIAL, status=status, course=course, user=user,
         )
         course_theme = course.coursetheme_set.filter(free_access=True).first()
         if course_theme:
             CourseThemeAccess.objects.set_trial(course_theme=course_theme, user=user, status=status)
 
+    def check_permission(self, course_id, user) -> bool:
+        """
+        Метод проверяет наличие любого доступа к курсу
+        :param course_id: ID курса для проверки
+        :param user: User
+        """
+        course_access = self.filter(course_id=course_id, user=user).first()
+        if not course_access:
+            return False
+
+        return bool(
+            course_access.access_type in AccessBase.AVAILABLE_ACCESS_TYPES and
+            course_access.status in AccessBase.AVAILABLE_STATUSES
+        )
+
 
 class CourseAccess(AccessBase):
-    COURSE_ACCESS_TYPE_TRIAL = 1
-    COURSE_ACCESS_TYPE_FULL_PAID = 2  # TODO: При сохранении из админки не давать доступ к добавлению этого параметра
-    COURSE_ACCESS_TYPE_FULL_UNPAID = 3
-
-    COURSE_ACCESS_TYPES = (
-        (COURSE_ACCESS_TYPE_TRIAL, 'Пробный'),
-        (COURSE_ACCESS_TYPE_FULL_PAID, 'Полный оплаченный'),
-        (COURSE_ACCESS_TYPE_FULL_UNPAID, 'Полный неоплаченный'),
-    )
-
-    access_type = models.PositiveSmallIntegerField(
-        'Тип доступа', choices=COURSE_ACCESS_TYPES, default=COURSE_ACCESS_TYPE_TRIAL
-    )
-
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    access_type = models.PositiveSmallIntegerField(
+        'Тип доступа', choices=AccessBase.COURSE_ACCESS_TYPES, default=AccessBase.COURSE_ACCESS_TYPE_TRIAL
+    )
     objects = CourseAccessManager()
 
     class Meta(AccessBase.Meta):
