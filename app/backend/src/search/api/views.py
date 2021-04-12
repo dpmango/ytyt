@@ -19,11 +19,21 @@ class SearchViewSet(FlexibleSerializerModelViewSetMixin,
         'default': DefaultCourseSearchSerializers
     }
 
+    def get_serializer_context(self):
+        return {
+            **super().get_serializer_context(),
+            'user': self.request.user,
+        }
+
     @swagger_auto_schema(manual_parameters=[Parameter('text', IN_QUERY, type=TYPE_STRING)])
     def list(self, request, *args, **kwargs):
         """
         Поиск по фрагментам урока
         """
+
+        serializer = self.get_serializer_class()
+        context = self.get_serializer_context()
+
         query_text = request.query_params.get('text', '')
         if len(query_text) == 0:
             return Response([], status=status.HTTP_200_OK)
@@ -32,10 +42,10 @@ class SearchViewSet(FlexibleSerializerModelViewSetMixin,
         query = Q()
 
         for text in query_text:
-            query |= Q(description__icontains=text) | Q(title__icontains=text)
+            query |= Q(content__icontains=text) | Q(title__icontains=text)
 
         queryset = LessonFragment.objects.filter(query)
-        queryset = queryset.distinct('id').select_related('course_lesson', 'course_lesson__course_theme')
+        queryset = queryset.select_related('course_lesson', 'course_lesson__course_theme')
+        queryset = queryset.distinct('course_lesson_id').order_by('course_lesson_id')
 
-        serializer = self.get_serializer_class()
-        return Response(serializer(queryset, many=True).data, status=status.HTTP_200_OK)
+        return Response(serializer(queryset, many=True, context=context).data, status=status.HTTP_200_OK)

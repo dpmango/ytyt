@@ -4,7 +4,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from api.mixins import (
     FlexibleSerializerModelViewSetMixin, ParamsAutoFilterModelViewSetMixin
 )
-from courses.api.course_theme.serializers import DefaultCourseThemeSerializers
+from courses.api.course_theme.serializers import CourseThemeWithStatsSerializers
 from courses.models import CourseTheme
 
 
@@ -18,7 +18,7 @@ class CourseThemeViewSet(FlexibleSerializerModelViewSetMixin,
     lookup_mapping = {'course_id': 'course_id', 'pk': 'pk'}
 
     serializers = {
-        'default': DefaultCourseThemeSerializers
+        'default': CourseThemeWithStatsSerializers
     }
 
     def get_serializer_context(self):

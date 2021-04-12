@@ -8,6 +8,12 @@ from courses_access.models import CourseLessonAccess
 
 
 class DefaultCourseThemeSerializers(AccessSerializers):
+    class Meta:
+        model = CourseTheme
+        exclude = ('course', 'free_access', 'order')
+
+
+class CourseThemeWithStatsSerializers(DefaultCourseThemeSerializers):
     count_lessons = serializers.SerializerMethodField()
     completed_count_lessons = serializers.SerializerMethodField()
 
