@@ -14,7 +14,6 @@ from courses_access.permissions import LessonFragmentAccessPermissions
 
 
 class LessonFragmentViewSet(FlexibleSerializerModelViewSetMixin,
-                            viewsets.mixins.ListModelMixin,
                             viewsets.GenericViewSet):
 
     queryset = LessonFragment.objects.all()
