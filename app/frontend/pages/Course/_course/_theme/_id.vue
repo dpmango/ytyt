@@ -45,8 +45,11 @@ export default {
 
           return res;
         })
-        .catch((_err) => {
-          this.$toast.error(_err);
+        .catch((err) => {
+          if (err.code === 403) {
+            this.$toast.error(err.data.detail);
+            this.$router.push('/payment');
+          }
         });
 
       return responce;

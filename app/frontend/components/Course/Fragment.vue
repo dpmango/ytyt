@@ -71,8 +71,8 @@
                   <div class="lesson__body" v-html="fragment.content"></div>
 
                   <div class="lesson__actions">
-                    <UiButton :disabled="!isNextAvailable" @click.prevent="setNextFragment">Продолжить</UiButton>
-                    <UiButton :disabled="true" theme="outline">Задать вопрос куратору</UiButton>
+                    <UiButton @click.prevent="setNextFragment">Продолжить</UiButton>
+                    <!-- <UiButton :disabled="true" theme="outline">Задать вопрос куратору</UiButton> -->
                   </div>
                 </div>
               </template>
@@ -121,17 +121,26 @@ export default {
     },
   },
   created() {
-    this.activeSection = this.data.lesson_fragments[0].id;
+    // getting current user fragment from props
+    const activeFragment = this.data.accessible_lesson_fragments.find((frag) => frag.status === 1);
+
+    if (activeFragment) {
+      this.activeSection = activeFragment.id;
+    } else {
+      this.activeSection = this.data.accessible_lesson_fragments[0].id;
+    }
   },
   methods: {
     async setNextFragment() {
-      if (this.isNextAvailable) {
-        await this.requestFragment({
-          id: this.activeSection,
-        }).then((res) => {
+      await this.requestFragment({
+        id: this.activeSection,
+      }).then((res) => {
+        if (this.isNextAvailable) {
           this.activeSection = res.id;
-        });
-      }
+        } else {
+          console.log('end of lesson');
+        }
+      });
     },
     setFragment(id) {
       this.activeSection = id;
