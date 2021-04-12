@@ -6,7 +6,7 @@ from courses.api.lesson_fragment.serializers import (
 from courses.models import CourseLesson
 from courses_access.common.models import AccessBase
 from courses_access.common.serializers import AccessBaseSerializers
-from courses_access.models.lesson_fragment import LessonFragmentAccess
+from courses_access.models import LessonFragmentAccess, CourseLessonAccess, CourseThemeAccess
 
 
 class DefaultCourseLessonSerializers(AccessBaseSerializers):
@@ -47,6 +47,26 @@ class DetailCourseLessonSerializers(DefaultCourseLessonSerializers):
         ).count()
 
         return completed_fragments / fragments * 100
+
+    def to_representation(self, instance: CourseLesson):
+        """
+        Переопределенный метод сериализации объекта
+        Метод дополнительно изменяет статус доступа к уроку и к теме на "В процессе", если он был "Доступен"
+        :param instance: CourseLesson
+        """
+        user = self.context.get('user')
+        course_access = CourseLessonAccess.objects.filter(user=user, course_lesson=instance).first()
+
+        if course_access and course_access.status == AccessBase.COURSES_STATUS_AVAILABLE:
+            course_access.status = AccessBase.COURSES_STATUS_IN_PROGRESS
+            course_access.save(update_fields=['status'])
+
+        theme_access = CourseThemeAccess.objects.filter(user=user, course_theme=instance.course_theme).first()
+        if theme_access and theme_access.status == AccessBase.COURSES_STATUS_AVAILABLE:
+            theme_access.status = AccessBase.COURSES_STATUS_IN_PROGRESS
+            theme_access.save(update_fields=['status'])
+
+        return super().to_representation(instance)
 
     class Meta:
         model = CourseLesson

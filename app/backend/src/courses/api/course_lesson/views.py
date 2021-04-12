@@ -30,3 +30,5 @@ class CourseLessonViewSet(FlexibleSerializerModelViewSetMixin,
             **super().get_serializer_context(),
             'user': self.request.user,
         }
+
+    # def retrieve(self):
