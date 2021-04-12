@@ -23,4 +23,30 @@ class CourseLessonAdmin(SortableAdminMixin, admin.ModelAdmin):
 
 @admin.register(LessonFragment)
 class LessonFragmentAdmin(admin.ModelAdmin):
-    pass
+
+    list_display = ('get_theme_title', 'get_lesson_title', 'title', 'date_created', 'date_updated')
+    list_display_links = ('title', 'date_created', 'date_updated')
+    search_fields = (
+        'course_lesson__description',
+        'course_lesson__title',
+        'content',
+        'title',
+    )
+    ordering = (
+        'course_lesson__course_theme__order',
+        'course_lesson__order',
+        'date_created',
+        'date_updated'
+    )
+
+    list_filter = ('course_lesson', )
+    list_per_page = 10
+
+    def get_lesson_title(self, obj: LessonFragment):
+        return obj.course_lesson.title
+    get_lesson_title.short_description = 'Название урока'
+
+    def get_theme_title(self, obj: LessonFragment):
+        return obj.course_lesson.course_theme.title
+    get_theme_title.short_description = 'Название Темы'
+
