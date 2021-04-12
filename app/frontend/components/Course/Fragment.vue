@@ -96,6 +96,7 @@
 export default {
   props: {
     data: Object,
+    requestFragment: Function,
   },
   data() {
     return {
@@ -123,13 +124,17 @@ export default {
     this.activeSection = this.data.lesson_fragments[0].id;
   },
   methods: {
+    async setNextFragment() {
+      if (this.isNextAvailable) {
+        await this.requestFragment({
+          id: this.activeSection,
+        }).then((res) => {
+          this.activeSection = res.id;
+        });
+      }
+    },
     setFragment(id) {
       this.activeSection = id;
-    },
-    setNextFragment() {
-      if (this.isNextAvailable) {
-        this.setFragment(this.activeSection + 1);
-      }
     },
     setPrevFragment() {
       if (this.isPrevAvailable) {
