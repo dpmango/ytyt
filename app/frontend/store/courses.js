@@ -1,4 +1,4 @@
-import { listService, themesService, lessonsService, lessonService } from '~/api/courses';
+import { listService, themesService, lessonsService, lessonService, compleateService } from '~/api/courses';
 
 export const state = () => ({
   courses: [],
@@ -58,6 +58,15 @@ export const actions = {
   },
   async lesson({ commit }, request) {
     const [err, result] = await lessonService(this.$api, request);
+
+    if (err) throw err;
+
+    // commit('setThemes', { course_id: request.id, themes: result });
+
+    return result;
+  },
+  async compleate({ commit }, request) {
+    const [err, result] = await compleateService(this.$api, request);
 
     if (err) throw err;
 

@@ -1,16 +1,26 @@
 <template>
-  <div class="themes">
+  <div class="list">
     <div class="container">
-      <div class="back" @click="goBack">Вернуться к списку</div>
-      <div class="list">
-        <div v-for="theme in list" :key="theme.id" class="list__row">
-          <NuxtLink class="card" :to="`/course/${$route.params.id}/${theme.id}`">
-            <div class="card__num">{{ theme.id }}</div>
-            <div class="card__content">
-              <div class="card__title">{{ theme.title }}</div>
-              <div class="card__description">{{ theme.description }}</div>
+      <div class="row">
+        <div v-for="theme in list" :key="theme.id" class="col col-3 col-lg-4 col-md-6 col-sm-12">
+          <NuxtLink
+            class="card"
+            :class="[theme.status === 3 && 'is-compleated', theme.status === 4 && 'is-locked']"
+            :to="`/course/${$route.params.id}/${theme.id}`"
+          >
+            <div class="card__status">
+              <CoursePartStatus :status="theme.status" />
             </div>
-            <div class="card__status">TBD (status)</div>
+            <div class="card__title">{{ theme.title }}</div>
+            <div class="card__description">{{ theme.description }}</div>
+
+            <!-- <div class="card__stats">
+              <span>{{ theme.count_themes }} темы</span>
+              <span>{{ theme.count_lessons }} урока</span>
+            </div>
+            <div class="card__progress">
+              <div class="card__progress-inner" :style="{ width: '30%' }"></div>
+            </div> -->
           </NuxtLink>
         </div>
       </div>
@@ -23,73 +33,75 @@ export default {
   props: {
     list: Array,
   },
-  methods: {
-    goBack() {
-      return this.$router.go(-1);
-    },
-  },
 };
 </script>
 
 <style lang="scss" scoped>
-.themes {
-  padding-top: 24px;
-}
-
-.back {
-  font-size: 14px;
-  line-height: 1.5;
-  color: $colorPrimary;
-  cursor: pointer;
-  transition: color 0.25s $ease;
-  &:hover {
-    color: $fontColor;
-  }
-}
-
 .list {
   padding-top: 24px;
-  &__row {
-    margin-bottom: 8px;
-  }
 }
 
 .card {
   display: flex;
+  flex-direction: column;
   background: #fff;
   box-shadow: 0 6px 24px -4px rgba(23, 24, 24, 0.1);
   border-radius: 8px;
-  padding: 14px 20px;
+  padding: 18px 16px;
   transition: box-shadow 0.25s $ease;
   &:hover {
     box-shadow: 0 8px 26px -2px rgba(23, 24, 24, 0.18);
   }
-  &__num {
-    flex: 0 0 10px;
-    font-size: 17px;
-    line-height: 1.5;
-    color: #939598;
-  }
-  &__content {
-    flex: 1 1 auto;
-    padding-left: 20px;
-    padding-right: 20px;
-  }
-  &__status {
-    flex: 0 0 auto;
-    font-size: 14px;
-    line-height: 150%;
-    opacity: 0.7;
-  }
   &__title {
+    margin-top: 8px;
     font-weight: 500;
     font-size: 17px;
-    line-height: 1.5;
+    line-height: 1.35;
   }
   &__description {
-    margin-top: 6px;
+    margin-top: 8px;
     font-size: 14px;
     line-height: 1.5;
+    opacity: 0.7;
+  }
+  &__stats {
+    margin-top: auto;
+    padding-top: 34px;
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    line-height: 1.5;
+    span {
+      margin-right: 16px;
+      &:last-child {
+        margin-right: 0;
+      }
+    }
+  }
+  &__progress {
+    position: relative;
+    margin-top: 6px;
+    background: rgba(23, 24, 24, 0.08);
+    border-radius: 12px;
+    height: 6px;
+    font-size: 0;
+  }
+  &__progress-inner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    background: linear-gradient(270deg, #00dd58 0%, #00ad45 100%);
+    border-radius: 12px;
+  }
+  &.is-compleated {
+    border: 1px solid rgba(23, 24, 24, 0.15);
+    background: transparent;
+    box-shadow: none;
+  }
+  &.is-locked {
+    background: rgba(#fff, 0.6);
+    box-shadow: none;
   }
 }
 </style>
