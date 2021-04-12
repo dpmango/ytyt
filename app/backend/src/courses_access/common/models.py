@@ -86,7 +86,7 @@ class AccessManagerBase(models.Manager):
         """
         pass
 
-    def get_status(self, obj: models.Model, user: User, ) -> int:
+    def get_status(self, obj: models.Model, user: User) -> int:
         """
         Метод возвращает статус доступа к модели из courses-app
         :param obj: Объект к которому проверяется доступ
