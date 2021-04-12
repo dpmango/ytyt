@@ -13,7 +13,8 @@ export default {
     courses: '/api/courses/',
     themes: '/api/courses/:id/themes/',
     lessons: '/api/courses/:course_id/themes/:theme_id/lessons/',
-    lesson: '/api/courses/:course_id/themes/:theme_id/lessons/:fragment_id',
+    lesson: '/api/courses/:course_id/themes/:theme_id/lessons/:fragment_id/',
+    complete: '/api/lessons-fragments/:id/completed/',
     search: '/api/search/',
   },
 };

@@ -3,14 +3,20 @@
     <div class="container">
       <div class="row">
         <div v-for="course in list" :key="course.id" class="col col-3 col-lg-4 col-md-6 col-sm-12">
-          <NuxtLink class="card" :to="`/course/${course.id}`">
-            <div class="card__status">TBD (status)</div>
-            <div class="card__title">{{ course.title }}</div>
-            <div class="card__description">TBD - no need ? {{ course.description }}</div>
-            <div class="card__cost">TBD {{ course.cost }} рублей</div>
+          <NuxtLink
+            class="card"
+            :class="[course.status === 3 && 'is-compleated', course.status === 4 && 'is-locked']"
+            :to="`/course/${course.id}`"
+          >
+            <div class="card__status">
+              <CoursePartStatus :status="course.status" />
+            </div>
+            <div class="card__title">{{ course.title }} ({{ course.cost }} Р)</div>
+            <div class="card__description">{{ course.description }}</div>
+
             <div class="card__stats">
-              <span>0/0 уроков</span>
-              <span>5/7 заданий</span>
+              <span>{{ course.count_themes }} темы</span>
+              <span>{{ course.count_lessons }} урока</span>
             </div>
             <div class="card__progress">
               <div class="card__progress-inner" :style="{ width: '30%' }"></div>
@@ -46,11 +52,6 @@ export default {
   &:hover {
     box-shadow: 0 8px 26px -2px rgba(23, 24, 24, 0.18);
   }
-  &__status {
-    font-size: 14px;
-    line-height: 150%;
-    opacity: 0.7;
-  }
   &__title {
     margin-top: 8px;
     font-weight: 500;
@@ -58,13 +59,10 @@ export default {
     line-height: 1.35;
   }
   &__description {
+    margin-top: 8px;
     font-size: 14px;
     line-height: 1.5;
     opacity: 0.7;
-  }
-  &__cost {
-    font-size: 14px;
-    line-height: 1.5;
   }
   &__stats {
     margin-top: auto;
@@ -95,6 +93,15 @@ export default {
     bottom: 0;
     background: linear-gradient(270deg, #00dd58 0%, #00ad45 100%);
     border-radius: 12px;
+  }
+  &.is-compleated {
+    border: 1px solid rgba(23, 24, 24, 0.15);
+    background: transparent;
+    box-shadow: none;
+  }
+  &.is-locked {
+    background: rgba(#fff, 0.6);
+    box-shadow: none;
   }
 }
 </style>

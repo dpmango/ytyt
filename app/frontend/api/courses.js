@@ -47,3 +47,13 @@ export const lessonService = async ($api, request) => {
     return [mapApiError(error), null];
   }
 };
+
+export const compleateService = async ($api, request) => {
+  try {
+    const { data } = await $api.post(endpoints.course.complete.replace(':id', request.id));
+
+    return [null, mapData(data)];
+  } catch (error) {
+    return [mapApiError(error), null];
+  }
+};
