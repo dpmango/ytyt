@@ -5,7 +5,9 @@
         <NuxtLink to="/" class="header__logo">
           <img src="~/assets/img/logo-simple.png" srcset="~/assets/img/logo-simple@2x.png 2x" alt="logo" />
         </NuxtLink>
-        <div class="header__search"><UiInput placeholder="Поиск..." /></div>
+        <div class="header__search">
+          <CourseSearch />
+        </div>
         <div class="header__user">
           <div class="header__user-details" @click="handleTestGetUser">{{ userEmail }}</div>
           <div class="header__user-avatar" @click="handleLogout"></div>

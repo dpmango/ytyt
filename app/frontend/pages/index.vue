@@ -5,7 +5,7 @@
 <script>
 export default {
   async asyncData({ params, store, error }) {
-    const list = await store.dispatch('courses/list');
+    const list = await store.dispatch('courses/courses');
 
     return { list };
   },
