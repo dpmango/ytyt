@@ -1,5 +1,5 @@
 <template>
-  <CourseList :list="list" />
+  <CourseCourses :list="list" />
 </template>
 
 <script>

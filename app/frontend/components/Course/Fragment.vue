@@ -4,7 +4,7 @@
     <div class="container">
       <div class="lesson__wrapper">
         <div class="lesson__sidebar sidebar">
-          <div class="back" @click="goBack">Вернуться к списку уроков</div>
+          <LayoutBack title="Вернуться к списку уроков" />
 
           <div class="sidebar__box">
             <div class="sidebar__progress">
@@ -26,7 +26,10 @@
               </div>
             </div>
             <div class="sidebar__question">
-              <a href="#">Задать вопрос</a>
+              <a href="#">
+                <UiSvgIcon name="question-filled" />
+                <span>Задать вопрос куратору</span>
+              </a>
             </div>
           </div>
         </div>
@@ -37,28 +40,46 @@
               <div class="lesson__nav nav">
                 <div class="nav__title">{{ activeSection }}/{{ sectionsCount }}</div>
                 <div class="nav__actions">
-                  <a href="#" :class="[!isPrevAvailable && 'disabled']" @click.prevent="setPrevFragment"
-                    >&lt; предидущий</a
+                  <a
+                    href="#"
+                    class="nav__actions-prev"
+                    :class="[!isPrevAvailable && 'disabled']"
+                    @click.prevent="setPrevFragment"
                   >
-                  <a href="#" :class="[!isNextAvailable && 'disabled']" @click.prevent="setNextFragment"
-                    >следующий &gt;</a
+                    <UiSvgIcon name="arrow-left-filled" />
+                    <span>предидущий</span>
+                  </a>
+                  <a
+                    href="#"
+                    class="nav__actions-next"
+                    :class="[!isNextAvailable && 'disabled']"
+                    @click.prevent="setNextFragment"
                   >
+                    <span>следующий</span>
+                    <UiSvgIcon name="arrow-right-filled" />
+                  </a>
                 </div>
               </div>
 
-              <div
-                v-for="section in sections"
-                :key="section.id"
-                class="lesson__section"
-                :class="[section.id === activeSection && 'is-active']"
-              >
-                <div class="lesson__body" v-html="section.description"></div>
+              <template v-if="fragmentVisible">
+                <div
+                  v-for="fragment in fragmentVisible"
+                  :key="fragment.id"
+                  class="lesson__section"
+                  :class="[fragment.id === activeSection && 'is-active']"
+                >
+                  <div class="lesson__body" v-html="fragment.content"></div>
 
-                <div class="lesson__actions">
-                  <UiButton :disabled="!isNextAvailable" @click.prevent="setNextFragment">Продолжить</UiButton>
-                  <UiButton theme="outline">Задать вопрос куратору</UiButton>
+                  <div class="lesson__actions">
+                    <UiButton :disabled="!isNextAvailable" @click.prevent="setNextFragment">Продолжить</UiButton>
+                    <UiButton :disabled="true" theme="outline">Задать вопрос куратору</UiButton>
+                  </div>
                 </div>
-              </div>
+              </template>
+
+              <template v-else>
+                <UiLoader :loading="true" theme="block" />
+              </template>
             </template>
 
             <template v-else>
@@ -94,14 +115,14 @@ export default {
     isPrevAvailable() {
       return this.activeSection > 1;
     },
+    fragmentVisible() {
+      return this.data.accessible_lesson_fragments;
+    },
   },
   created() {
     this.activeSection = this.data.lesson_fragments[0].id;
   },
   methods: {
-    getFragment(id) {
-      return this.sections.find((x) => x.id === id);
-    },
     setFragment(id) {
       this.activeSection = id;
     },
@@ -220,11 +241,17 @@ export default {
     padding: 16px 20px;
     margin-top: 16px;
     a {
+      display: inline-flex;
+      align-items: center;
       font-size: 15px;
       line-height: 1.5;
       color: $colorPrimary;
       cursor: pointer;
       transition: color 0.25s $ease;
+      .svg-icon {
+        font-size: 18px;
+        margin-right: 10px;
+      }
       &:hover {
         color: $fontColor;
       }
@@ -243,8 +270,11 @@ export default {
   }
   &__actions {
     margin-left: auto;
+    display: flex;
+    align-items: center;
     a {
-      display: inline-block;
+      display: inline-flex;
+      align-items: center;
       font-size: 15px;
       margin-right: 16px;
       line-height: 1.5;
@@ -263,17 +293,21 @@ export default {
       }
     }
   }
-}
-.back {
-  display: inline-block;
-  margin: 16px 0;
-  font-size: 14px;
-  line-height: 1.5;
-  color: $colorPrimary;
-  cursor: pointer;
-  transition: color 0.25s $ease;
-  &:hover {
-    color: $fontColor;
+  &__actions-prev {
+    .svg-icon {
+      font-size: 18px;
+      margin-right: 8px;
+    }
   }
+  &__actions-next {
+    .svg-icon {
+      font-size: 18px;
+      margin-left: 8px;
+    }
+  }
+}
+
+.back {
+  margin: 16px 0;
 }
 </style>
