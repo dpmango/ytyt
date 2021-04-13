@@ -5,7 +5,7 @@ import { required, email, alpha, confirmed, min, max } from 'vee-validate/dist/r
 extend('required', { ...required, message: 'Это поле не может быть пустым' });
 extend('email', { ...email, message: 'Неверный формат E-mail' });
 extend('alpha', { ...alpha, message: 'Поле должно содержать только буквы' });
-extend('confirmed', { ...confirmed, message: 'Пароль не совпадает' });
+extend('confirmed', { ...confirmed, message: 'Пароли не совпадают' });
 extend('min', { ...min, message: 'Минимум {length} символов' });
 extend('max', { ...max, message: 'Максимум {length} символов' });
 

@@ -8,7 +8,7 @@
           <NuxtLink
             class="card"
             :class="[lesson.status === 3 && 'is-compleated', lesson.status === 4 && 'is-locked']"
-            :to="`/course/${$route.params.course}/${$route.params.id}/${lesson.id}`"
+            :to="`/theme/${$route.params.id}/${lesson.id}`"
           >
             <div class="card__num">{{ lesson.id }}</div>
             <div class="card__content">
@@ -97,6 +97,7 @@ export default {
   &.is-locked {
     background: rgba(#fff, 0.6);
     box-shadow: none;
+    pointer-events: none;
   }
 }
 </style>
