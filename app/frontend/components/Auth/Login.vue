@@ -33,7 +33,7 @@
 
     <div class="login__actions">
       <NuxtLink to="/auth/signup">Зарегистрироваться</NuxtLink>
-      <NuxtLink to="/auth/recover">Восстановить пароль</NuxtLink>
+      <NuxtLink to="/auth/recover">Забыли пароль?</NuxtLink>
     </div>
   </div>
 </template>

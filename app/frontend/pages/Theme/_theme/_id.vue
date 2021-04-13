@@ -6,7 +6,7 @@
 export default {
   async asyncData({ params, store, error }) {
     const lesson = await store.dispatch('courses/lesson', {
-      course_id: params.course,
+      course_id: 1,
       theme_id: params.theme,
       fragment_id: params.id,
     });
@@ -27,6 +27,15 @@ export default {
         })
         .then((res) => {
           const { accessible_lesson_fragments: fragments } = this.lesson;
+
+          if (res.url) {
+            const {3: course, 5: theme} = res.url.split('/');
+            if (theme){
+              this.$router.push(`/theme/${theme}`);
+            } else {
+              this.$router.push('/');
+            }
+          }
 
           // TODO move all logic in vuex state
           // Issue - asyncData + client

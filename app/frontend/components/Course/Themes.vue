@@ -6,7 +6,7 @@
           <NuxtLink
             class="card"
             :class="[theme.status === 3 && 'is-compleated', theme.status === 4 && 'is-locked']"
-            :to="`/course/${$route.params.id}/${theme.id}`"
+            :to="`/theme/${theme.id}`"
           >
             <div class="card__status">
               <CoursePartStatus :status="theme.status" />
