@@ -44,6 +44,7 @@ class SearchViewSet(FlexibleSerializerModelViewSetMixin,
         for text in query_text:
             query |= Q(content__icontains=text) | Q(title__icontains=text)
             query |= Q(course_lesson__title__icontains=text) | Q(course_lesson__description__icontains=text)
+            query |= Q(course_lesson__course_theme__title__icontains=text)
 
         queryset = LessonFragment.objects.filter(query)
         queryset = queryset.select_related(
