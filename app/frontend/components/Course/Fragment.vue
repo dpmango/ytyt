@@ -10,7 +10,10 @@
             <div class="sidebar__progress">
               <div class="sidebar__progress-title">Твой прогресс</div>
               <div class="sidebar__progress-indicator">
-                <div class="sidebar__progress-inner" :style="{ width: `${data.progress}%` }"></div>
+                <div class="sidebar__progress-number" :style="{ left: `calc(${data.progress}% - 18px)` }">
+                  {{ data.progress }} %
+                </div>
+                <div class="sidebar__progress-inner" :style="{ width: `calc(${data.progress}% - 18px)` }"></div>
               </div>
             </div>
 
@@ -19,10 +22,17 @@
                 v-for="section in sections"
                 :key="section.id"
                 class="sidebar__lesson"
-                :class="[section.id === activeSection && 'is-current']"
+                :class="[
+                  section.id === activeSection && 'is-current',
+                  section.status === 3 && 'is-compleated',
+                  section.status === 4 && 'is-locked',
+                ]"
                 @click="setFragment(section.id)"
               >
-                <span>{{ section.title }}</span>
+                <div class="sidebar__lesson-icon">
+                  <UiSvgIcon name="checkmark" />
+                </div>
+                <div class="sidebar__lesson-name">{{ section.title }}</div>
               </div>
             </div>
             <div class="sidebar__question">
@@ -242,8 +252,20 @@ export default {
     height: 10px;
     font-size: 0;
   }
+  &__progress-number {
+    position: absolute;
+    z-index: 2;
+    top: 50%;
+    left: 0;
+    font-size: 13px;
+    color: $colorGreen;
+    background: white;
+    padding: 4px;
+    transform: translateY(-50%);
+  }
   &__progress-inner {
     position: absolute;
+    z-index: 1;
     top: 0;
     left: 0;
     bottom: 0;
@@ -254,17 +276,66 @@ export default {
     margin-top: 24px;
   }
   &__lesson {
+    display: flex;
+    align-items: center;
     padding: 8px 20px;
-    font-size: 15px;
-    line-height: 1.3;
     cursor: pointer;
     transition: background 0.25s $ease;
     &.is-current {
       background: rgba(155, 81, 224, 0.06);
     }
+    &.is-compleated {
+      .sidebar {
+        &__lesson-icon {
+          background: $colorGreen;
+          border-color: $colorGreen;
+          .svg-icon {
+            opacity: 1;
+          }
+        }
+        &__lesson-name {
+          color: rgba($fontColor, 0.5);
+        }
+      }
+    }
+    &.is-locked {
+      .sidebar {
+        &__lesson-icon {
+          background: $colorGray;
+          border-color: $colorGray;
+        }
+        &__lesson-name {
+          color: rgba($fontColor, 0.5);
+        }
+      }
+    }
     &:hover {
       background: rgba(155, 81, 224, 0.06);
     }
+  }
+  &__lesson-icon {
+    position: relative;
+    flex: 0 0 auto;
+    min-width: 18px;
+    min-height: 18px;
+    margin-right: 10px;
+    border-radius: 50%;
+    border: 1px solid rgba($fontColor, 0.3);
+    transition: background 0.25s $ease, border 0.25s $ease;
+    .svg-icon {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 9px;
+      color: white;
+      opacity: 0;
+      transition: opacity 0.25s $ease;
+    }
+  }
+  &__lesson-name {
+    font-size: 15px;
+    line-height: 1.3;
   }
   &__question {
     border-top: 1px solid rgba(#171818, 0.1);
