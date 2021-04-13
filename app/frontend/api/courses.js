@@ -1,7 +1,7 @@
 import endpoints from './endpoints';
 import { mapApiError, mapData } from './helpers';
 
-export const listService = async ($api, request) => {
+export const coursesService = async ($api, request) => {
   try {
     const { data } = await $api.get(endpoints.course.courses);
 
@@ -51,6 +51,18 @@ export const lessonService = async ($api, request) => {
 export const compleateService = async ($api, request) => {
   try {
     const { data } = await $api.post(endpoints.course.complete.replace(':id', request.id));
+
+    return [null, mapData(data)];
+  } catch (error) {
+    return [mapApiError(error), null];
+  }
+};
+
+export const searchService = async ($api, request) => {
+  try {
+    const { data } = await $api.get(endpoints.course.search, {
+      params: request,
+    });
 
     return [null, mapData(data)];
   } catch (error) {

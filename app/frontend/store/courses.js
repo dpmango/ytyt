@@ -1,4 +1,11 @@
-import { listService, themesService, lessonsService, lessonService, compleateService } from '~/api/courses';
+import {
+  coursesService,
+  themesService,
+  lessonsService,
+  lessonService,
+  compleateService,
+  searchService,
+} from '~/api/courses';
 
 export const state = () => ({
   courses: [],
@@ -29,8 +36,8 @@ export const mutations = {
 };
 
 export const actions = {
-  async list({ commit }, request) {
-    const [err, result] = await listService(this.$api, request);
+  async courses({ commit }, request) {
+    const [err, result] = await coursesService(this.$api, request);
 
     if (err) throw err;
 
@@ -71,6 +78,15 @@ export const actions = {
     if (err) throw err;
 
     // commit('setThemes', { course_id: request.id, themes: result });
+
+    return result;
+  },
+  async search({ commit }, request) {
+    const [err, result] = await searchService(this.$api, request);
+
+    if (err) throw err;
+
+    // commit('setCourses', result);
 
     return result;
   },

@@ -8,6 +8,7 @@
         :value="value"
         :placeholder="placeholder"
         v-bind="$attrs"
+        v-on="$listeners"
         @input="setValue"
       />
       <textarea v-else :id="_uid" :value="value" :placeholder="placeholder" v-bind="$attrs" @input="setValue" />
@@ -16,7 +17,7 @@
         <UiSvgIcon :name="icon" />
       </span>
       <span v-if="clearable" class="input__clear" @click="clearInput">
-        <UiSvgIcon name="close" />
+        <span>Отмена</span>
       </span>
     </div>
   </div>
@@ -168,7 +169,7 @@ export default {
         pointer-events: all;
       }
       &.is-iconed {
-        .input__icon {
+        .input__icon:not(.left) {
           opacity: 0;
           pointer-events: none;
         }
@@ -178,34 +179,47 @@ export default {
   &__icon {
     position: absolute;
     z-index: 2;
-    right: 20px;
+    right: 15px;
     top: 50%;
     transform: translateY(-50%);
-    width: 16px;
     font-size: 0;
-    fill: $colorGray;
+    pointer-events: none;
     transition: opacity 0.25s $ease, fill 0.25s $ease;
     &.left {
       left: 15px;
       right: auto;
     }
+    .svg-icon {
+      font-size: 16px;
+      color: $colorGray;
+    }
   }
   &__clear {
     position: absolute;
     z-index: 2;
-    right: 10px;
+    right: 0;
     top: 50%;
     transform: translateY(-50%);
-    width: 32px;
-    padding: 10px;
-    font-size: 0;
-    fill: $colorGray;
+    padding: 8px 16px 7px 16px;
+    color: $colorPrimary;
+    font-size: 14px;
+    line-height: 150%;
     cursor: pointer;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.25s $ease, fill 0.25s $ease;
+    transition: color 0.25s $ease;
+    &::before {
+      display: inline-block;
+      content: ' ';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: rgba(#171818, 0.1);
+    }
     &:hover {
-      fill: $fontColor;
+      color: $fontColor;
     }
   }
   &.has-error {
@@ -219,5 +233,12 @@ export default {
       color: $colorRed;
     }
   }
+}
+
+input[type='search']::-webkit-search-decoration,
+input[type='search']::-webkit-search-cancel-button,
+input[type='search']::-webkit-search-results-button,
+input[type='search']::-webkit-search-results-decoration {
+  -webkit-appearance: none;
 }
 </style>
