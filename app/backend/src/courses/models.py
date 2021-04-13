@@ -68,7 +68,7 @@ class LessonFragment(models.Model):
     class Meta:
         verbose_name = 'Фрагмент урока'
         verbose_name_plural = 'Фрагменты урока'
-        ordering = ('date_created', )
+        ordering = ('id', )
 
     def __str__(self):
         return '%s' % self.title[:30]

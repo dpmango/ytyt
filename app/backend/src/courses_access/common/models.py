@@ -98,7 +98,7 @@ class AccessManagerBase(models.Manager):
             return access_model.status
         return AccessBase.COURSES_STATUS_BLOCK
 
-    def set_status(self, obj: models.Model, user: User, status: int) -> models.Model:
+    def set_status(self, obj: models.Model, user: User, status: int) -> typing.Optional[models.Model]:
         """
         Метод обновляет статус прохождения курса пользователем
         :param obj: Некоторый объект из courses-app
@@ -106,7 +106,10 @@ class AccessManagerBase(models.Manager):
         :param status: Статус доступа к курсу
         :return: Обновленная модель obj: models.Model
         """
-        model = self.get(**{self._get_obj_name(obj): obj, 'user': user})
+        model = self.filter(**{self._get_obj_name(obj): obj, 'user': user}).first()
+        if model is None:
+            return None
+
         model.status = status
         return model.save(update_fields=['status'])
 

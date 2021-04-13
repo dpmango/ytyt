@@ -65,6 +65,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     )
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
     email_confirmed = models.BooleanField(default=False)
+    email_notifications = models.BooleanField('Уведомления на почту', default=False)
 
     avatar = models.ImageField('Фотография', upload_to='avatars', default='static/default_avatar.jpg')
     last_name = models.CharField('Фамилия', max_length=255, blank=False, null=True)
@@ -75,6 +76,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     birthday = models.DateField('Дата рождения', blank=True, null=True)
     phone = models.CharField('Телефон', max_length=64, blank=True, null=True)
+    github_url = models.URLField('Гитхаб', null=True, blank=True)
 
     objects = UserManager()
 

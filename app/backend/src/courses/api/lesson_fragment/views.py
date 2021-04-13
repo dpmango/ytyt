@@ -1,5 +1,4 @@
 from django.db import transaction
-from django.urls import reverse
 from rest_framework import exceptions
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
@@ -91,9 +90,8 @@ class LessonFragmentViewSet(FlexibleSerializerModelViewSetMixin,
             if next_course_lesson is not None:
                 CourseLessonAccess.objects.set_access_with_fragment(next_course_lesson, user)
 
-                # В случае, если пользователю был предоставлен доступ к новому уроку — отдаем ссылку для запроса уроков
-                url = reverse('courses-lessons-list', kwargs={'course_id': course.id, 'course_theme_id': course_theme.id})
-                return Response({'url': url}, status=status.HTTP_202_ACCEPTED)
+                data = {'course_id': course.id, 'course_theme_id': course_theme.id}
+                return Response(data, status=status.HTTP_202_ACCEPTED)
 
             # Если следующего урока не существует
             # Закрываем текущую тему курса
@@ -115,8 +113,7 @@ class LessonFragmentViewSet(FlexibleSerializerModelViewSetMixin,
                     )
 
                 CourseThemeAccess.objects.set_access_with_lesson(next_course_theme, user)
-                url = reverse('courses-themes-list', kwargs={'course_id': course.id})
-                return Response({'url': url}, status=status.HTTP_202_ACCEPTED)
+                return Response({'course_id': course.id}, status=status.HTTP_202_ACCEPTED)
 
         # Если доступной темы нет, то курс закончен
         return Response(status=status.HTTP_204_NO_CONTENT)

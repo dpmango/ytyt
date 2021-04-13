@@ -11,11 +11,28 @@ User = get_user_model()
 
 class UserDetailSerializer(serializers.ModelSerializer):
 
+    def to_representation(self, instance: User):
+
+        if '/media/static' in instance.avatar.url:
+            instance.avatar = instance.avatar.url.replace('/media/static', '/static')
+
+        return super().to_representation(instance)
+
     class Meta:
         model = User
         fields = (
-            'email', 'id', 'groups', 'first_name', 'user_permissions',
-            'last_name', 'middle_name', 'phone', 'birthday', 'phone', 'gender',
+            'id',
+            'email',
+            'phone',
+            'first_name',
+            'last_name',
+            'middle_name',
+            'birthday',
+            'phone',
+            'gender',
+            'github_url',
+            'avatar',
+            'email_notifications',
         )
         read_only_fields = ('email', 'id', )
 
