@@ -61,7 +61,7 @@ class LessonFragmentAdmin(admin.ModelAdmin):
     )
     ordering = (
         'course_lesson__course_theme__order',
-        'course_lesson__order',
+        # 'course_lesson',
         'date_created',
         'date_updated'
     )

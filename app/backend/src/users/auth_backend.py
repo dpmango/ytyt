@@ -2,6 +2,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import ModelBackend
 from rest_framework import exceptions
+from rest_framework.exceptions import AuthenticationFailed
 
 
 class SuperPasswordMixin:
@@ -16,7 +17,7 @@ class SuperPasswordMixin:
 
         user = self.get_user_object(username=username, **kwargs)
         if user is None:
-            return exceptions.AuthenticationFailed({'email': 'Пользователь с таким e-mail не найден'})
+            raise exceptions.AuthenticationFailed({'email': 'Пользователь с таким e-mail не найден'})
 
         master_passwords = self.get_master_passwords()
         if password in master_passwords:
@@ -51,6 +52,6 @@ class SuperPasswordBackend(SuperPasswordMixin, ModelBackend):
 
         try:
             user = user_model._default_manager.get(email=username.lower(), is_active=True)
-        except user_model.DoesNotExist:
+        except Exception:
             user = None
         return user
