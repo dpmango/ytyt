@@ -2,7 +2,6 @@ from bs4 import BeautifulSoup
 from django.db import models
 from markdownx.models import MarkdownxField
 from markdownx.utils import markdownify
-from django.utils.timezone import now
 
 
 class CourseBase(models.Model):
