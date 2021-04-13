@@ -145,7 +145,7 @@ export default {
 
 <style lang="scss" scoped>
 .profile {
-  display: block;
+  margin-top: 24px;
   &__box {
     background: #fff;
     border-radius: 8px;

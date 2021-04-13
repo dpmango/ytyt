@@ -15,6 +15,6 @@ export default {
 
 <style lang="scss">
 .header-pad {
-  padding-top: 68px;
+  padding-top: 56px;
 }
 </style>

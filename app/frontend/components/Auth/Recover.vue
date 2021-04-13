@@ -88,7 +88,6 @@ export default {
   &__actions {
     margin-top: 20px;
     font-size: 15px;
-    line-height: 1.5;
     text-align: center;
     a {
       position: relative;

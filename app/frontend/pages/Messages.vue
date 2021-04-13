@@ -1,11 +1,11 @@
 <template>
-  <Chat />
+  <ChatHome />
 </template>
 
 <script>
 export default {
   head: {
-    title: 'Профиль',
+    title: 'Сообщения',
   },
 };
 </script>

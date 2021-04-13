@@ -1,6 +1,6 @@
 <template>
   <header class="header">
-    <div class="container">
+    <div class="container container--wide">
       <div class="header__wrapper">
         <NuxtLink to="/" class="header__logo">
           <img src="~/assets/img/logo-simple.png" srcset="~/assets/img/logo-simple@2x.png 2x" alt="logo" />
@@ -8,11 +8,20 @@
         <div class="header__search">
           <CourseSearch />
         </div>
-        <div class="header__messages"></div>
+        <div class="header__messages">
+          <NuxtLink to="/messages">
+            <UiSvgIcon name="envelope" />
+            <div class="header__messages-count">
+              <span>{{ 12 }}</span>
+            </div>
+          </NuxtLink>
+        </div>
         <div class="header__user">
           <NuxtLink to="/profile">
             <div class="header__user-details">{{ userEmail }}</div>
-            <div class="header__user-avatar"></div>
+            <div class="header__user-avatar">
+              <img :src="userAvatar" :alt="userEmail" />
+            </div>
           </NuxtLink>
         </div>
       </div>
@@ -24,12 +33,10 @@
 import { mapGetters } from 'vuex';
 
 export default {
-  data() {
-    return {
-      email: null,
-    };
-  },
   computed: {
+    userAvatar() {
+      return this.user().avatar;
+    },
     userEmail() {
       // TODO - getter as function ?
       return this.user().email;
@@ -44,6 +51,7 @@ export default {
 <style lang="scss" scoped>
 .header {
   position: fixed;
+  z-index: 99;
   top: 0;
   left: 0;
   right: 0;
@@ -61,6 +69,34 @@ export default {
     flex: 1 1 auto;
     padding: 0 28px;
   }
+  &__messages {
+    position: relative;
+    padding-right: 12px;
+    padding-top: 7px;
+    margin-right: 24px;
+    .svg-icon {
+      font-size: 18px;
+      color: $colorGray;
+    }
+  }
+  &__messages-count {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 2;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border-radius: 50%;
+    background: $colorRed;
+    color: white;
+    span {
+      font-size: 12px;
+    }
+  }
   &__user a {
     display: flex;
     align-items: center;
@@ -75,11 +111,20 @@ export default {
   }
   &__user-avatar {
     position: relative;
+    z-index: 1;
     min-width: 36px;
     min-height: 36px;
     border-radius: 50%;
-    background: $colorRed;
+    background: $colorGray;
     cursor: pointer;
+    overflow: hidden;
+    img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
   }
 }
 </style>

@@ -5,7 +5,9 @@
   margin-right: auto;
   padding-left: 32px;
   padding-right: 32px;
-
+  &--wide{
+    max-width: 100%;
+  }
   &--pad24 {
     padding-left: 24px;
     padding-right: 24px;

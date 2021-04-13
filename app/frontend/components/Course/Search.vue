@@ -15,10 +15,7 @@
     <div class="search__results">
       <ul class="search__list">
         <li v-for="course in list" :key="course.id" class="list__row">
-          <NuxtLink
-            class="card"
-            :to="`/theme/${course.course_theme.id}/${course.course_lesson.id}`"
-          >
+          <NuxtLink class="card" :to="`/theme/${course.course_theme.id}/${course.course_lesson.id}`">
             <div class="card__content">
               <div class="card__course">{{ course.course_title }}</div>
               <div class="card__title">{{ course.course_lesson.title }}</div>
@@ -121,18 +118,15 @@ export default {
   transition: background 0.25s $ease;
   &__course {
     font-size: 14px;
-    line-height: 150%;
     color: $colorGray;
   }
   &__title {
     font-weight: 500;
     font-size: 17px;
-    line-height: 150%;
   }
   &__description {
     margin-top: 4px;
     font-size: 14px;
-    line-height: 150%;
   }
   &:hover {
     background: rgba(155, 81, 224, 0.06);

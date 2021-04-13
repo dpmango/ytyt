@@ -1,46 +1,48 @@
 <template>
-  <div class="list">
-    <div class="container">
-      <div class="row">
-        <div v-for="course in list" :key="course.id" class="col col-3 col-lg-4 col-md-6 col-sm-12">
-          <NuxtLink
-            class="card"
-            :class="[course.status === 3 && 'is-compleated', course.status === 4 && 'is-locked']"
-            :to="`/course/${course.id}`"
-          >
-            <div class="card__status">
-              <CoursePartStatus :status="course.status" />
-            </div>
-            <div class="card__title">{{ course.title }} ({{ course.cost }} Р)</div>
-            <div class="card__description">{{ course.description }}</div>
-
-            <div class="card__stats">
-              <span>{{ course.count_themes }} темы</span>
-              <span>{{ course.count_lessons }} урока</span>
-            </div>
-            <div class="card__progress">
-              <div class="card__progress-inner" :style="{ width: '30%' }"></div>
-            </div>
-          </NuxtLink>
-        </div>
-      </div>
+  <NuxtLink
+    class="card"
+    :class="[theme.status === 3 && 'is-compleated', theme.status === 4 && 'is-locked']"
+    :to="linkHref"
+  >
+    <div class="card__status">
+      <CoursePartStatus :status="theme.status" />
     </div>
-  </div>
+    <div class="card__title">{{ theme.title }}</div>
+    <div class="card__description">{{ theme.description }}</div>
+
+    <div class="card__stats">
+      <span>{{ stats }}</span>
+    </div>
+    <div class="card__progress">
+      <div
+        v-if="theme.count_lessons"
+        class="card__progress-inner"
+        :style="{ width: `${(theme.completed_count_lessons / theme.count_lessons) * 100}%` }"
+      ></div>
+    </div>
+  </NuxtLink>
 </template>
 
 <script>
+import Plurize from '~/helpers/Plurize';
+
 export default {
   props: {
-    list: Array,
+    theme: Object,
+  },
+  computed: {
+    linkHref() {
+      return this.theme.status !== 4 ? `/theme/${this.theme.id}` : '#';
+    },
+    stats() {
+      const plural = Plurize(this.theme.count_lessons, 'урок', 'урока', 'уроков');
+      return `${this.theme.completed_count_lessons} / ${this.theme.count_lessons} ${plural}`;
+    },
   },
 };
 </script>
 
 <style lang="scss" scoped>
-.list {
-  padding-top: 24px;
-}
-
 .card {
   display: flex;
   flex-direction: column;
@@ -78,11 +80,13 @@ export default {
   }
   &__progress {
     position: relative;
+    z-index: 1;
     margin-top: 6px;
     background: rgba(23, 24, 24, 0.08);
     border-radius: 12px;
     height: 6px;
     font-size: 0;
+    overflow: hidden;
   }
   &__progress-inner {
     position: absolute;
@@ -100,6 +104,7 @@ export default {
   &.is-locked {
     background: rgba(#fff, 0.6);
     box-shadow: none;
+    pointer-events: none;
   }
 }
 </style>

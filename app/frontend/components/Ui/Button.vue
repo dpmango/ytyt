@@ -96,7 +96,6 @@ export default {
   border-radius: 8px;
   font-weight: 500;
   font-size: 17px;
-  line-height: 1.5;
   text-align: center;
   cursor: pointer;
   box-shadow: none;
