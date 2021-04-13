@@ -56,3 +56,13 @@ export const userService = async ($api) => {
     return [mapApiError(error), null];
   }
 };
+
+export const updateUserService = async ($api, request) => {
+  try {
+    const { data } = await $api.patch(endpoints.auth.user, request);
+
+    return [null, mapData(data)];
+  } catch (error) {
+    return [mapApiError(error), null];
+  }
+};

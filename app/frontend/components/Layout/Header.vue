@@ -9,8 +9,10 @@
           <CourseSearch />
         </div>
         <div class="header__user">
-          <div class="header__user-details" @click="handleTestGetUser">{{ userEmail }}</div>
-          <div class="header__user-avatar" @click="handleLogout"></div>
+          <NuxtLink to="/profile">
+            <div class="header__user-details">{{ userEmail }}</div>
+            <div class="header__user-avatar"></div>
+          </NuxtLink>
         </div>
       </div>
     </div>
@@ -18,7 +20,7 @@
 </template>
 
 <script>
-import { mapActions, mapGetters } from 'vuex';
+import { mapGetters } from 'vuex';
 
 export default {
   data() {
@@ -33,21 +35,6 @@ export default {
     },
   },
   methods: {
-    async handleTestGetUser() {
-      await this.getUserInfo()
-        .then((res) => {})
-        .catch((_err) => {});
-    },
-    async handleLogout() {
-      await this.logout()
-        .then((res) => {
-          this.$toast.success(res.detail);
-
-          this.$router.push('/auth/login');
-        })
-        .catch((_err) => {});
-    },
-    ...mapActions('auth', ['logout', 'getUserInfo']),
     ...mapGetters('auth', ['user']),
   },
 };
@@ -73,9 +60,13 @@ export default {
     flex: 1 1 auto;
     padding: 0 28px;
   }
-  &__user {
+  &__user a {
     display: flex;
     align-items: center;
+    transition: opacity 0.25s $ease;
+    &:hover {
+      opacity: 0.7;
+    }
   }
   &__user-details {
     padding-right: 10px;

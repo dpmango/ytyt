@@ -10,7 +10,7 @@ module.exports = {
   rules: {
     quotes: ['error', 'single'],
     // 'prettier/prettier': 'error',
-    'camelcase': 'off',
+    camelcase: 'off',
     'vue/require-default-prop': 'off',
     'vue/no-unused-vars': 'off',
     'vue/no-v-html': 'off',
