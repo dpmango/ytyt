@@ -29,7 +29,7 @@ export default {
     theme: {
       type: String,
       default: 'primary',
-      validator: (theme) => ['primary', 'outline'].includes(theme),
+      validator: (theme) => ['primary', 'outline', 'danger'].includes(theme),
     },
     isLoading: {
       type: Boolean,
@@ -134,7 +134,7 @@ export default {
     background: transparent;
     border-color: $colorPrimary;
     &:hover {
-      background: rgba($colorPrimary, 0.2);
+      background: rgba($colorPrimary, 0.8);
       border-color: $colorPrimary;
     }
     &:active {
@@ -142,7 +142,17 @@ export default {
       border-color: $colorPrimary;
     }
   }
-
+  &.danger {
+    color: white;
+    background: $colorRed;
+    border-color: transparent;
+    &:hover {
+      background: rgba($colorRed, 0.8);
+    }
+    &:active {
+      background: rgba($colorRed, 0.9);
+    }
+  }
   &.no-padding {
     padding: 0;
   }
