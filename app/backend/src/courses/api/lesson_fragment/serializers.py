@@ -36,4 +36,4 @@ class DetailLessonFragmentSerializers(AccessBaseSerializers):
 
     class Meta:
         model = LessonFragment
-        exclude = ('date_created', )
+        exclude = ('date_created', 'date_updated')

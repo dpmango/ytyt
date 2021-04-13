@@ -10,7 +10,7 @@ from courses_access.models import CourseLessonAccess
 class DefaultCourseThemeSerializers(AccessSerializers):
     class Meta:
         model = CourseTheme
-        exclude = ('course', 'free_access', 'order')
+        exclude = ('course', 'free_access', 'order', 'date_updated', 'date_created')
 
 
 class CourseThemeWithStatsSerializers(DefaultCourseThemeSerializers):
@@ -36,7 +36,3 @@ class CourseThemeWithStatsSerializers(DefaultCourseThemeSerializers):
         return CourseLessonAccess.objects.filter(
             user=user, course_lesson__course_theme=obj, status=AccessBase.COURSES_STATUS_COMPLETED
         ).count()
-
-    class Meta:
-        model = CourseTheme
-        exclude = ('course', 'free_access', 'order')

@@ -43,9 +43,12 @@ class SearchViewSet(FlexibleSerializerModelViewSetMixin,
 
         for text in query_text:
             query |= Q(content__icontains=text) | Q(title__icontains=text)
+            query |= Q(course_lesson__title__icontains=text) | Q(course_lesson__description__icontains=text)
 
         queryset = LessonFragment.objects.filter(query)
-        queryset = queryset.select_related('course_lesson', 'course_lesson__course_theme')
-        queryset = queryset.distinct('course_lesson_id').order_by('course_lesson_id')
+        queryset = queryset.select_related(
+            'course_lesson', 'course_lesson__course_theme', 'course_lesson__course_theme__course'
+        )
+        queryset = queryset.distinct('course_lesson__id').order_by('course_lesson__id')
 
         return Response(serializer(queryset, many=True, context=context).data, status=status.HTTP_200_OK)

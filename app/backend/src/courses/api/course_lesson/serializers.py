@@ -12,7 +12,7 @@ from courses_access.models import LessonFragmentAccess, CourseLessonAccess, Cour
 class DefaultCourseLessonSerializers(AccessBaseSerializers):
     class Meta:
         model = CourseLesson
-        exclude = ('content', 'order', 'course_theme')
+        exclude = ('content', 'order', 'course_theme', 'date_updated', 'date_created')
 
 
 class DetailCourseLessonSerializers(DefaultCourseLessonSerializers):
@@ -70,4 +70,4 @@ class DetailCourseLessonSerializers(DefaultCourseLessonSerializers):
 
     class Meta:
         model = CourseLesson
-        exclude = ('content', 'order')
+        exclude = ('content', 'order', 'date_updated', 'date_created')

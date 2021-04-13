@@ -59,10 +59,10 @@ class DefaultCourseSerializers(AccessSerializers):
 
     class Meta:
         model = Course
-        exclude = ('order', )
+        exclude = ('order', 'date_created', 'date_updated')
 
 
 class DetailCourseSerializers(AccessSerializers):
     class Meta:
         model = Course
-        exclude = ('order', )
+        exclude = ('order', 'date_created', 'date_updated')
