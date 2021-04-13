@@ -17,7 +17,7 @@
         <li v-for="course in list" :key="course.id" class="list__row">
           <NuxtLink
             class="card"
-            :to="`/course/${course.course_id}/${course.course_theme.id}/${course.course_lesson.id}`"
+            :to="`/theme/${course.course_theme.id}/${course.course_lesson.id}`"
           >
             <div class="card__content">
               <div class="card__course">{{ course.course_title }}</div>

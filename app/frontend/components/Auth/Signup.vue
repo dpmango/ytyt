@@ -33,7 +33,7 @@
           <UiInput
             :value="passwordConfirm"
             name="password"
-            label="Пароль"
+            label="Повторите Пароль"
             type="password"
             :error="errors[0]"
             @onChange="(v) => (passwordConfirm = v)"

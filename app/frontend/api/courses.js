@@ -1,6 +1,14 @@
 import endpoints from './endpoints';
 import { mapApiError, mapData } from './helpers';
 
+const mapLesson = ({ lesson_fragments, accessible_lesson_fragments, ...data }) => {
+  return {
+    ...data,
+    ...{ lesson_fragments: lesson_fragments.sort((a, b) => a.id - b.id) },
+    ...{ accessible_lesson_fragments: accessible_lesson_fragments.sort((a, b) => a.id - b.id) },
+  };
+};
+
 export const coursesService = async ($api, request) => {
   try {
     const { data } = await $api.get(endpoints.course.courses);

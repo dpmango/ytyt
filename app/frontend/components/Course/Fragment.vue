@@ -10,7 +10,7 @@
             <div class="sidebar__progress">
               <div class="sidebar__progress-title">Твой прогресс</div>
               <div class="sidebar__progress-indicator">
-                <div class="sidebar__progress-inner" :style="{ width: '30%' }"></div>
+                <div class="sidebar__progress-inner" :style="{ width: `${data.progress}%` }"></div>
               </div>
             </div>
 
@@ -36,9 +36,16 @@
 
         <div class="lesson__content">
           <div class="lesson__box">
-            <template v-if="sections">
+            <template v-if="activeSection === 0">
+              <h3 class="h3-title">У вас нет доступа к этому уроку</h3>
+            </template>
+
+            <template v-else-if="sections">
               <div class="lesson__nav nav">
-                <div class="nav__title">{{ activeSection }}/{{ sectionsCount }}</div>
+                <div class="nav__title">
+                  <span class="nav__title-count">{{ currentSectionIndex + 1 }}/{{ sectionsCount }}</span>
+                  {{ data.title }}
+                </div>
                 <div class="nav__actions">
                   <a
                     href="#"
@@ -100,7 +107,7 @@ export default {
   },
   data() {
     return {
-      activeSection: 1,
+      activeSection: 0,
     };
   },
   computed: {
@@ -110,11 +117,20 @@ export default {
     sectionsCount() {
       return this.sections.length;
     },
+    currentSectionIndex() {
+      return this.sections.findIndex((s) => s.id === this.activeSection);
+    },
+    nextSectionId() {
+      return this.sections[this.currentSectionIndex + 1];
+    },
+    prevSectionId() {
+      return this.sections[this.currentSectionIndex - 1];
+    },
     isNextAvailable() {
-      return this.sectionsCount > this.activeSection;
+      return this.nextSectionId;
     },
     isPrevAvailable() {
-      return this.activeSection > 1;
+      return this.prevSectionId;
     },
     fragmentVisible() {
       return this.data.accessible_lesson_fragments;
@@ -126,8 +142,10 @@ export default {
 
     if (activeFragment) {
       this.activeSection = activeFragment.id;
-    } else {
+    } else if (this.data.accessible_lesson_fragments.length) {
       this.activeSection = this.data.accessible_lesson_fragments[0].id;
+    } else {
+      this.activeSection = 0;
     }
   },
   methods: {
@@ -143,15 +161,13 @@ export default {
       });
     },
     setFragment(id) {
+      // TODO - check if available
       this.activeSection = id;
     },
     setPrevFragment() {
       if (this.isPrevAvailable) {
-        this.setFragment(this.activeSection - 1);
+        this.setFragment(this.prevSectionId);
       }
-    },
-    goBack() {
-      return this.$router.go(-1);
     },
   },
 };
@@ -281,6 +297,9 @@ export default {
   &__title {
     font-size: 15px;
     line-height: 1.5;
+  }
+  &__title-count {
+    color: $colorGray;
   }
   &__actions {
     margin-left: auto;
