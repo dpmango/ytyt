@@ -1,5 +1,5 @@
 <template>
-  <ProfileHome />
+  <Chat />
 </template>
 
 <script>

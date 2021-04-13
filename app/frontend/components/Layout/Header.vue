@@ -8,6 +8,7 @@
         <div class="header__search">
           <CourseSearch />
         </div>
+        <div class="header__messages"></div>
         <div class="header__user">
           <NuxtLink to="/profile">
             <div class="header__user-details">{{ userEmail }}</div>

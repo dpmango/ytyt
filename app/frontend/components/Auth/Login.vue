@@ -66,9 +66,9 @@ export default {
         .catch((err) => {
           const { data, code } = err;
 
-          if (data && code === 400) {
+          if (data && code === 401) {
             Object.keys(data).forEach((key) => {
-              this.error = data[key][0];
+              this.error = data[key];
             });
           }
         });

@@ -59,6 +59,9 @@
           {{ data }}
         </div>
       </div>
+      <div class="mt-1">
+        <UiButton theme="danger" @click="handleLogout">Выйти</UiButton>
+      </div>
     </div>
   </div>
 </template>
