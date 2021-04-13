@@ -16,7 +16,7 @@ class Course(CourseBase):
     title = models.CharField('Название курса', max_length=1000)
     description = models.TextField('Описание курса', null=True, blank=True)
     cost = models.DecimalField('Стоимость курса', max_digits=11, decimal_places=2)
-    date_created = models.DateTimeField('Дата создаения', auto_now_add=True, null=True, blank=True)
+    date_created = models.DateTimeField('Дата создания', auto_now_add=True, null=True, blank=True)
     date_updated = models.DateTimeField('Дата обновления', auto_now=True)
 
     class Meta(CourseBase.Meta):
@@ -31,7 +31,7 @@ class CourseTheme(CourseBase):
     course = models.ForeignKey(Course, on_delete=models.PROTECT)
     title = models.CharField('Название темы', max_length=1000)
     free_access = models.BooleanField('Бесплатный доступ', default=False)
-    date_created = models.DateTimeField('Дата создаения', auto_now_add=True, null=True, blank=True)
+    date_created = models.DateTimeField('Дата создания', auto_now_add=True, null=True, blank=True)
     date_updated = models.DateTimeField('Дата обновления', auto_now=True)
 
     class Meta(CourseBase.Meta):
@@ -47,7 +47,7 @@ class CourseLesson(CourseBase):
     title = models.CharField('Название урока', max_length=1000)
     description = models.CharField('Описание урока', max_length=1000)
     content = MarkdownxField('Содержание урока')
-    date_created = models.DateTimeField('Дата создаения', auto_now_add=True, null=True, blank=True)
+    date_created = models.DateTimeField('Дата создания', auto_now_add=True, null=True, blank=True)
     date_updated = models.DateTimeField('Дата обновления', auto_now=True)
 
     class Meta(CourseBase.Meta):
@@ -62,7 +62,7 @@ class LessonFragment(models.Model):
     course_lesson = models.ForeignKey(CourseLesson, on_delete=models.CASCADE)
     title = models.CharField('Название фрагмента урока', max_length=1000, null=True, blank=True)
     content = MarkdownxField('Содержание фрагмента', null=True, blank=True)
-    date_created = models.DateTimeField('Дата создаения', auto_now_add=True, null=True, blank=True)
+    date_created = models.DateTimeField('Дата создания', auto_now_add=True, null=True, blank=True)
     date_updated = models.DateTimeField('Дата обновления', auto_now=True)
 
     class Meta:
