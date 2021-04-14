@@ -1,47 +1,45 @@
 <template>
   <div class="messages">
-    <div
-      v-for="message in list"
-      :key="message.id"
-      class="message"
-      :data-id="message.id"
-      :class="[message.incoming ? 'message--incoming' : 'message--outcoming']"
-      ]
-    >
-      <div class="message__wrapper">
-        <div class="message__content">{{ message.content }}</div>
-        <div class="message__time">{{ message.time }}</div>
+    <template v-if="messages">
+      <div
+        v-for="message in messages"
+        :key="message.id"
+        class="message"
+        :class="[message.incoming ? 'message--incoming' : 'message--outcoming']"
+      >
+        <div class="message__wrapper">
+          <div class="message__content">{{ message.content }}</div>
+          <div class="message__time">{{ message.time }}</div>
+        </div>
       </div>
+    </template>
+
+    <div v-else class="messages__loader">
+      <UiLoader :loading="true" theme="block" />
     </div>
   </div>
 </template>
 
 <script>
-import { mapActions, mapGetters } from 'vuex';
-import { MESSAGES_TEST_DATA } from './helpers/mockData';
-
 export default {
-  props: {},
-  data() {
-    return {
-      list: MESSAGES_TEST_DATA,
-    };
-  },
-  computed: {},
-  methods: {
-    // ...mapActions('auth', ['logout', 'getUserInfo', 'update']),
-    // ...mapGetters('auth', ['user']),
+  name: 'ChatMessages',
+  props: {
+    messages: Array,
   },
 };
 </script>
 
 <style lang="scss" scoped>
 .messages {
+  position: relative;
   flex: 1 0 auto;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
   padding: 24px;
+  // &__loader {
+
+  // }
 }
 
 .message {

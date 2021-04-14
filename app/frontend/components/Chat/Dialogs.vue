@@ -1,7 +1,7 @@
 <template>
   <div class="dialogs">
     <div class="dialogs__list">
-      <div v-for="dialog in list" :key="dialog.id" class="dialog">
+      <div v-for="dialog in dialogs" :key="dialog.id" class="dialog">
         <div class="dialog__avatar">
           <div class="dialog__avatar-image">
             <img :src="dialog.avatar" :alt="dialog.name" />
@@ -23,23 +23,9 @@
 </template>
 
 <script>
-import { mapActions, mapGetters } from 'vuex';
-import { DIALOGS_TEST_DATA } from './helpers/mockData';
-
 export default {
-  props: {},
-  data() {
-    return {
-      list: DIALOGS_TEST_DATA,
-    };
-  },
-  computed: {},
-  methods: {
-    // async handleClick() {
-    //   await console.log('clicked');
-    // },
-    // ...mapActions('auth', ['logout', 'getUserInfo', 'update']),
-    // ...mapGetters('auth', ['user']),
+  props: {
+    dialogs: Array,
   },
 };
 </script>

@@ -15,30 +15,14 @@
 </template>
 
 <script>
-import { mapActions, mapGetters } from 'vuex';
-import { HEAD_TEST_DATA } from './helpers/mockData';
-
 export default {
-  data() {
-    return {
-      data: HEAD_TEST_DATA,
-    };
+  props: {
+    data: Object,
   },
   computed: {
     status() {
       return this.data.status === 1 ? 'Онлайн' : 'Оффлайн';
     },
-  },
-  created() {
-    // sockets ws:
-    // this.handleTestGetUser();
-  },
-  methods: {
-    async handleSubmit() {
-      const isValid = await this.$refs.form.validate();
-    },
-    // ...mapActions('auth', ['logout', 'getUserInfo', 'update']),
-    // ...mapGetters('auth', ['user']),
   },
 };
 </script>

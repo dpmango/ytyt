@@ -2,15 +2,15 @@
   <div class="chat">
     <div class="chat__wrapper">
       <div class="chat__sidebar">
-        <ChatDialogs />
+        <ChatDialogs :dialogs="dialogs" />
       </div>
 
       <div class="chat__content">
         <div class="chat__head">
-          <ChatHead />
+          <ChatHead :data="head" />
         </div>
         <div class="chat__dialog">
-          <ChatMessages />
+          <ChatMessages :messages="messages" />
         </div>
         <div class="chat__submit">
           <ChatSubmit />
@@ -25,7 +25,9 @@ import { mapActions, mapGetters } from 'vuex';
 
 export default {
   props: {},
-  computed: {},
+  computed: {
+    ...mapGetters('chat', ['messages', 'head', 'dialogs']),
+  },
   created() {
     // sockets ws:
     // this.handleTestGetUser();
@@ -35,7 +37,6 @@ export default {
       const isValid = await this.$refs.form.validate();
     },
     // ...mapActions('auth', ['logout', 'getUserInfo', 'update']),
-    // ...mapGetters('auth', ['user']),
   },
 };
 </script>
