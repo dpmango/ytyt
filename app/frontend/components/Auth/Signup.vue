@@ -1,10 +1,12 @@
 <template>
-  <div class="login">
-    <div class="login__title h2-title">Регистрация</div>
-    <client-only>
-      <template slot="placeholder">
-        <UiLoader :loading="true" theme="block" />
-      </template>
+  <AuthWrapper>
+    <template #title>Регистрация</template>
+
+    <template #actions>
+      <NuxtLink to="/auth/login">Войти</NuxtLink>
+    </template>
+
+    <template #form>
       <ValidationObserver ref="form" v-slot="{ invalid }" tag="form" class="login__form" @submit.prevent="handleSubmit">
         <UiError :error="error" />
 
@@ -41,12 +43,8 @@
         </ValidationProvider>
         <UiButton type="submit" block>Зарегистрироваться</UiButton>
       </ValidationObserver>
-    </client-only>
-
-    <div class="login__actions">
-      <NuxtLink to="/auth/login">Войти</NuxtLink>
-    </div>
-  </div>
+    </template>
+  </AuthWrapper>
 </template>
 
 <script>
@@ -88,43 +86,3 @@ export default {
   },
 };
 </script>
-
-<style lang="scss" scoped>
-.login {
-  max-width: 400px;
-  margin: 0 auto;
-  padding: 36px 20px;
-  &__title {
-    text-align: center;
-  }
-  &__form {
-    margin-top: 24px;
-    .input {
-      margin-top: 16px;
-    }
-    .button {
-      margin-top: 24px;
-    }
-  }
-  &__actions {
-    margin-top: 20px;
-    font-size: 15px;
-    text-align: center;
-    a {
-      position: relative;
-      color: $colorPrimary;
-      &::after {
-        display: inline-block;
-        content: '|';
-        color: rgba(23, 24, 24, 0.3);
-        margin: 0 2px 0 6px;
-      }
-      &:last-child {
-        &::after {
-          display: none;
-        }
-      }
-    }
-  }
-}
-</style>
