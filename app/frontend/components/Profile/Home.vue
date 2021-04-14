@@ -5,8 +5,14 @@
         <div class="row profile__box-wrapper">
           <div class="profile__avatar">
             <div class="profile__avatar-image">
-              <UiSvgIcon name="github" />
+              <img :src="avatar" />
             </div>
+            <UiUploader
+              :file="avatarFile"
+              :allowed-mime="['image', 'application']"
+              :max-size="5"
+              @onChange="(f) => (avatarFile = f)"
+            />
           </div>
           <div class="profile__content">
             <ValidationObserver
@@ -18,20 +24,20 @@
             >
               <ValidationProvider v-slot="{ errors }" rules="required">
                 <UiInput
-                  :value="data.name"
+                  :value="name"
                   type="text"
                   placeholder="Имя"
                   :error="errors[0]"
                   icon="name"
                   icon-position="left"
-                  @onChange="(v) => (data.name = v)"
+                  @onChange="(v) => (name = v)"
                 />
               </ValidationProvider>
 
               <ValidationProvider v-slot="{ errors }" rules="required">
                 <UiInput
                   disabled
-                  :value="data.email"
+                  :value="email"
                   type="email"
                   placeholder="Email"
                   :error="errors[0]"
@@ -43,20 +49,25 @@
 
               <ValidationProvider v-slot="{ errors }">
                 <UiInput
-                  disabled
-                  :value="data.github"
+                  :value="github"
                   type="text"
                   placeholder="Github"
                   :error="errors[0]"
                   icon="github"
                   icon-position="left"
-                  @onChange="(v) => null"
+                  @onChange="(v) => (github = v)"
                 />
               </ValidationProvider>
+
+              <UiToggle
+                label="Отправлять уведомления о новых сообщениях на email"
+                :value="notifications"
+                @onChange="(val) => (notifications = val)"
+              />
+
               <UiButton type="submit" block>Сохранить изменения</UiButton>
             </ValidationObserver>
           </div>
-          {{ data }}
         </div>
       </div>
       <div class="mt-1">
@@ -71,19 +82,20 @@ import { mapActions, mapGetters } from 'vuex';
 
 export default {
   props: {},
-  computed: {
-    data() {
-      const user = this.user();
-      const clear = (x) => x || '';
+  data() {
+    const user = this.user();
+    const clear = (x) => x || '';
 
-      return {
-        email: user.email,
-        name: `${clear(user.first_name)} ${clear(user.middle_name)} ${clear(user.last_name)}`.trim(),
-        github: '', // TODO - api
-        image: '', // TODO - api
-      };
-    },
+    return {
+      email: user.email,
+      name: `${clear(user.first_name)} ${clear(user.middle_name)} ${clear(user.last_name)}`.trim(),
+      github: user.github_url,
+      avatar: user.avatar,
+      notifications: user.email_notifications,
+      avatarFile: undefined,
+    };
   },
+  computed: {},
   created() {
     this.handleTestGetUser();
   },
@@ -99,9 +111,7 @@ export default {
         return;
       }
 
-      const {
-        data: { email, name },
-      } = this;
+      const { email, name, notifications, github } = this;
 
       const formatName = (str) => {
         const [first, middle, last] = str.split(' ');
@@ -113,7 +123,9 @@ export default {
         };
       };
 
-      await this.update({ email, ...formatName(name) })
+      const patchObject = { email, ...formatName(name), email_notifications: notifications, github_url: github };
+
+      await this.update(patchObject)
         .then((_res) => {
           this.error = null;
           this.$toast.global.success({ message: 'Пользователь обновлен' });
@@ -145,7 +157,8 @@ export default {
 
 <style lang="scss" scoped>
 .profile {
-  margin-top: 24px;
+  padding-top: 24px;
+  padding-bottom: 24px;
   &__box {
     background: #fff;
     border-radius: 8px;
@@ -205,8 +218,38 @@ export default {
     .input {
       margin-top: 16px;
     }
+    .toggle {
+      margin-top: 24px;
+    }
     .button {
       margin-top: 24px;
+    }
+  }
+}
+
+@include r($md) {
+  .profile {
+    background: white;
+    &__box {
+      max-width: 100%;
+      background: transparent;
+      padding: 0;
+    }
+    &__avatar,
+    &__content {
+      flex: 0 0 100%;
+      max-width: 100%;
+    }
+    &__avatar {
+      display: flex;
+      justify-content: center;
+    }
+    &__avatar-image {
+      width: 154px;
+      height: 154px;
+      margin-left: auto;
+      margin-right: auto;
+      padding-bottom: 0;
     }
   }
 }
