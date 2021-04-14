@@ -50,7 +50,7 @@ export default {
       await this.recover({ email: this.email })
         .then((res) => {
           this.error = null;
-          this.$toast.success(res.detail);
+          this.$toast.global.success({ message: res.detail });
           this.$router.push('/auth/login');
         })
         .catch((err) => {

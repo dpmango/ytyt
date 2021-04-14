@@ -116,7 +116,7 @@ export default {
       await this.update({ email, ...formatName(name) })
         .then((_res) => {
           this.error = null;
-          this.$toast.success('Пользователь обновлен');
+          this.$toast.global.success({ message: 'Пользователь обновлен' });
         })
         .catch((err) => {
           const { data, code } = err;
@@ -131,7 +131,7 @@ export default {
     async handleLogout() {
       await this.logout()
         .then((res) => {
-          this.$toast.success(res.detail);
+          this.$toast.global.success({ message: res.detail });
 
           this.$router.push('/auth/login');
         })
