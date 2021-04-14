@@ -2,8 +2,8 @@ from rest_framework import viewsets
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
-from courses_access.common.models import AccessBase
-from courses_access.models import CourseAccess
+from courses_access.common.models import AccessStatuses
+from users.models import User
 
 
 class ConstantsViewSet(viewsets.ViewSet):
@@ -66,6 +66,7 @@ class ConstantsViewSet(viewsets.ViewSet):
         ```
         """
         return Response(self.export_constants([
-            [AccessBase, 'COURSES_STATUS_', 'COURSES_STATUSES'],
-            [CourseAccess, '', 'COURSE_ACCESS_TYPE_', 'COURSE_ACCESS_TYPES']
+            [AccessStatuses, 'COURSES_STATUS_', 'COURSES_STATUSES'],
+            [AccessStatuses, 'COURSE_ACCESS_TYPE_', 'COURSE_ACCESS_TYPES'],
+            [User, 'GENDER_', 'GENDERS'],
         ]))

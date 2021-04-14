@@ -1,5 +1,4 @@
 from django.db import transaction
-from django.urls import reverse
 from rest_framework import exceptions
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
@@ -49,6 +48,14 @@ class LessonFragmentViewSet(FlexibleSerializerModelViewSetMixin,
             2. Урок закрывается со статусом `Завершен`
             3. Тема закрывается со статусом `Завершен`
             4. Курс закрывается со статусом `Завершен`
+
+        Дополнительные проверки:
+            1. Проверка скорости прохождения тем курса:
+                Условия пропуска проверки:
+                    - Пользователь является сотрудником сервиса
+                    - У пользователя пройдено 0 или 1 тема
+                Условия блокирования доступа к курсу:
+                    - Разница между прохождением двух тем — менее одного дня
         """
         lesson_fragment: LessonFragment = self.get_object()
         context = self.get_serializer_context()
@@ -91,9 +98,8 @@ class LessonFragmentViewSet(FlexibleSerializerModelViewSetMixin,
             if next_course_lesson is not None:
                 CourseLessonAccess.objects.set_access_with_fragment(next_course_lesson, user)
 
-                # В случае, если пользователю был предоставлен доступ к новому уроку — отдаем ссылку для запроса уроков
-                url = reverse('courses-lessons-list', kwargs={'course_id': course.id, 'course_theme_id': course_theme.id})
-                return Response({'url': url}, status=status.HTTP_202_ACCEPTED)
+                data = {'course_id': course.id, 'course_theme_id': course_theme.id}
+                return Response(data, status=status.HTTP_202_ACCEPTED)
 
             # Если следующего урока не существует
             # Закрываем текущую тему курса
@@ -114,10 +120,13 @@ class LessonFragmentViewSet(FlexibleSerializerModelViewSetMixin,
                         'Для доступа к теме `%s` вам необходимо произвести оплату' % next_course_theme.title
                     )
 
-                CourseThemeAccess.objects.set_access_with_lesson(next_course_theme, user)
-                url = reverse('courses-themes-list', kwargs={'course_id': course.id})
-                return Response({'url': url}, status=status.HTTP_202_ACCEPTED)
+                # Проверка на скорость прохождения курса
+                CourseThemeAccess.objects.check_learning_speed(request.user, course_access)
 
+                CourseThemeAccess.objects.set_access_with_lesson(next_course_theme, user)
+                return Response({'course_id': course.id}, status=status.HTTP_202_ACCEPTED)
+
+            CourseAccess.objects.set_status(course, user, AccessBase.COURSES_STATUS_COMPLETED)
         # Если доступной темы нет, то курс закончен
         return Response(status=status.HTTP_204_NO_CONTENT)
 

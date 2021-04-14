@@ -25,6 +25,8 @@ class UserAdmin(BaseUserAdmin):
                 'gender',
                 'birthday',
                 'phone',
+                'github_url',
+                'email_notifications',
                 'get_avatar'
             )
         }),

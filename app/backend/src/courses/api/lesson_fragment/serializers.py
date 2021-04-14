@@ -14,10 +14,25 @@ class DefaultLessonFragmentSerializers(AccessBaseSerializers):
 
 class DetailLessonFragmentSerializers(AccessBaseSerializers):
     content = serializers.SerializerMethodField()
+    progress = serializers.SerializerMethodField()
 
     @staticmethod
     def get_content(obj: LessonFragment) -> str:
         return obj.get_content()
+
+    def get_progress(self, obj: LessonFragment) -> float:
+        """
+        Возвращает целочисленный процент прогресса пользователя по уроку
+        :param obj: LessonFragment
+        """
+        user = self.context.get('user')
+
+        fragments = obj.course_lesson.lessonfragment_set.count()
+        completed_fragments = LessonFragmentAccess.objects.filter(
+            status=AccessBase.COURSES_STATUS_COMPLETED, lesson_fragment__course_lesson=obj.course_lesson, user=user,
+        ).count()
+
+        return completed_fragments / fragments * 100
 
     def to_representation(self, instance: LessonFragment):
         """
