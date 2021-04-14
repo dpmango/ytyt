@@ -3,6 +3,7 @@ from abc import abstractmethod
 
 from django.db import models
 from users.models import User
+from django.utils import timezone
 
 
 class AccessStatuses:
@@ -46,6 +47,11 @@ class AccessStatuses:
         COURSE_ACCESS_TYPE_TRIAL
     )
 
+    BLOCK_REASON_FAST_PASSAGE = 1
+    BLOCK_REASONS = (
+        (BLOCK_REASON_FAST_PASSAGE, 'За сутки было пройдено две темы курса'),
+    )
+
 
 class AccessBase(models.Model, AccessStatuses):
     """
@@ -57,6 +63,10 @@ class AccessBase(models.Model, AccessStatuses):
         'Статус', choices=AccessStatuses.COURSES_STATUSES, default=AccessStatuses.COURSES_STATUS_BLOCK
     )
     date_created = models.DateTimeField('Дата создаения фрагмента', auto_now=True)
+    date_completed = models.DateTimeField('Дата завершения', null=True, blank=True)
+    block_reason = models.PositiveIntegerField(
+        'Причина блокировки', choices=AccessStatuses.BLOCK_REASONS, null=True, blank=True
+    )
 
     class Meta:
         abstract = True
@@ -110,8 +120,14 @@ class AccessManagerBase(models.Manager):
         if model is None:
             return None
 
+        update_fields = ['status']
         model.status = status
-        return model.save(update_fields=['status'])
+
+        if status == AccessBase.COURSES_STATUS_COMPLETED:
+            model.date_completed = timezone.now()
+            update_fields.append('date_completed')
+
+        return model.save(update_fields=update_fields)
 
     def _get_obj_name(self, obj):
         return self._to_snake_case(obj.__class__.__name__)

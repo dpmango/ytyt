@@ -48,6 +48,14 @@ class LessonFragmentViewSet(FlexibleSerializerModelViewSetMixin,
             2. Урок закрывается со статусом `Завершен`
             3. Тема закрывается со статусом `Завершен`
             4. Курс закрывается со статусом `Завершен`
+
+        Дополнительные проверки:
+            1. Проверка скорости прохождения тем курса:
+                Условия пропуска проверки:
+                    - Пользователь является сотрудником сервиса
+                    - У пользователя пройдено 0 или 1 тема
+                Условия блокирования доступа к курсу:
+                    - Разница между прохождением двух тем — менее одного дня
         """
         lesson_fragment: LessonFragment = self.get_object()
         context = self.get_serializer_context()
@@ -112,9 +120,13 @@ class LessonFragmentViewSet(FlexibleSerializerModelViewSetMixin,
                         'Для доступа к теме `%s` вам необходимо произвести оплату' % next_course_theme.title
                     )
 
+                # Проверка на скорость прохождения курса
+                CourseThemeAccess.objects.check_learning_speed(request.user, course_access)
+
                 CourseThemeAccess.objects.set_access_with_lesson(next_course_theme, user)
                 return Response({'course_id': course.id}, status=status.HTTP_202_ACCEPTED)
 
+            CourseAccess.objects.set_status(course, user, AccessBase.COURSES_STATUS_COMPLETED)
         # Если доступной темы нет, то курс закончен
         return Response(status=status.HTTP_204_NO_CONTENT)
 
