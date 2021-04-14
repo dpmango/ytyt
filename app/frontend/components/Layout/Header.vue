@@ -127,4 +127,29 @@ export default {
     }
   }
 }
+
+@include r($md) {
+  .header {
+    &__logo {
+      order: 1;
+    }
+    &__search {
+      flex: 0 0 40px;
+      order: 3;
+      padding: 0;
+      margin-right: 12px;
+    }
+    &__messages {
+      order: 2;
+      margin-right: 12px;
+      margin-left: auto;
+    }
+    &__user {
+      order: 4;
+    }
+    &__user-details {
+      display: none;
+    }
+  }
+}
 </style>

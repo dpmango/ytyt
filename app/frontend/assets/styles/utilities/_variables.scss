@@ -23,7 +23,7 @@ $colorAccent: teal;
 $colorGreen: #00AD45;
 $colorRed: #F15525;
 $colorRedHover: lighten($colorRed, 15%);
-$borderColor: #C4C4C4;
+$borderColor: rgba($fontColor, .08);
 $colorBg: #FAFAFA;
 
 // SOCIAL colors
