@@ -1,4 +1,4 @@
-import { loginService, signupService, recoverService, logoutService, userService } from '~/api/auth';
+import { loginService, signupService, recoverService, logoutService, userService, updateUserService } from '~/api/auth';
 
 export const state = () => ({
   token: null,
@@ -99,6 +99,15 @@ export const actions = {
     if (err) throw err;
 
     commit('logOut');
+
+    return result;
+  },
+  async update({ commit }, request) {
+    const [err, result] = await updateUserService(this.$api, request);
+
+    if (err) throw err;
+
+    commit('updateUser', result);
 
     return result;
   },

@@ -4,7 +4,7 @@
     <div class="container">
       <div class="lesson__wrapper">
         <div class="lesson__sidebar sidebar">
-          <LayoutBack title="Вернуться к списку уроков" />
+          <LayoutBack :to="`/theme/${$route.params.theme}`" title="Вернуться к списку уроков" />
 
           <div class="sidebar__box">
             <div class="sidebar__progress">
@@ -27,12 +27,12 @@
                   section.status === 3 && 'is-compleated',
                   section.status === 4 && 'is-locked',
                 ]"
-                @click="setFragment(section.id)"
+                @click="setFragment(section.id, section.status)"
               >
                 <div class="sidebar__lesson-icon">
                   <UiSvgIcon name="checkmark" />
                 </div>
-                <div class="sidebar__lesson-name">{{ section.title }}</div>
+                <div class="sidebar__lesson-name">{{ section.status }} {{ section.title }}</div>
               </div>
             </div>
             <div class="sidebar__question">
@@ -66,12 +66,7 @@
                     <UiSvgIcon name="arrow-left-filled" />
                     <span>предидущий</span>
                   </a>
-                  <a
-                    href="#"
-                    class="nav__actions-next"
-                    :class="[!isNextAvailable && 'disabled']"
-                    @click.prevent="setNextFragment"
-                  >
+                  <a href="#" class="nav__actions-next" @click.prevent="setNextFragment">
                     <span>следующий</span>
                     <UiSvgIcon name="arrow-right-filled" />
                   </a>
@@ -131,10 +126,12 @@ export default {
       return this.sections.findIndex((s) => s.id === this.activeSection);
     },
     nextSectionId() {
-      return this.sections[this.currentSectionIndex + 1];
+      const section = this.sections[this.currentSectionIndex + 11];
+      return section ? section.id : null;
     },
     prevSectionId() {
-      return this.sections[this.currentSectionIndex - 1];
+      const section = this.sections[this.currentSectionIndex - 1];
+      return section ? section.id : null;
     },
     isNextAvailable() {
       return this.nextSectionId;
@@ -148,7 +145,7 @@ export default {
   },
   created() {
     // getting current user fragment from props
-    const activeFragment = this.data.accessible_lesson_fragments.find((frag) => frag.status === 1);
+    const activeFragment = this.data.accessible_lesson_fragments.find((frag) => [1, 2].includes(frag.status));
 
     if (activeFragment) {
       this.activeSection = activeFragment.id;
@@ -163,20 +160,22 @@ export default {
       await this.requestFragment({
         id: this.activeSection,
       }).then((res) => {
-        if (this.isNextAvailable) {
+        if (res.id) {
           this.activeSection = res.id;
-        } else {
+        } else if (res.course_id) {
+          // eslint-disable-next-line no-console
           console.log('end of lesson');
         }
       });
     },
-    setFragment(id) {
-      // TODO - check if available
-      this.activeSection = id;
+    setFragment(id, status) {
+      if (status && status !== 4) {
+        this.activeSection = id;
+      }
     },
     setPrevFragment() {
       if (this.isPrevAvailable) {
-        this.setFragment(this.prevSectionId);
+        this.setFragment(this.prevSectionId, 2);
       }
     },
   },
@@ -242,7 +241,6 @@ export default {
   &__progress-title {
     font-weight: 500;
     font-size: 17px;
-    line-height: 150%;
   }
   &__progress-indicator {
     position: relative;
@@ -299,6 +297,7 @@ export default {
       }
     }
     &.is-locked {
+      pointer-events: none;
       .sidebar {
         &__lesson-icon {
           background: $colorGray;
@@ -345,7 +344,6 @@ export default {
       display: inline-flex;
       align-items: center;
       font-size: 15px;
-      line-height: 1.5;
       color: $colorPrimary;
       cursor: pointer;
       transition: color 0.25s $ease;
@@ -367,7 +365,6 @@ export default {
   border-bottom: 1px solid rgba(#171818, 0.1);
   &__title {
     font-size: 15px;
-    line-height: 1.5;
   }
   &__title-count {
     color: $colorGray;
@@ -381,7 +378,6 @@ export default {
       align-items: center;
       font-size: 15px;
       margin-right: 16px;
-      line-height: 1.5;
       color: $colorPrimary;
       cursor: pointer;
       transition: color 0.25s $ease;
