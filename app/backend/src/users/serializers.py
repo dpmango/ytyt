@@ -5,6 +5,7 @@ from rest_framework import serializers
 
 from courses.models import Course
 from courses_access.models.course import CourseAccess
+from django.db.models.fields.files import ImageFieldFile
 
 User = get_user_model()
 
@@ -12,24 +13,24 @@ User = get_user_model()
 class UserDetailSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance: User):
+        data = super().to_representation(instance)
 
         if '/media/static' in instance.avatar.url:
-            instance.avatar = instance.avatar.url.replace('/media/static', '/static')
+            data['avatar'] = data['avatar'].replace('/media/static', '/static')
 
-        return super().to_representation(instance)
+        return data
 
     class Meta:
         model = User
         fields = (
-            'id',
+            # 'id',
             'email',
-            'phone',
             'first_name',
             'last_name',
-            'middle_name',
-            'birthday',
-            'phone',
-            'gender',
+            # 'middle_name',
+            # 'birthday',
+            # 'phone',
+            # 'gender',
             'github_url',
             'avatar',
             'email_notifications',
