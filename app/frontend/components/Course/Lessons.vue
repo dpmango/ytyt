@@ -1,7 +1,7 @@
 <template>
   <div class="lessons">
     <div class="container">
-      <LayoutBack title="Вернуться к списку" />
+      <LayoutBack :to="`/`" title="Вернуться к списку" />
 
       <div class="list">
         <div v-for="lesson in list" :key="lesson.id" class="list__row">
@@ -60,7 +60,6 @@ export default {
     flex: 0 0 10px;
     margin-top: 2px;
     font-size: 17px;
-    line-height: 1.5;
     color: #939598;
   }
   &__content {
@@ -82,12 +81,10 @@ export default {
   &__title {
     font-weight: 500;
     font-size: 17px;
-    line-height: 1.5;
   }
   &__description {
     margin-top: 6px;
     font-size: 14px;
-    line-height: 1.5;
   }
   &.is-compleated {
     border: 1px solid rgba(23, 24, 24, 0.15);

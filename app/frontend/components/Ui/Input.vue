@@ -203,7 +203,6 @@ export default {
     padding: 8px 16px 7px 16px;
     color: $colorPrimary;
     font-size: 14px;
-    line-height: 150%;
     cursor: pointer;
     opacity: 0;
     pointer-events: none;

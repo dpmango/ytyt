@@ -4,7 +4,7 @@
     <div class="container">
       <div class="lesson__wrapper">
         <div class="lesson__sidebar sidebar">
-          <LayoutBack title="Вернуться к списку уроков" />
+          <LayoutBack :to="`/theme/${$route.params.theme}`" title="Вернуться к списку уроков" />
 
           <div class="sidebar__box">
             <div class="sidebar__progress">
@@ -127,19 +127,11 @@ export default {
     },
     nextSectionId() {
       const section = this.sections[this.currentSectionIndex + 11];
-      if (section) {
-        return section.id;
-      }
-
-      return null;
+      return section ? section.id : null;
     },
     prevSectionId() {
       const section = this.sections[this.currentSectionIndex - 1];
-      if (section) {
-        return section.id;
-      }
-
-      return null;
+      return section ? section.id : null;
     },
     isNextAvailable() {
       return this.nextSectionId;
@@ -249,7 +241,6 @@ export default {
   &__progress-title {
     font-weight: 500;
     font-size: 17px;
-    line-height: 150%;
   }
   &__progress-indicator {
     position: relative;
@@ -353,7 +344,6 @@ export default {
       display: inline-flex;
       align-items: center;
       font-size: 15px;
-      line-height: 1.5;
       color: $colorPrimary;
       cursor: pointer;
       transition: color 0.25s $ease;
@@ -375,7 +365,6 @@ export default {
   border-bottom: 1px solid rgba(#171818, 0.1);
   &__title {
     font-size: 15px;
-    line-height: 1.5;
   }
   &__title-count {
     color: $colorGray;
@@ -389,7 +378,6 @@ export default {
       align-items: center;
       font-size: 15px;
       margin-right: 16px;
-      line-height: 1.5;
       color: $colorPrimary;
       cursor: pointer;
       transition: color 0.25s $ease;

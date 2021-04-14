@@ -1,5 +1,5 @@
 <template>
-  <div class="back" @click="goBack">
+  <div class="back" :data-to="to" @click="goBack">
     <UiSvgIcon name="arrow-left-filled" />
     <span>{{ title }}</span>
   </div>
@@ -9,10 +9,12 @@
 export default {
   props: {
     title: String,
+    to: String,
   },
   methods: {
     goBack() {
-      return this.$router.go(-1);
+      return this.$router.push(this.to);
+      // return this.$router.go(-1);
     },
   },
 };
@@ -23,7 +25,6 @@ export default {
   display: inline-flex;
   align-items: center;
   font-size: 14px;
-  line-height: 1.5;
   color: $colorPrimary;
   cursor: pointer;
   transition: color 0.25s $ease;
