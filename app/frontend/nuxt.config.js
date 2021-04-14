@@ -68,6 +68,13 @@ export default {
     baseURL: process.env.BASE_URL,
   },
 
+  loading: {
+    color: '#1E88E5',
+    height: '3px',
+    throttle: 800,
+    continuous: true,
+  },
+
   toast: {
     position: 'top-right',
   },

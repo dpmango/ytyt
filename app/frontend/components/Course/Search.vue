@@ -8,13 +8,13 @@
         icon-position="left"
         type="search"
         clearable
-        @blur="handleBlur"
+        @focus="handleFocus"
         @onChange="handleChange"
       />
     </div>
-    <div class="search__results">
-      <ul class="search__list">
-        <li v-for="course in list" :key="course.id" class="list__row">
+    <div class="search__results" :class="[active && 'is-active']">
+      <ul class="search__list" @click="handleSelect">
+        <li v-for="course in list" :key="course.id">
           <NuxtLink class="card" :to="`/theme/${course.course_theme.id}/${course.course_lesson.id}`">
             <div class="card__content">
               <div class="card__course">{{ course.course_title }}</div>
@@ -36,6 +36,7 @@ export default {
   data() {
     return {
       input: '',
+      active: false,
       list: [],
     };
   },
@@ -56,13 +57,34 @@ export default {
       return res;
     }, 500);
   },
+  mounted() {
+    this.outsideClickListeners = window.addEventListener('click', this.clickOutside, false);
+  },
+  destroyed() {
+    this.outsideClickListeners = window.removeEventListener('click', this.clickOutside, false);
+  },
   methods: {
     handleChange(v) {
       this.input = v;
       this.handleDebounced(v);
     },
-    handleBlur(e) {
+    handleFocus(e) {
+      e.stopPropagation();
+
+      this.active = true;
+    },
+    handleClose() {
+      this.active = false;
+    },
+    clickOutside(e) {
+      if (!e.target.closest('.header__search')) {
+        this.handleClose();
+      }
+    },
+    handleSelect(e) {
+      this.input = '';
       this.list = [];
+      this.handleClose();
     },
     ...mapActions('courses', ['search']),
   },
@@ -96,9 +118,18 @@ export default {
     top: 100%;
     left: 0;
     right: 0;
-    background: #fff;
+    background: white;
     box-shadow: 0 8px 24px -4px rgba(23, 24, 24, 0.12);
     border-radius: 4px;
+    opacity: 0;
+    pointer-events: none;
+    max-height: 300px;
+    overflow-y: auto;
+    transition: opacity 0.2s $ease;
+    &.is-active {
+      opacity: 1;
+      pointer-events: all;
+    }
   }
   &__list {
     list-style: none;
