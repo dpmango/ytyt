@@ -1,0 +1,5 @@
+Hello!
+
+Подтвердите почту
+
+{{ protocol }}://{{ domain }}/auth/verify-email/?token={{token}}&uid={{uid}}

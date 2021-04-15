@@ -27,6 +27,7 @@ class UserAdmin(BaseUserAdmin):
                 'phone',
                 'github_url',
                 'email_notifications',
+                'email_confirmed',
                 'get_avatar'
             )
         }),
@@ -37,6 +38,11 @@ class UserAdmin(BaseUserAdmin):
                 'is_superuser',
                 'groups',
                 'user_permissions'
+            ),
+        }),
+        (_('Ревьюеры'), {
+            'fields': (
+                'user_reviewers',
             ),
         }),
     )
@@ -54,6 +60,7 @@ class UserAdmin(BaseUserAdmin):
     filter_horizontal = (
         'groups',
         'user_permissions',
+        'user_reviewers',
     )
 
     def get_avatar(self, obj):

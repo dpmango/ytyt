@@ -8,6 +8,10 @@ x-backend-env:
     DJANGO_LOG_LEVEL: ${DJANGO_LOG_LEVEL}
     SENTRY_DSN: ${SENTRY_DSN}
 
+    MAILGUN_HOST_USER: ${MAILGUN_HOST_USER}
+    MAILGUN_TOKEN: ${MAILGUN_TOKEN}
+    MAILGUN_HOST: ${MAILGUN_HOST}
+
 x-backend:
   &backend
   build:
