@@ -1,13 +1,13 @@
 <template>
   <div class="chat">
-    <div class="chat__wrapper">
+    <div class="chat__wrapper" :class="[activeDialog && 'is-dialog-active']">
       <div class="chat__sidebar">
-        <ChatDialogs :dialogs="dialogs" />
+        <ChatDialogs :dialogs="dialogs" :active-dialog="activeDialog" :set-dialog="setDialog" />
       </div>
 
       <div class="chat__content">
         <div class="chat__head">
-          <ChatHead :data="head" />
+          <ChatHead :click-back="handleClickBack" :data="head" />
         </div>
         <div class="chat__dialog">
           <ChatMessages :messages="messages" />
@@ -25,6 +25,11 @@ import { mapActions, mapGetters } from 'vuex';
 
 export default {
   props: {},
+  data() {
+    return {
+      activeDialog: null,
+    };
+  },
   computed: {
     ...mapGetters('chat', ['messages', 'head', 'dialogs']),
   },
@@ -33,6 +38,12 @@ export default {
     // this.handleTestGetUser();
   },
   methods: {
+    setDialog(id) {
+      this.activeDialog = id;
+    },
+    handleClickBack() {
+      this.activeDialog = null;
+    },
     async handleSubmit() {
       const isValid = await this.$refs.form.validate();
     },
@@ -48,7 +59,6 @@ export default {
   // }
   &__wrapper {
     display: flex;
-    flex-wrap: wrap;
     position: relative;
   }
   &__sidebar,
@@ -90,6 +100,33 @@ export default {
     margin-top: auto;
     background: white;
     box-shadow: 0 0 12px 0 rgba($fontColor, 0.05);
+  }
+}
+
+@include r($md) {
+  .chat {
+    &__wrapper {
+      will-change: transform;
+      transition: transform 0.3s $ease;
+      &.is-dialog-active {
+        transform: translateX(-50%);
+        .chat__content {
+          transform: translateX(-50%);
+        }
+      }
+    }
+    &__sidebar {
+      z-index: 2;
+      flex-basis: 100%;
+      max-width: 100%;
+    }
+    &__content {
+      z-index: 3;
+      flex-basis: 100%;
+      max-width: 100%;
+      will-change: transform;
+      transition: transform 0.25s ease-in;
+    }
   }
 }
 </style>

@@ -80,7 +80,7 @@ export default {
         })
         .catch((err) => {
           if (err.code === 403) {
-            this.$toast.error(err.data.detail);
+            this.$toast.global.error({ message: err.data.detail });
             this.$router.push('/payment');
           }
         });

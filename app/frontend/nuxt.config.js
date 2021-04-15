@@ -23,6 +23,7 @@ export default {
     '~/plugins/filters.js',
     '~/plugins/event-bus.js',
     '~/plugins/global-mixins.js',
+    { src: '~/plugins/toast.js', mode: 'client' },
     { src: '~/plugins/vee-validate.js', mode: 'client' },
   ],
 
@@ -67,16 +68,14 @@ export default {
     baseURL: process.env.BASE_URL,
   },
 
+  loading: {
+    color: '#1E88E5',
+    height: '3px',
+    throttle: 800,
+    continuous: true,
+  },
+
   toast: {
     position: 'top-right',
-    // register: [
-    //   {
-    //     name: 'my-error',
-    //     message: 'Oops...Something went wrong',
-    //     options: {
-    //       type: 'error',
-    //     },
-    //   },
-    // ],
   },
 };

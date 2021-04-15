@@ -63,13 +63,21 @@ export default {
   }
   &--incoming {
     justify-content: flex-end;
+    padding-right: 24px;
   }
   &--outcoming {
     justify-content: flex-start;
+    padding-left: 24px;
     .message__wrapper {
       background: #1e88e5;
       color: white;
     }
+  }
+}
+
+@include r($sm) {
+  .messages {
+    padding: 16px;
   }
 }
 </style>

@@ -30,20 +30,3 @@ export const HHMMtoSeconds = (str) => {
 
   return 0;
 };
-
-const tmpFixFrom = (str) => {
-  return str === '24:00' ? '00:00' : str;
-};
-const tmpFixTo = (str) => {
-  return str === '0:00' ? '24:00' : str;
-};
-
-export const timeInRangeHHMM = (range, curTime) => {
-  const from = HHMMtoSeconds(tmpFixFrom(range.from));
-  const to = HHMMtoSeconds(tmpFixTo(range.to));
-  const cur = HHMMtoSeconds(curTime);
-
-  return cur >= from && cur <= to;
-};
-
-window.djs = djs;

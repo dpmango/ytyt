@@ -23,21 +23,19 @@
 // desktop first utils
 @include r($lg) {
   .lg-hidden {
-    display: none;
+    display: none !important;
   }
 }
-
 
 @include r($md) {
   .md-hidden {
-    display: none;
+    display: none !important;
   }
 }
 
-
 @include r($sm) {
   .sm-hidden {
-    display: none;
+    display: none !important;
   }
 }
 
@@ -45,13 +43,18 @@
 // mobile first utils
 @include rmin($lg + 1) {
   .lg-visible {
-    display: none;
+    display: none !important;
   }
 }
 
-
 @include rmin($md + 1) {
   .md-visible {
-    display: none;
+    display: none !important;
+  }
+}
+
+@include rmin($sm + 1) {
+  .sm-visible {
+    display: none !important;
   }
 }

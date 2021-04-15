@@ -1,0 +1,26 @@
+.toasted-container{
+  &.toast{
+    &.top-right{
+      top: 0;
+      right: 20px;
+    }
+
+    .toasted{
+      border-radius: 6px;
+      min-height: 1px;
+      line-height: 1.5;
+      padding: 8px 20px;
+      margin-top: 8px;
+      font-size: 14px;
+      font-weight: 400;
+
+      &.success{
+        background-color: $colorGreen;
+      }
+      &.error{
+        background-color: $colorRed;
+      }
+    }
+  }
+}
+

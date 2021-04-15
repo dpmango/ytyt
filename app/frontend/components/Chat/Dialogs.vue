@@ -1,7 +1,13 @@
 <template>
   <div class="dialogs">
     <div class="dialogs__list">
-      <div v-for="dialog in dialogs" :key="dialog.id" class="dialog">
+      <div
+        v-for="dialog in dialogs"
+        :key="dialog.id"
+        class="dialog"
+        :class="[activeDialog === dialog.id && 'is-current']"
+        @click="setDialog(dialog.id)"
+      >
         <div class="dialog__avatar">
           <div class="dialog__avatar-image">
             <img :src="dialog.avatar" :alt="dialog.name" />
@@ -26,6 +32,8 @@
 export default {
   props: {
     dialogs: Array,
+    activeDialog: Number,
+    setDialog: Function,
   },
 };
 </script>
@@ -45,13 +53,16 @@ export default {
   display: flex;
   border-bottom: 1px solid rgba(147, 149, 152, 0.2);
   border-right: 1px solid rgba(147, 149, 152, 0.2);
-  padding: 19px 12px;
+  padding: 17px 12px;
   transition: background 0.25s $ease;
   cursor: pointer;
   &:last-child {
     border-bottom: 0;
   }
   &:hover {
+    background: rgba(155, 81, 224, 0.06);
+  }
+  &.is-current {
     background: rgba(155, 81, 224, 0.06);
   }
   &__avatar {
