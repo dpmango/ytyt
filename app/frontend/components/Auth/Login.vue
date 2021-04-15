@@ -4,7 +4,7 @@
 
     <template #actions>
       <NuxtLink to="/auth/signup">Зарегистрироваться</NuxtLink>
-      <NuxtLink to="/auth/recover">Забыли пароль?</NuxtLink>
+      <NuxtLink to="/auth/reset">Забыли пароль?</NuxtLink>
     </template>
 
     <template #form>

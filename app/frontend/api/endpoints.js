@@ -3,11 +3,11 @@ export default {
     user: '/rest-auth/user/',
     login: '/rest-auth/login/',
     logout: '/rest-auth/logout/',
+    registration: '/rest-auth/registration/',
+    verifyEmail: '/rest-auth/registration/verify-email/',
     passwordChange: '/rest-auth/password/change/',
     passwordReset: '/rest-auth/password/reset/',
     passwordResetConfirm: '/rest-auth/password/reset/confirm/',
-    registration: '/rest-auth/registration/',
-    verifyEmail: '/rest-auth/registration/verify-email/',
   },
   course: {
     courses: '/api/courses/',

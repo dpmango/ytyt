@@ -37,6 +37,18 @@ export const recoverService = async ($api, request) => {
   }
 };
 
+export const recoverConfirmationService = async ($api, request) => {
+  try {
+    const { data } = await $api.post(endpoints.auth.passwordResetConfirm, {
+      ...request,
+    });
+
+    return [null, mapData(data)];
+  } catch (error) {
+    return [mapApiError(error), null];
+  }
+};
+
 export const logoutService = async ($api, request) => {
   try {
     const { data } = await $api.post(endpoints.auth.logout);

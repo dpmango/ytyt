@@ -1,4 +1,12 @@
-import { loginService, signupService, recoverService, logoutService, userService, updateUserService } from '~/api/auth';
+import {
+  loginService,
+  signupService,
+  recoverService,
+  recoverConfirmationService,
+  logoutService,
+  userService,
+  updateUserService,
+} from '~/api/auth';
 
 export const state = () => ({
   token: null,
@@ -86,6 +94,15 @@ export const actions = {
   },
   async recover({ commit, _dispatch }, request) {
     const [err, result] = await recoverService(this.$api, request);
+
+    if (err) throw err;
+
+    const { detail } = result;
+
+    return result;
+  },
+  async recoverConfirmation({ commit, _dispatch }, request) {
+    const [err, result] = await recoverConfirmationService(this.$api, request);
 
     if (err) throw err;
 

@@ -20,7 +20,7 @@
           <NuxtLink to="/profile">
             <div class="header__user-details">{{ userName }}</div>
             <div class="header__user-avatar">
-              <img :src="userAvatar" :alt="userEmail" />
+              <img :src="userAvatar" :alt="userName" />
             </div>
           </NuxtLink>
         </div>
