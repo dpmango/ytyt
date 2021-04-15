@@ -36,4 +36,30 @@
     border-radius: 8px;
   }
 }
+
+@include r($sm) {
+  .auth {
+    background: white;
+    &__wrapper {
+      width: 100%;
+      max-width: 100%;
+      padding: 40px 0;
+      height: 100vh;
+      max-height: 720px;
+      display: flex;
+      flex-direction: column;
+    }
+    &__logo {
+      flex: 0 0 auto;
+    }
+    &__box {
+      flex: 1 0 auto;
+      display: flex;
+      flex-direction: column;
+      background: transparent;
+      border-radius: 0;
+      margin-top: 40px;
+    }
+  }
+}
 </style>

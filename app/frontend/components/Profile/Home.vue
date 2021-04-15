@@ -5,7 +5,37 @@
         <div class="row profile__box-wrapper">
           <div class="profile__avatar">
             <div class="profile__avatar-image">
-              <UiSvgIcon name="github" />
+              <img :src="avatarBlob || avatar" />
+              <div class="profile__avatar-uploader">
+                <UiUploader
+                  :file="avatarFile"
+                  :allowed-mime="['image']"
+                  :max-size="5"
+                  :include-reader="true"
+                  @onReader="(img) => (avatarBlob = img)"
+                  @onChange="(f) => (avatarFile = f)"
+                  @handleError="(err) => (avatarError = err)"
+                >
+                  <template #info="slotProps">
+                    <span v-if="slotProps.file">{{ slotProps.file.name }}</span>
+                  </template>
+                  <template #error="slotProps">
+                    <span v-if="slotProps.error">{{ slotProps.error }}</span>
+                  </template>
+                  <template #button="slotProps">
+                    <div class="profile__avatar-uploader-trigger" @click="slotProps.trigger">
+                      <UiSvgIcon name="camera" />
+                    </div>
+                  </template>
+                </UiUploader>
+              </div>
+            </div>
+
+            <div v-if="avatarError" class="profile__avatar-error">
+              <div class="profile__avatar-error-icon">
+                <UiSvgIcon name="paper-clip" />
+              </div>
+              <span class="profile__avatar-error-name">{{ avatarError }}</span>
             </div>
           </div>
           <div class="profile__content">
@@ -18,20 +48,20 @@
             >
               <ValidationProvider v-slot="{ errors }" rules="required">
                 <UiInput
-                  :value="data.name"
+                  :value="name"
                   type="text"
                   placeholder="Имя"
                   :error="errors[0]"
                   icon="name"
                   icon-position="left"
-                  @onChange="(v) => (data.name = v)"
+                  @onChange="(v) => (name = v)"
                 />
               </ValidationProvider>
 
               <ValidationProvider v-slot="{ errors }" rules="required">
                 <UiInput
                   disabled
-                  :value="data.email"
+                  :value="email"
                   type="email"
                   placeholder="Email"
                   :error="errors[0]"
@@ -43,20 +73,25 @@
 
               <ValidationProvider v-slot="{ errors }">
                 <UiInput
-                  disabled
-                  :value="data.github"
+                  :value="github"
                   type="text"
                   placeholder="Github"
                   :error="errors[0]"
                   icon="github"
                   icon-position="left"
-                  @onChange="(v) => null"
+                  @onChange="(v) => (github = v)"
                 />
               </ValidationProvider>
+
+              <UiToggle
+                label="Отправлять уведомления о новых сообщениях на email"
+                :value="notifications"
+                @onChange="(val) => (notifications = val)"
+              />
+
               <UiButton type="submit" block>Сохранить изменения</UiButton>
             </ValidationObserver>
           </div>
-          {{ data }}
         </div>
       </div>
       <div class="mt-1">
@@ -71,19 +106,22 @@ import { mapActions, mapGetters } from 'vuex';
 
 export default {
   props: {},
-  computed: {
-    data() {
-      const user = this.user();
-      const clear = (x) => x || '';
+  data() {
+    const user = this.user();
+    const clear = (x) => x || '';
 
-      return {
-        email: user.email,
-        name: `${clear(user.first_name)} ${clear(user.middle_name)} ${clear(user.last_name)}`.trim(),
-        github: '', // TODO - api
-        image: '', // TODO - api
-      };
-    },
+    return {
+      email: user.email,
+      name: `${clear(user.first_name)} ${clear(user.middle_name)} ${clear(user.last_name)}`.trim(),
+      github: user.github_url,
+      avatar: user.avatar,
+      notifications: user.email_notifications,
+      avatarFile: null,
+      avatarBlob: null,
+      avatarError: null,
+    };
   },
+  computed: {},
   created() {
     this.handleTestGetUser();
   },
@@ -99,12 +137,20 @@ export default {
         return;
       }
 
-      const {
-        data: { email, name },
-      } = this;
+      const { email, name, notifications, github, avatarFile } = this;
 
+      // TODO - better refactor to multiple fields
       const formatName = (str) => {
-        const [first, middle, last] = str.split(' ');
+        const split = str.split(' ');
+        let [first, middle, last] = [null, null, null];
+
+        if (split.length > 2) {
+          [first, middle, last] = split;
+        } else if (split.length > 1) {
+          [first, last] = split;
+        } else {
+          first = split;
+        }
 
         return {
           first_name: first,
@@ -113,10 +159,34 @@ export default {
         };
       };
 
-      await this.update({ email, ...formatName(name) })
+      const { first_name, middle_name, last_name } = formatName(name);
+
+      // build form data with optional avatar image
+      const formData = new FormData();
+      formData.append('email', email);
+      formData.append('email_notifications', notifications);
+      if (first_name) {
+        formData.append('first_name', first_name);
+      }
+      if (middle_name) {
+        formData.append('middle_name', middle_name);
+      }
+      if (last_name) {
+        formData.append('last_name', last_name);
+      }
+      if (github) {
+        formData.append('github_url', github);
+      }
+
+      if (this.avatarFile) {
+        formData.append('avatar', avatarFile);
+      }
+
+      await this.update(formData)
         .then((_res) => {
           this.error = null;
-          this.$toast.success('Пользователь обновлен');
+          // this.avatarBlob = null;
+          this.$toast.global.success({ message: 'Пользователь обновлен' });
         })
         .catch((err) => {
           const { data, code } = err;
@@ -131,7 +201,7 @@ export default {
     async handleLogout() {
       await this.logout()
         .then((res) => {
-          this.$toast.success(res.detail);
+          this.$toast.global.success({ message: res.detail });
 
           this.$router.push('/auth/login');
         })
@@ -145,7 +215,8 @@ export default {
 
 <style lang="scss" scoped>
 .profile {
-  margin-top: 24px;
+  padding-top: 24px;
+  padding-bottom: 24px;
   &__box {
     background: #fff;
     border-radius: 8px;
@@ -185,7 +256,7 @@ export default {
       height: 100%;
       object-fit: cover;
     }
-    .svg-icon {
+    > .svg-icon {
       position: absolute;
       z-index: 2;
       top: 50%;
@@ -194,6 +265,64 @@ export default {
       font-size: 64px;
       color: $colorGray;
     }
+    ::v-deep .uploader {
+      flex: 1 0 auto;
+      display: flex;
+      flex-direction: column;
+      .uploader__wrapper {
+        flex: 1 0 auto;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+      }
+    }
+  }
+  &__avatar-uploader {
+    position: absolute;
+    z-index: 2;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    background: rgba($fontColor, 0.3);
+    color: rgba(white, 0.8);
+    // hides all info && error
+    font-size: 0;
+    opacity: 0;
+    transition: opacity 0.25s $ease;
+    &:hover {
+      opacity: 1;
+    }
+    .svg-icon {
+      font-size: 28px;
+    }
+  }
+  &__avatar-uploader-trigger {
+    flex: 1 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  &__avatar-error {
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    min-height: 36px;
+    color: $colorRed;
+  }
+  &__avatar-error-icon {
+    flex: 0 0 auto;
+    font-size: 0;
+    .svg-icon {
+      font-size: 16px;
+    }
+  }
+  &__avatar-error-name {
+    display: inline-block;
+    margin-left: 8px;
+    font-size: 14px;
   }
   &__content {
     flex: 0 0 calc(100% - 200px - 24px);
@@ -205,8 +334,38 @@ export default {
     .input {
       margin-top: 16px;
     }
+    .toggle {
+      margin-top: 24px;
+    }
     .button {
       margin-top: 24px;
+    }
+  }
+}
+
+@include r($md) {
+  .profile {
+    background: white;
+    &__box {
+      max-width: 100%;
+      background: transparent;
+      padding: 0;
+    }
+    &__avatar,
+    &__content {
+      flex: 0 0 100%;
+      max-width: 100%;
+    }
+    &__avatar {
+      display: flex;
+      justify-content: center;
+    }
+    &__avatar-image {
+      width: 154px;
+      height: 154px;
+      margin-left: auto;
+      margin-right: auto;
+      padding-bottom: 0;
     }
   }
 }

@@ -1,14 +1,17 @@
 <template>
-  <div class="login">
-    <div class="login__title h2-title">Вход</div>
-    <client-only>
-      <template slot="placeholder">
-        <UiLoader :loading="true" theme="block" />
-      </template>
+  <AuthWrapper>
+    <template #title>Войти</template>
+
+    <template #actions>
+      <NuxtLink to="/auth/signup">Зарегистрироваться</NuxtLink>
+      <NuxtLink to="/auth/recover">Забыли пароль?</NuxtLink>
+    </template>
+
+    <template #form>
       <ValidationObserver ref="form" v-slot="{ invalid }" tag="form" class="login__form" @submit.prevent="handleSubmit">
         <UiError :error="error" />
 
-        <ValidationProvider v-slot="{ errors }" rules="email|required">
+        <ValidationProvider v-slot="{ errors }" class="ui-group" rules="email|required">
           <UiInput
             :value="email"
             label="Email"
@@ -18,7 +21,7 @@
             @onChange="(v) => (email = v)"
           />
         </ValidationProvider>
-        <ValidationProvider v-slot="{ errors }" rules="required">
+        <ValidationProvider v-slot="{ errors }" class="ui-group" rules="required">
           <UiInput
             :value="password"
             label="Пароль"
@@ -27,15 +30,11 @@
             @onChange="(v) => (password = v)"
           />
         </ValidationProvider>
+
         <UiButton type="submit" block>Войти</UiButton>
       </ValidationObserver>
-    </client-only>
-
-    <div class="login__actions">
-      <NuxtLink to="/auth/signup">Зарегистрироваться</NuxtLink>
-      <NuxtLink to="/auth/recover">Забыли пароль?</NuxtLink>
-    </div>
-  </div>
+    </template>
+  </AuthWrapper>
 </template>
 
 <script>
@@ -77,43 +76,3 @@ export default {
   },
 };
 </script>
-
-<style lang="scss" scoped>
-.login {
-  max-width: 400px;
-  margin: 0 auto;
-  padding: 36px 20px;
-  &__title {
-    text-align: center;
-  }
-  &__form {
-    margin-top: 24px;
-    .input {
-      margin-top: 16px;
-    }
-    .button {
-      margin-top: 24px;
-    }
-  }
-  &__actions {
-    margin-top: 20px;
-    font-size: 15px;
-    text-align: center;
-    a {
-      position: relative;
-      color: $colorPrimary;
-      &::after {
-        display: inline-block;
-        content: '|';
-        color: rgba(23, 24, 24, 0.3);
-        margin: 0 2px 0 6px;
-      }
-      &:last-child {
-        &::after {
-          display: none;
-        }
-      }
-    }
-  }
-}
-</style>

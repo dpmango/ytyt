@@ -46,6 +46,8 @@ export default {
 }
 
 .card {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: flex-start;
   background: #fff;
@@ -81,6 +83,7 @@ export default {
   &__title {
     font-weight: 500;
     font-size: 17px;
+    line-height: 1.4;
   }
   &__description {
     margin-top: 6px;
@@ -88,6 +91,7 @@ export default {
   }
   &.is-compleated {
     border: 1px solid rgba(23, 24, 24, 0.15);
+    opacity: 0.6;
     background: transparent;
     box-shadow: none;
   }
@@ -95,6 +99,29 @@ export default {
     background: rgba(#fff, 0.6);
     box-shadow: none;
     pointer-events: none;
+  }
+}
+
+@include r($sm) {
+  .card {
+    padding: 16px 16px;
+    flex-direction: column;
+    &__num {
+      position: absolute;
+      margin-top: 0;
+      top: 14px;
+      right: 16px;
+    }
+    &__status {
+      order: 1;
+      margin-top: 0;
+    }
+    &__content {
+      order: 2;
+      margin-top: 8px;
+      padding-left: 0;
+      padding-right: 0;
+    }
   }
 }
 </style>
