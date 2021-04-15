@@ -5,14 +5,38 @@
         <div class="row profile__box-wrapper">
           <div class="profile__avatar">
             <div class="profile__avatar-image">
-              <img :src="avatar" />
+              <img :src="avatarBlob || avatar" />
+              <div class="profile__avatar-uploader">
+                <UiUploader
+                  :file="avatarFile"
+                  :allowed-mime="['image']"
+                  :max-size="5"
+                  :include-reader="true"
+                  @onReader="(img) => (avatarBlob = img)"
+                  @onChange="(f) => (avatarFile = f)"
+                  @handleError="(err) => (avatarError = err)"
+                >
+                  <template #info="slotProps">
+                    <span v-if="slotProps.file">{{ slotProps.file.name }}</span>
+                  </template>
+                  <template #error="slotProps">
+                    <span v-if="slotProps.error">{{ slotProps.error }}</span>
+                  </template>
+                  <template #button="slotProps">
+                    <div class="profile__avatar-uploader-trigger" @click="slotProps.trigger">
+                      <UiSvgIcon name="camera" />
+                    </div>
+                  </template>
+                </UiUploader>
+              </div>
             </div>
-            <UiUploader
-              :file="avatarFile"
-              :allowed-mime="['image', 'application']"
-              :max-size="5"
-              @onChange="(f) => (avatarFile = f)"
-            />
+
+            <div v-if="avatarError" class="profile__avatar-error">
+              <div class="profile__avatar-error-icon">
+                <UiSvgIcon name="paper-clip" />
+              </div>
+              <span class="profile__avatar-error-name">{{ avatarError }}</span>
+            </div>
           </div>
           <div class="profile__content">
             <ValidationObserver
@@ -92,7 +116,9 @@ export default {
       github: user.github_url,
       avatar: user.avatar,
       notifications: user.email_notifications,
-      avatarFile: undefined,
+      avatarFile: null,
+      avatarBlob: null,
+      avatarError: null,
     };
   },
   computed: {},
@@ -111,10 +137,20 @@ export default {
         return;
       }
 
-      const { email, name, notifications, github } = this;
+      const { email, name, notifications, github, avatarFile } = this;
 
+      // TODO - better refactor to multiple fields
       const formatName = (str) => {
-        const [first, middle, last] = str.split(' ');
+        const split = str.split(' ');
+        let [first, middle, last] = [null, null, null];
+
+        if (split.length > 2) {
+          [first, middle, last] = split;
+        } else if (split.length > 1) {
+          [first, last] = split;
+        } else {
+          first = split;
+        }
 
         return {
           first_name: first,
@@ -123,11 +159,33 @@ export default {
         };
       };
 
-      const patchObject = { email, ...formatName(name), email_notifications: notifications, github_url: github };
+      const { first_name, middle_name, last_name } = formatName(name);
 
-      await this.update(patchObject)
+      // build form data with optional avatar image
+      const formData = new FormData();
+      formData.append('email', email);
+      formData.append('email_notifications', notifications);
+      if (first_name) {
+        formData.append('first_name', first_name);
+      }
+      if (middle_name) {
+        formData.append('middle_name', middle_name);
+      }
+      if (last_name) {
+        formData.append('last_name', last_name);
+      }
+      if (github) {
+        formData.append('github_url', github);
+      }
+
+      if (this.avatarFile) {
+        formData.append('avatar', avatarFile);
+      }
+
+      await this.update(formData)
         .then((_res) => {
           this.error = null;
+          // this.avatarBlob = null;
           this.$toast.global.success({ message: 'Пользователь обновлен' });
         })
         .catch((err) => {
@@ -198,7 +256,7 @@ export default {
       height: 100%;
       object-fit: cover;
     }
-    .svg-icon {
+    > .svg-icon {
       position: absolute;
       z-index: 2;
       top: 50%;
@@ -207,6 +265,64 @@ export default {
       font-size: 64px;
       color: $colorGray;
     }
+    ::v-deep .uploader {
+      flex: 1 0 auto;
+      display: flex;
+      flex-direction: column;
+      .uploader__wrapper {
+        flex: 1 0 auto;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+      }
+    }
+  }
+  &__avatar-uploader {
+    position: absolute;
+    z-index: 2;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    background: rgba($fontColor, 0.3);
+    color: rgba(white, 0.8);
+    // hides all info && error
+    font-size: 0;
+    opacity: 0;
+    transition: opacity 0.25s $ease;
+    &:hover {
+      opacity: 1;
+    }
+    .svg-icon {
+      font-size: 28px;
+    }
+  }
+  &__avatar-uploader-trigger {
+    flex: 1 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  &__avatar-error {
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    min-height: 36px;
+    color: $colorRed;
+  }
+  &__avatar-error-icon {
+    flex: 0 0 auto;
+    font-size: 0;
+    .svg-icon {
+      font-size: 16px;
+    }
+  }
+  &__avatar-error-name {
+    display: inline-block;
+    margin-left: 8px;
+    font-size: 14px;
   }
   &__content {
     flex: 0 0 calc(100% - 200px - 24px);
