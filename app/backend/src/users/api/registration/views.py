@@ -12,6 +12,8 @@ from rest_framework.response import Response
 
 from providers.mailgun.mixins import EmailNotificationMixin
 from users.serializers import VerifyEmailSerializer
+from drf_yasg.openapi import Parameter, IN_QUERY, TYPE_STRING
+from drf_yasg.utils import swagger_auto_schema
 
 
 class RegisterView(RegisterViewBase):
@@ -56,6 +58,8 @@ class VerifyEmailView(RetrieveAPIView, CreateAPIView, EmailNotificationMixin):
         data = {'detail': 'Письмо для подтверждения email выслано'}
         return Response(data, status=status.HTTP_200_OK)
 
+    @swagger_auto_schema(manual_parameters=[
+        Parameter('uid', IN_QUERY, type=TYPE_STRING), Parameter('token', IN_QUERY, type=TYPE_STRING)])
     def get(self, request, *args, **kwargs):
         """
         Метод подтверждает email пользователя, если токен и uid корректные
