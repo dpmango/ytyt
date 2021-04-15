@@ -5,25 +5,31 @@
     <div class="uploader__wrapper">
       <input :id="_uid" ref="uploadInput" type="file" v-bind="$attrs" @change="handleUpload" />
 
-      <div v-if="file" class="uploader__file">
-        <div class="uploader__file-icon">
-          <UiSvgIcon key="paper-clip" name="paper-clip" />
-          <span class="uploader__file-name">{{ file.name }}</span>
+      <slot :file="file" name="info">
+        <div v-if="file" class="uploader__file">
+          <div class="uploader__file-icon">
+            <UiSvgIcon key="paper-clip" name="paper-clip" />
+            <span class="uploader__file-name">{{ file.name }}</span>
+          </div>
         </div>
-      </div>
+      </slot>
 
-      <div v-if="uploadError" class="uploader__error">
-        <div class="uploader__error-icon">
-          <UiSvgIcon key="paper-clip" name="paper-clip" />
-          <span class="uploader__error-name">{{ uploadError }}</span>
+      <slot :error="uploadError" name="error">
+        <div v-if="uploadError" class="uploader__error">
+          <div class="uploader__error-icon">
+            <UiSvgIcon key="paper-clip" name="paper-clip" />
+            <span class="uploader__error-name">{{ uploadError }}</span>
+          </div>
         </div>
-      </div>
+      </slot>
 
-      <UiButton type="button" pad="light" @click="triggerUploadWindow">
-        <template v-if="buttonText">{{ buttonText }}</template>
-        <template v-else-if="uploadError || file"> Загрузите еще </template>
-        <template v-else> Загрузить</template>
-      </UiButton>
+      <slot :trigger="triggerUploadWindow" name="button">
+        <UiButton type="button" pad="light" @click="triggerUploadWindow">
+          <template v-if="buttonText">{{ buttonText }}</template>
+          <template v-else-if="uploadError || file"> Загрузите еще </template>
+          <template v-else> Загрузить</template>
+        </UiButton>
+      </slot>
     </div>
   </div>
 </template>
@@ -82,6 +88,12 @@ export default {
       return typeof this.error === 'string' ? this.parseVeeError(this.error) : this.label;
     },
   },
+  watch: {
+    uploadError(error) {
+      console.log('erorr', error);
+      this.$emit('handleError', error);
+    },
+  },
   methods: {
     setValue(file) {
       // console.log('uploader file - ', file)
@@ -110,7 +122,7 @@ export default {
           const mimeType = file.type ? file.type.split('/')[0] : undefined;
 
           if (!this.allowedMime.includes(mimeType)) {
-            this.uploadError = this.$t('ui.uploader.file_format');
+            this.uploadError = 'Неверный формат файла';
             return false;
           }
         }
@@ -120,7 +132,7 @@ export default {
           const sizeInMb = bytesToMegaBytes(file.size);
 
           if (sizeInMb > this.maxSize) {
-            this.uploadError = this.$t('ui.uploader.file_size');
+            this.uploadError = `Размер изображения превышает ${this.maxSize}Мб`;
             return false;
           }
         }

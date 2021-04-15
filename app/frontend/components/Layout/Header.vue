@@ -18,7 +18,7 @@
         </div>
         <div class="header__user">
           <NuxtLink to="/profile">
-            <div class="header__user-details">{{ userEmail }}</div>
+            <div class="header__user-details">{{ userName }}</div>
             <div class="header__user-avatar">
               <img :src="userAvatar" :alt="userEmail" />
             </div>
@@ -37,9 +37,9 @@ export default {
     userAvatar() {
       return this.user().avatar;
     },
-    userEmail() {
+    userName() {
       // TODO - getter as function ?
-      return this.user().email;
+      return this.user().first_name;
     },
   },
   methods: {
