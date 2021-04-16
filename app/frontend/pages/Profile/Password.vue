@@ -4,6 +4,7 @@
 
 <script>
 export default {
+  layout: 'auth',
   head: {
     title: 'Сменить пароль',
   },
