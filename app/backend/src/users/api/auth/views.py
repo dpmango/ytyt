@@ -3,12 +3,14 @@ from urllib.parse import urlparse
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.debug import sensitive_post_parameters
+from rest_auth.views import UserDetailsView as UserDetailsViewBase
 from rest_framework import status
 from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-
+from rest_framework import exceptions
 from providers.mailgun.mixins import EmailNotificationMixin
+from users.models import User
 from users.serializers import PasswordResetSerializer
 
 sensitive_post_parameters_m = method_decorator(
@@ -56,3 +58,14 @@ class PasswordResetView(GenericAPIView, EmailNotificationMixin):
         )
 
 
+class UserDetailsView(UserDetailsViewBase):
+    """
+    Переопределенный класс для работы с юзером, который запрашивает новые данные из бд, а не кэшируемые
+    """
+    queryset = User.objects.all()
+
+    def get_object(self):
+        try:
+            return self.queryset.get(pk=self.request.user.pk)
+        except User.DoesNotExist:
+            raise exceptions.NotFound('такого пользователя не существует')

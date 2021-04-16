@@ -12,7 +12,7 @@ from rest_framework.exceptions import ValidationError
 from courses.models import Course
 from courses_access.models.course import CourseAccess
 
-User = get_user_model()
+from users.models import User
 
 
 class UserDetailSerializer(serializers.ModelSerializer):
