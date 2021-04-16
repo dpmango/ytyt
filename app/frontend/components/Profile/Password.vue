@@ -12,6 +12,7 @@
         <ValidationProvider v-slot="{ errors }" rules="required|min:8" vid="password">
           <UiInput
             :value="passwordCurrent"
+            theme="dynamic"
             name="password"
             label="Старый Пароль"
             type="password"
@@ -22,6 +23,7 @@
         <ValidationProvider v-slot="{ errors }" rules="required|min:8" vid="password">
           <UiInput
             :value="password"
+            theme="dynamic"
             name="password"
             label="Пароль"
             type="password"
@@ -32,6 +34,7 @@
         <ValidationProvider v-slot="{ errors }" rules="required|confirmed:password">
           <UiInput
             :value="passwordConfirm"
+            theme="dynamic"
             name="password"
             label="Повторите Пароль"
             type="password"

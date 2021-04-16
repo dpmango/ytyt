@@ -13,9 +13,9 @@
         <ValidationProvider v-slot="{ errors }" rules="email|required">
           <UiInput
             :value="email"
+            theme="dynamic"
             name="email"
             label="Email"
-            placeholder="Email"
             type="email"
             :error="errors[0]"
             @onChange="(v) => (email = v)"
@@ -24,6 +24,7 @@
         <ValidationProvider v-slot="{ errors }" rules="required|min:8" vid="password">
           <UiInput
             :value="password"
+            theme="dynamic"
             name="password"
             label="Пароль"
             type="password"
@@ -33,6 +34,7 @@
         </ValidationProvider>
         <ValidationProvider v-slot="{ errors }" rules="required|confirmed:password">
           <UiInput
+            theme="dynamic"
             :value="passwordConfirm"
             name="password"
             label="Повторите Пароль"

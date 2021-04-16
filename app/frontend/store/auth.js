@@ -29,7 +29,7 @@ export const getters = {
 
 export const mutations = {
   logOut(state) {
-    state.sign_token = '';
+    state.token = '';
     state.user = {};
 
     this.$cookies.remove('ytyt_token');
@@ -47,9 +47,9 @@ export const mutations = {
   updateUser(state, user) {
     state.user = { ...state.user, ...user };
   },
-  updateUserPhoto(state, picture) {
-    state.user.picture.url = picture.url;
-  },
+  // updateUserPhoto(state, user) {
+  //   state.user.avatar = user.avatar;
+  // },
 };
 
 export const actions = {
