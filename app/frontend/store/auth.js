@@ -1,8 +1,10 @@
 import {
   loginService,
   signupService,
+  refreshTokenService,
   recoverService,
   recoverConfirmationService,
+  passwordChangeService,
   logoutService,
   userService,
   updateUserService,
@@ -92,6 +94,17 @@ export const actions = {
 
     return result;
   },
+  async refreshToken({ commit }, request) {
+    const [err, result] = await refreshTokenService(this.$api, request);
+
+    if (err) throw err;
+
+    const { token } = result;
+
+    commit('updateToken', token);
+
+    return result;
+  },
   async recover({ commit, _dispatch }, request) {
     const [err, result] = await recoverService(this.$api, request);
 
@@ -103,6 +116,15 @@ export const actions = {
   },
   async recoverConfirmation({ commit, _dispatch }, request) {
     const [err, result] = await recoverConfirmationService(this.$api, request);
+
+    if (err) throw err;
+
+    const { detail } = result;
+
+    return result;
+  },
+  async passwordChange({ commit, _dispatch }, request) {
+    const [err, result] = await passwordChangeService(this.$api, request);
 
     if (err) throw err;
 

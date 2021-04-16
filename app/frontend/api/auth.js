@@ -25,6 +25,16 @@ export const signupService = async ($api, request) => {
   }
 };
 
+export const refreshTokenService = async ($api, request) => {
+  try {
+    const { data } = await $api.post(endpoints.auth.refreshToken, request);
+
+    return [null, mapData(data)];
+  } catch (error) {
+    return [mapApiError(error), null];
+  }
+};
+
 export const recoverService = async ($api, request) => {
   try {
     const { data } = await $api.post(endpoints.auth.passwordReset, {
@@ -40,6 +50,18 @@ export const recoverService = async ($api, request) => {
 export const recoverConfirmationService = async ($api, request) => {
   try {
     const { data } = await $api.post(endpoints.auth.passwordResetConfirm, {
+      ...request,
+    });
+
+    return [null, mapData(data)];
+  } catch (error) {
+    return [mapApiError(error), null];
+  }
+};
+
+export const passwordChangeService = async ($api, request) => {
+  try {
+    const { data } = await $api.post(endpoints.auth.passwordChange, {
       ...request,
     });
 

@@ -96,6 +96,9 @@
       </div>
       <div class="mt-1">
         <UiButton theme="danger" @click="handleLogout">Выйти</UiButton>
+        <NuxtLink to="/profile/password">
+          <UiButton theme="primary">Сменить пароль</UiButton>
+        </NuxtLink>
       </div>
     </div>
   </div>

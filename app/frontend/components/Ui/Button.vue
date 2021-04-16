@@ -1,7 +1,7 @@
 <template>
   <component
     :is="getElement"
-    :class="['button', theme, isBlock, noPadding, { 'is-loading': showLoader }]"
+    :class="['button', theme, size, isBlock, noPadding, { 'is-loading': showLoader }]"
     :href="href"
     :to="to"
     v-bind="$attrs"
@@ -29,7 +29,12 @@ export default {
     theme: {
       type: String,
       default: 'primary',
-      validator: (theme) => ['primary', 'outline', 'danger'].includes(theme),
+      validator: (theme) => ['primary', 'outline', 'danger', 'success'].includes(theme),
+    },
+    size: {
+      type: String,
+      default: 'regular',
+      validator: (theme) => ['regular', 'small'].includes(theme),
     },
     isLoading: {
       type: Boolean,
@@ -156,6 +161,22 @@ export default {
     padding: 0;
   }
 
+  &.success {
+    color: white;
+    background: $colorGreen;
+    border-color: transparent;
+    &:hover {
+      background: rgba($colorGreen, 0.8);
+    }
+    &:active {
+      background: rgba($colorGreen, 0.9);
+    }
+  }
+
+  &.small {
+    font-size: 15px;
+    padding: 7px 14px;
+  }
   &.block {
     display: block;
     width: 100%;

@@ -4,6 +4,7 @@ export default {
     login: '/rest-auth/login/',
     logout: '/rest-auth/logout/',
     registration: '/rest-auth/registration/',
+    refreshToken: '/rest-auth/token-refresh/',
     verifyEmail: '/rest-auth/registration/verify-email/',
     passwordChange: '/rest-auth/password/change/',
     passwordReset: '/rest-auth/password/reset/',
