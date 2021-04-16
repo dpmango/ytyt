@@ -2,55 +2,10 @@ import typing
 from abc import abstractmethod
 
 from django.db import models
-from users.models import User
 from django.utils import timezone
 
-
-class AccessStatuses:
-    COURSES_STATUS_AVAILABLE = 1
-    COURSES_STATUS_IN_PROGRESS = 2
-    COURSES_STATUS_COMPLETED = 3
-    COURSES_STATUS_BLOCK = 4
-
-    COURSES_STATUSES = (
-        (COURSES_STATUS_AVAILABLE, 'Доступен'),
-        (COURSES_STATUS_IN_PROGRESS, 'В процессе'),
-        (COURSES_STATUS_COMPLETED, 'Завершен'),
-        (COURSES_STATUS_BLOCK, 'Заблокирован'),
-    )
-
-    AVAILABLE_STATUSES = (
-        COURSES_STATUS_AVAILABLE,
-        COURSES_STATUS_IN_PROGRESS,
-        COURSES_STATUS_COMPLETED
-    )
-
-    COURSE_ACCESS_TYPE_TRIAL = 1
-    COURSE_ACCESS_TYPE_FULL_PAID = 2
-    COURSE_ACCESS_TYPE_FULL_UNPAID = 3
-    COURSE_ACCESS_TYPE_NONE = 4
-
-    COURSE_ACCESS_TYPES = (
-        (COURSE_ACCESS_TYPE_TRIAL, 'Пробный доступ'),
-        (COURSE_ACCESS_TYPE_FULL_PAID, 'Оплаченный доступ'),
-        (COURSE_ACCESS_TYPE_FULL_UNPAID, 'Полный неоплаченный доступ'),
-        (COURSE_ACCESS_TYPE_NONE, 'Без доступа'),
-    )
-
-    AVAILABLE_ACCESS_TYPES_FULL = (
-        COURSE_ACCESS_TYPE_FULL_PAID,
-        COURSE_ACCESS_TYPE_FULL_UNPAID
-    )
-
-    AVAILABLE_ACCESS_TYPES = (
-        *AVAILABLE_ACCESS_TYPES_FULL,
-        COURSE_ACCESS_TYPE_TRIAL
-    )
-
-    BLOCK_REASON_FAST_PASSAGE = 1
-    BLOCK_REASONS = (
-        (BLOCK_REASON_FAST_PASSAGE, 'За сутки было пройдено две темы курса'),
-    )
+from courses_access.common.statuses import AccessStatuses
+from users.models import User
 
 
 class AccessBase(models.Model, AccessStatuses):

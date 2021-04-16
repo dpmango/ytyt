@@ -2,10 +2,15 @@ from django.contrib.auth.base_user import BaseUserManager, AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
 from django.core.mail import send_mail
 from django.db import models
+from django.db.models import Q
+from django.contrib.auth.models import Group
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from courses_access.common.statuses import AccessStatuses
+from django.db.models import Count
 
 from users import permissions
+from users.mixins import ReviewersMixins
 
 
 class UserManager(BaseUserManager):
@@ -38,7 +43,48 @@ class UserManager(BaseUserManager):
         return self._create_user(email, password, **extra_fields)
 
 
-class User(AbstractBaseUser, PermissionsMixin):
+class ReviewersManager(models.Manager):
+
+    LIMIT_STUDENTS = 1
+
+    def get_less_busy_educator(self):
+        """
+        Метод вернет наиболее свободного преподавателя
+        :return:
+        """
+        pass
+
+    def get_less_busy(self) -> 'User':
+        educator_group = Group.objects.get(pk=permissions.GROUP_EDUCATOR)
+
+        reviewers = self.filter(
+            ~Q(groups=educator_group),
+            is_active=True,
+            is_staff=True,
+        )#.prefetch_related('user_reviewers')
+
+        # print(self._get_reviewer(reviewers))
+
+        # for reviewer in reviewers:
+        #     if reviewer.user_reviewers.count() >= self.LIMIT_STUDENTS:
+        #         continue
+        #     return reviewer
+
+        # filter_query = ~Q(courseaccess__status=AccessStatuses.COURSES_STATUS_COMPLETED)
+        # filter_query &= Q(courseaccess__access_type__in=AccessStatuses.AVAILABLE_ACCESS_TYPES_FULL)
+        # filter_query &= Q(is_staff=False, is_active=True)
+        #
+        # user = User.objects.filter(filter_query).prefetch_related('user_reviewers')
+        # user = user.annotate(cnt=Count('lessonfragmentaccess'))
+        # user = user.order_by('-cnt', 'lessonfragmentaccess__lesson_fragment__date_updated')
+        # user = user.first()
+        #
+        #
+        # potential_reviewer = users.user_reviewers.first()
+        # print(potential_reviewer)
+
+
+class User(AbstractBaseUser, PermissionsMixin, ReviewersMixins):
 
     GENDER_UNKNOWN = 0
     GENDER_FEMALE = 1
@@ -64,7 +110,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         ),
     )
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
-    email_confirmed = models.BooleanField(default=False)
+    email_confirmed = models.BooleanField('Email подтвержден', default=False)
     email_notifications = models.BooleanField('Уведомления на почту', default=False)
 
     avatar = models.ImageField('Фотография', upload_to='avatars', default='static/default_avatar.jpg')
@@ -79,6 +125,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     github_url = models.URLField('Гитхаб', null=True, blank=True)
 
     objects = UserManager()
+    reviewers = ReviewersManager()
 
     EMAIL_FIELD = 'email'
     USERNAME_FIELD = 'email'

@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     'courses',
     'search',
     'constants',
+    'providers',
 ]
 
 
@@ -175,6 +176,12 @@ ACCOUNT_CONFIRM_EMAIL_ON_GET = True
 OLD_PASSWORD_FIELD_ENABLED = True
 LOGOUT_ON_PASSWORD_CHANGE = False
 
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
+
+MAILGUN_TOKEN = env('MAILGUN_TOKEN')
+MAILGUN_HOST = env('MAILGUN_HOST')
+
 AUTH_USER_MODEL = 'users.User'
 
 
@@ -202,7 +209,8 @@ REST_FRAMEWORK = {
 }
 
 JWT_AUTH = {
-    'JWT_EXPIRATION_DELTA': datetime.timedelta(days=365),
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(days=1),
+    'JWT_ALLOW_REFRESH': True,
 }
 
 SWAGGER_SETTINGS = {
