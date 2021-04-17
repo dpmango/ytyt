@@ -40,8 +40,17 @@ export const getters = {
 
 export const mutations = {
   logOut(state) {
-    state.token = '';
-    state.user = {};
+    state.token = null;
+    state.user = {
+      email: null,
+      first_name: null,
+      last_name: null,
+      github_url: null,
+      avatar: null,
+      thumbnail_avatar: null,
+      email_notifications: undefined,
+      email_confirmed: undefined,
+    };
 
     this.$cookies.remove('ytyt_token');
     this.$api.setToken(false);
@@ -111,7 +120,7 @@ export const actions = {
   async refreshToken({ commit }, request) {
     const [err, result] = await refreshTokenService(this.$api, request);
 
-    if (err) throw err;
+    if (err);
 
     const { token } = result;
 

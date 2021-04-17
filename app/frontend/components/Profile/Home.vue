@@ -114,6 +114,7 @@ export default {
       name: null,
       github: null,
       avatar: null,
+      notifications: null,
       avatarFile: null,
       avatarBlob: null,
       avatarError: null,
