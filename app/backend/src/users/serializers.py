@@ -135,6 +135,7 @@ class RegisterSerializer(rest_auth_registration_serializers.RegisterSerializer):
 
         # При регистрации юзера даем триал-доступ к курсу
         course = Course.objects.first()
-        CourseAccess.objects.set_trial(course, user)
+        if course:
+            CourseAccess.objects.set_trial(course, user)
 
         return user

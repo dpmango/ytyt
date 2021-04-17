@@ -1,8 +1,13 @@
 from django.template import loader
-from providers.mailgun.contrib import mailgun
+from providers.tasks import send_mail
 
 
 class EmailNotificationMixin:
+    """
+    Класс-миксин для асинхрнного отправления сообщения на почту.
+    Поддерживает темплейт для заголовка и тела
+    """
+
     subject_template_name = None
     email_template_name = None
 
@@ -17,5 +22,4 @@ class EmailNotificationMixin:
         subject = ''.join(subject.splitlines())
 
         body = loader.render_to_string(self.email_template_name, context)
-        # TODO: когда появится Celery — вынести это туда
-        mailgun.send_email(to, subject, body)
+        send_mail.delay(to, subject, body)

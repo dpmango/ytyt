@@ -32,3 +32,10 @@ services:
   # ####################################################################################################################
   backend:
     <<: *backend
+
+  asyns_tasks:
+    <<: *backend
+    command: >
+      bash -c "
+      dockerize -wait tcp://redis:6379
+      celery -A crm worker --loglevel=DEBUG"
