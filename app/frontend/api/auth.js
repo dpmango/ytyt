@@ -35,6 +35,26 @@ export const refreshTokenService = async ($api, request) => {
   }
 };
 
+export const verifyGetService = async ($api, params) => {
+  try {
+    const { data } = await $api.get(endpoints.auth.verifyEmail, { params });
+
+    return [null, mapData(data)];
+  } catch (error) {
+    return [mapApiError(error), null];
+  }
+};
+
+export const verifyPostService = async ($api, request) => {
+  try {
+    const { data } = await $api.post(endpoints.auth.verifyEmail, request);
+
+    return [null, mapData(data)];
+  } catch (error) {
+    return [mapApiError(error), null];
+  }
+};
+
 export const recoverService = async ($api, request) => {
   try {
     const { data } = await $api.post(endpoints.auth.passwordReset, {

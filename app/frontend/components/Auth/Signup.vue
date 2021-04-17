@@ -71,6 +71,7 @@ export default {
       const { email, password, passwordConfirm } = this;
       await this.signup({ email, password1: password, password2: passwordConfirm })
         .then((_res) => {
+          this.verifyPost();
           this.error = null;
           this.$router.push('/');
         })
@@ -84,7 +85,7 @@ export default {
           }
         });
     },
-    ...mapActions('auth', ['signup']),
+    ...mapActions('auth', ['signup', 'verifyPost']),
   },
 };
 </script>

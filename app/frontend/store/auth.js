@@ -2,6 +2,8 @@ import {
   loginService,
   signupService,
   refreshTokenService,
+  verifyGetService,
+  verifyPostService,
   recoverService,
   recoverConfirmationService,
   passwordChangeService,
@@ -12,7 +14,16 @@ import {
 
 export const state = () => ({
   token: null,
-  user: {},
+  user: {
+    email: null,
+    first_name: null,
+    last_name: null,
+    github_url: null,
+    avatar: null,
+    thumbnail_avatar: null,
+    email_notifications: undefined,
+    email_confirmed: undefined,
+  },
 });
 
 export const getters = {
@@ -46,6 +57,9 @@ export const mutations = {
   },
   updateUser(state, user) {
     state.user = { ...state.user, ...user };
+  },
+  verifyUserEmail(state) {
+    state.user.email_confirmed = true;
   },
   // updateUserPhoto(state, user) {
   //   state.user.avatar = user.avatar;
@@ -102,6 +116,22 @@ export const actions = {
     const { token } = result;
 
     commit('updateToken', token);
+
+    return result;
+  },
+  async verifyGet({ commit }, request) {
+    const [err, result] = await verifyGetService(this.$api, request);
+
+    if (err) throw err;
+
+    commit('verifyUserEmail');
+
+    return result;
+  },
+  async verifyPost({ commit }, request) {
+    const [err, result] = await verifyPostService(this.$api, request);
+
+    if (err) throw err;
 
     return result;
   },

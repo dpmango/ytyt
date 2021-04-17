@@ -76,7 +76,6 @@
                   :value="github"
                   type="text"
                   placeholder="Github"
-                  :error="errors[0]"
                   icon="github"
                   icon-position="left"
                   @onChange="(v) => (github = v)"
@@ -110,29 +109,39 @@ import { mapActions, mapGetters } from 'vuex';
 export default {
   props: {},
   data() {
-    const user = this.user();
-    const clear = (x) => x || '';
-
     return {
-      email: user.email,
-      name: `${clear(user.first_name)} ${clear(user.middle_name)} ${clear(user.last_name)}`.trim(),
-      github: user.github_url,
-      avatar: user.avatar,
-      notifications: user.email_notifications,
+      email: null,
+      name: null,
+      github: null,
+      avatar: null,
       avatarFile: null,
       avatarBlob: null,
       avatarError: null,
     };
   },
-  computed: {},
+  computed: {
+    ...mapGetters('auth', ['user']),
+  },
   created() {
-    this.handleTestGetUser();
+    this.getUser();
   },
   methods: {
-    async handleTestGetUser() {
+    async getUser() {
       await this.getUserInfo()
-        .then((res) => {})
+        .then((res) => {
+          this.setUserInfo();
+        })
         .catch((_err) => {});
+    },
+    setUserInfo() {
+      const clear = (x) => x || '';
+      const user = this.user;
+
+      this.email = user.email;
+      this.name = `${clear(user.first_name)} ${clear(user.middle_name)} ${clear(user.last_name)}`.trim();
+      this.github = user.github_url;
+      this.avatar = user.avatar;
+      this.notifications = user.email_notifications;
     },
     async handleSubmit() {
       const isValid = await this.$refs.form.validate();
@@ -211,7 +220,6 @@ export default {
         .catch((_err) => {});
     },
     ...mapActions('auth', ['logout', 'getUserInfo', 'update']),
-    ...mapGetters('auth', ['user']),
   },
 };
 </script>
