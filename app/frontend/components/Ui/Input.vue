@@ -93,11 +93,12 @@ export default {
 
 <style lang="scss" scoped>
 .input {
+  position: relative;
   &__label {
     display: block;
     font-size: 12px;
     line-height: 16px;
-    color: $fontColor;
+    color: $colorGray;
     margin-bottom: 5px;
     white-space: nowrap;
     overflow: hidden;
@@ -112,15 +113,15 @@ export default {
       -webkit-appearance: none;
       display: block;
       width: 100%;
-      padding: 13px 14px;
+      padding: 13px 16px;
       border: 1px solid transparent;
-      background: $colorBg;
+      background: #f7f6f7;
       border-radius: 5px;
       font-family: $baseFont;
-      font-size: 14px;
+      font-size: 15px;
       font-style: normal;
       font-weight: 400;
-      line-height: 20px;
+      line-height: 1.4;
       color: $fontColor;
       transition: border 0.25s $ease, color 0.25s $ease, background 0.25s $ease;
       &::placeholder {
@@ -128,11 +129,12 @@ export default {
       }
       &:focus,
       &:active {
-        border-color: $colorPrimary;
+        background: white;
         outline: none;
       }
       &:hover {
-        background-color: #f0f1f2;
+        // background-color: #f7f6f7;
+        border-color: $colorGray;
       }
       &[readonly],
       &[disabled] {
@@ -230,6 +232,23 @@ export default {
     }
     .input__label {
       color: $colorRed;
+    }
+  }
+
+  &.dynamic {
+    .input__label {
+      position: absolute;
+      top: 8px;
+      left: 16px;
+      z-index: 2;
+      pointer-events: none;
+    }
+    .input__input {
+      input,
+      textarea {
+        padding-top: 22px;
+        padding-bottom: 9px;
+      }
     }
   }
 }

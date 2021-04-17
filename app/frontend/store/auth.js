@@ -1,8 +1,29 @@
-import { loginService, signupService, recoverService, logoutService, userService, updateUserService } from '~/api/auth';
+import {
+  loginService,
+  signupService,
+  refreshTokenService,
+  verifyGetService,
+  verifyPostService,
+  recoverService,
+  recoverConfirmationService,
+  passwordChangeService,
+  logoutService,
+  userService,
+  updateUserService,
+} from '~/api/auth';
 
 export const state = () => ({
   token: null,
-  user: {},
+  user: {
+    email: null,
+    first_name: null,
+    last_name: null,
+    github_url: null,
+    avatar: null,
+    thumbnail_avatar: null,
+    email_notifications: undefined,
+    email_confirmed: undefined,
+  },
 });
 
 export const getters = {
@@ -19,7 +40,7 @@ export const getters = {
 
 export const mutations = {
   logOut(state) {
-    state.sign_token = '';
+    state.token = '';
     state.user = {};
 
     this.$cookies.remove('ytyt_token');
@@ -37,9 +58,12 @@ export const mutations = {
   updateUser(state, user) {
     state.user = { ...state.user, ...user };
   },
-  updateUserPhoto(state, picture) {
-    state.user.picture.url = picture.url;
+  verifyUserEmail(state) {
+    state.user.email_confirmed = true;
   },
+  // updateUserPhoto(state, user) {
+  //   state.user.avatar = user.avatar;
+  // },
 };
 
 export const actions = {
@@ -84,8 +108,53 @@ export const actions = {
 
     return result;
   },
+  async refreshToken({ commit }, request) {
+    const [err, result] = await refreshTokenService(this.$api, request);
+
+    if (err) throw err;
+
+    const { token } = result;
+
+    commit('updateToken', token);
+
+    return result;
+  },
+  async verifyGet({ commit }, request) {
+    const [err, result] = await verifyGetService(this.$api, request);
+
+    if (err) throw err;
+
+    commit('verifyUserEmail');
+
+    return result;
+  },
+  async verifyPost({ commit }, request) {
+    const [err, result] = await verifyPostService(this.$api, request);
+
+    if (err) throw err;
+
+    return result;
+  },
   async recover({ commit, _dispatch }, request) {
     const [err, result] = await recoverService(this.$api, request);
+
+    if (err) throw err;
+
+    const { detail } = result;
+
+    return result;
+  },
+  async recoverConfirmation({ commit, _dispatch }, request) {
+    const [err, result] = await recoverConfirmationService(this.$api, request);
+
+    if (err) throw err;
+
+    const { detail } = result;
+
+    return result;
+  },
+  async passwordChange({ commit, _dispatch }, request) {
+    const [err, result] = await passwordChangeService(this.$api, request);
 
     if (err) throw err;
 

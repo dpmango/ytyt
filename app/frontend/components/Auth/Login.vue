@@ -4,7 +4,7 @@
 
     <template #actions>
       <NuxtLink to="/auth/signup">Зарегистрироваться</NuxtLink>
-      <NuxtLink to="/auth/recover">Забыли пароль?</NuxtLink>
+      <NuxtLink to="/auth/reset">Забыли пароль?</NuxtLink>
     </template>
 
     <template #form>
@@ -14,8 +14,8 @@
         <ValidationProvider v-slot="{ errors }" class="ui-group" rules="email|required">
           <UiInput
             :value="email"
+            theme="dynamic"
             label="Email"
-            placeholder="Email"
             type="email"
             :error="errors[0]"
             @onChange="(v) => (email = v)"
@@ -24,6 +24,7 @@
         <ValidationProvider v-slot="{ errors }" class="ui-group" rules="required">
           <UiInput
             :value="password"
+            theme="dynamic"
             label="Пароль"
             type="password"
             :error="errors[0]"

@@ -1,6 +1,6 @@
 <template>
   <AuthWrapper>
-    <template #title>Регистрация</template>
+    <template #title>Смените пароль</template>
 
     <template #actions>
       <NuxtLink to="/auth/login">Войти</NuxtLink>
@@ -10,17 +10,6 @@
       <ValidationObserver ref="form" v-slot="{ invalid }" tag="form" class="login__form" @submit.prevent="handleSubmit">
         <UiError :error="error" />
 
-        <ValidationProvider v-slot="{ errors }" rules="email|required">
-          <UiInput
-            :value="email"
-            theme="dynamic"
-            name="email"
-            label="Email"
-            type="email"
-            :error="errors[0]"
-            @onChange="(v) => (email = v)"
-          />
-        </ValidationProvider>
         <ValidationProvider v-slot="{ errors }" rules="required|min:8" vid="password">
           <UiInput
             :value="password"
@@ -34,8 +23,8 @@
         </ValidationProvider>
         <ValidationProvider v-slot="{ errors }" rules="required|confirmed:password">
           <UiInput
-            theme="dynamic"
             :value="passwordConfirm"
+            theme="dynamic"
             name="password"
             label="Повторите Пароль"
             type="password"
@@ -43,7 +32,8 @@
             @onChange="(v) => (passwordConfirm = v)"
           />
         </ValidationProvider>
-        <UiButton type="submit" block>Зарегистрироваться</UiButton>
+
+        <UiButton type="submit" block>Сменить пароль</UiButton>
       </ValidationObserver>
     </template>
   </AuthWrapper>
@@ -55,25 +45,32 @@ import { mapActions } from 'vuex';
 export default {
   data() {
     return {
-      email: null,
       password: null,
       passwordConfirm: null,
+      query: null,
       error: null,
     };
   },
   computed: {},
+  created() {
+    // store in state is much safer
+    this.query = this.$route.query;
+  },
   methods: {
     async handleSubmit() {
       const isValid = await this.$refs.form.validate();
       if (!isValid) {
         return;
       }
-      const { email, password, passwordConfirm } = this;
-      await this.signup({ email, password1: password, password2: passwordConfirm })
-        .then((_res) => {
-          this.verifyPost();
+
+      await this.recoverConfirmation({
+        ...{ new_password1: this.password, new_password2: this.passwordConfirm },
+        ...this.query,
+      })
+        .then((res) => {
           this.error = null;
-          this.$router.push('/');
+          this.$toast.global.success({ message: res.detail });
+          this.$router.push('/profile');
         })
         .catch((err) => {
           const { data, code } = err;
@@ -85,7 +82,7 @@ export default {
           }
         });
     },
-    ...mapActions('auth', ['signup', 'verifyPost']),
+    ...mapActions('auth', ['recoverConfirmation']),
   },
 };
 </script>

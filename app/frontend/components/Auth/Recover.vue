@@ -13,8 +13,8 @@
         <ValidationProvider v-slot="{ errors }" class="ui-group" rules="email|required">
           <UiInput
             :value="email"
+            theme="dynamic"
             label="Email"
-            placeholder="Email"
             type="email"
             :error="errors[0]"
             @onChange="(v) => (email = v)"
