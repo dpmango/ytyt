@@ -46,6 +46,8 @@ INSTALLED_APPS = [
     'markdownx',
     'adminsortable2',
 
+    'sorl.thumbnail',
+
     'allauth',
     'allauth.account',
     'allauth.socialaccount',

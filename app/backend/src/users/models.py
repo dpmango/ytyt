@@ -1,13 +1,12 @@
 from django.contrib.auth.base_user import BaseUserManager, AbstractBaseUser
+from django.contrib.auth.models import Group
 from django.contrib.auth.models import PermissionsMixin
 from django.core.mail import send_mail
 from django.db import models
 from django.db.models import Q
-from django.contrib.auth.models import Group
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from courses_access.common.statuses import AccessStatuses
-from django.db.models import Count
+from sorl.thumbnail import ImageField
 
 from users import permissions
 from users.mixins import ReviewersMixins
@@ -113,7 +112,7 @@ class User(AbstractBaseUser, PermissionsMixin, ReviewersMixins):
     email_confirmed = models.BooleanField('Email подтвержден', default=False)
     email_notifications = models.BooleanField('Уведомления на почту', default=False)
 
-    avatar = models.ImageField('Фотография', upload_to='avatars', default='static/default_avatar.jpg')
+    avatar = ImageField('Фотография', upload_to='avatars', default='static/default_avatar.jpg')
     last_name = models.CharField('Фамилия', max_length=255, blank=False, null=True)
     first_name = models.CharField('Имя', max_length=255, blank=False, null=True)
     middle_name = models.CharField('Отчество', max_length=255, blank=True, null=True)

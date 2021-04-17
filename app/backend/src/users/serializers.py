@@ -1,4 +1,6 @@
-from django.contrib.auth import get_user_model
+from urllib.parse import urljoin
+
+from django.conf import settings
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.encoding import force_bytes
 from django.utils.encoding import force_text
@@ -8,14 +10,23 @@ from rest_auth import serializers as rest_auth_serializers
 from rest_auth.registration import serializers as rest_auth_registration_serializers
 from rest_framework import serializers, exceptions
 from rest_framework.exceptions import ValidationError
+from sorl.thumbnail import get_thumbnail
 
 from courses.models import Course
 from courses_access.models.course import CourseAccess
-
 from users.models import User
 
 
 class UserDetailSerializer(serializers.ModelSerializer):
+    thumbnail_avatar = serializers.SerializerMethodField()
+
+    def get_thumbnail_avatar(self, obj: User):
+        request = self.context.get('request')
+
+        thumb = get_thumbnail(obj.avatar, '64x64', crop='center', quality=99)
+        thumb_url = thumb.url
+
+        return request.build_absolute_uri(urljoin(settings.MEDIA_URL, thumb_url))
 
     def to_representation(self, instance: User):
         data = super().to_representation(instance)
@@ -27,7 +38,16 @@ class UserDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('email', 'first_name', 'last_name', 'github_url', 'avatar', 'email_notifications', 'email_confirmed')
+        fields = (
+            'email',
+            'first_name',
+            'last_name',
+            'github_url',
+            'avatar',
+            'thumbnail_avatar',
+            'email_notifications',
+            'email_confirmed'
+        )
         read_only_fields = ('email', 'id')
 
 
