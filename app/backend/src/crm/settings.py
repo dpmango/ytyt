@@ -246,28 +246,6 @@ SWAGGER_SETTINGS = {
    }
 }
 
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'simple': {
-            'format': '{levelname} {asctime} {message}',
-            'style': '{',
-        },
-    },
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-            'formatter': 'simple'
-        },
-    },
-    'loggers': {
-        'default': {
-            'handlers': ['console'],
-            'level': env('DJANGO_LOG_LEVEL', default='DEBUG'),
-        },
-    },
-}
 
 SENTRY_DSN = env('SENTRY_DSN', default=None)
 if SENTRY_DSN:

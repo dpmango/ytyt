@@ -21,6 +21,9 @@ class UserDetailSerializer(serializers.ModelSerializer):
     thumbnail_avatar = serializers.SerializerMethodField()
 
     def get_thumbnail_avatar(self, obj: User):
+        if '/media/static' in obj.avatar.url:
+            return None
+
         request = self.context.get('request')
 
         thumb = get_thumbnail(obj.avatar, '64x64', crop='center', quality=99)

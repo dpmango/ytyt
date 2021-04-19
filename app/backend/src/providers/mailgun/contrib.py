@@ -2,6 +2,7 @@ import json
 
 from requests import request, Response
 from django.conf import settings
+from loguru import logger
 
 
 class Mailgun:
@@ -36,13 +37,19 @@ class Mailgun:
         :param kwargs: Аргументы для вызова
         """
         base_url = self.base_url.rstrip('/')
-        response = request(method=method, url='%s/%s' % (base_url, url), auth=self._auth, **kwargs)
+        url = '%s/%s' % (base_url, url)
 
-        return {
+        logger.debug('[mailgun][request][method=%s] url=%s, kwargs=%s' % (method, url, str(kwargs)))
+        response = request(method=method, url=url, auth=self._auth, **kwargs)
+
+        response = {
             'status_code': response.status_code,
             'data': self._force_json(response),
             'text': response.text,
         }
+
+        logger.info('[mailgun][response][method=%s] url=%s, response=%s' % (method, url, str(response)))
+        return response
 
     @staticmethod
     def _force_json(response: Response):

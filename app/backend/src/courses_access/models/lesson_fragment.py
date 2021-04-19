@@ -2,7 +2,6 @@ from django.db import models
 
 from courses.models import LessonFragment
 from courses_access.common.models import AccessManagerBase, AccessBase
-from crm.logger import logger
 
 
 class LessonFragmentAccessManager(AccessManagerBase):
