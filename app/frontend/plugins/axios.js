@@ -32,10 +32,10 @@ export default function ({ $axios, store, $config, redirect }, inject) {
     return x;
   });
 
-  api.onError((error) => {
+  api.onError(async (error) => {
     if (parseInt(error.response && error.response.status) === 401) {
       console.log('unauthorized, logging out ...');
-      // auth.logout();
+      await store.dispatch('auth/logOut');
       redirect('/auth/login');
     }
 

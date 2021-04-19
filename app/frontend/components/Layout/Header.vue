@@ -18,9 +18,9 @@
         </div>
         <div class="header__user">
           <NuxtLink to="/profile">
-            <div class="header__user-details">{{ userName }}</div>
+            <div class="header__user-details">{{ user.first_name }}</div>
             <div class="header__user-avatar">
-              <img :src="userAvatar" :alt="userEmail" />
+              <img :src="user.thumbnail_avatar" :alt="user.first_name" />
             </div>
           </NuxtLink>
         </div>
@@ -34,15 +34,6 @@ import { mapGetters } from 'vuex';
 
 export default {
   computed: {
-    userAvatar() {
-      return this.user().avatar;
-    },
-    userName() {
-      // TODO - getter as function ?
-      return this.user().first_name;
-    },
-  },
-  methods: {
     ...mapGetters('auth', ['user']),
   },
 };

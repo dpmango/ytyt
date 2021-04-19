@@ -1,24 +1,23 @@
 <template>
   <AuthWrapper>
-    <template #title>Регистрация</template>
+    <template #title>Смените пароль</template>
 
     <template #actions>
-      <NuxtLink to="/auth/login">Войти</NuxtLink>
+      <NuxtLink to="/profile">Вернуться</NuxtLink>
     </template>
 
     <template #form>
       <ValidationObserver ref="form" v-slot="{ invalid }" tag="form" class="login__form" @submit.prevent="handleSubmit">
         <UiError :error="error" />
-
-        <ValidationProvider v-slot="{ errors }" rules="email|required">
+        <ValidationProvider v-slot="{ errors }" rules="required|min:8" vid="password">
           <UiInput
-            :value="email"
+            :value="passwordCurrent"
             theme="dynamic"
-            name="email"
-            label="Email"
-            type="email"
+            name="password"
+            label="Старый Пароль"
+            type="password"
             :error="errors[0]"
-            @onChange="(v) => (email = v)"
+            @onChange="(v) => (passwordCurrent = v)"
           />
         </ValidationProvider>
         <ValidationProvider v-slot="{ errors }" rules="required|min:8" vid="password">
@@ -34,8 +33,8 @@
         </ValidationProvider>
         <ValidationProvider v-slot="{ errors }" rules="required|confirmed:password">
           <UiInput
-            theme="dynamic"
             :value="passwordConfirm"
+            theme="dynamic"
             name="password"
             label="Повторите Пароль"
             type="password"
@@ -43,7 +42,8 @@
             @onChange="(v) => (passwordConfirm = v)"
           />
         </ValidationProvider>
-        <UiButton type="submit" block>Зарегистрироваться</UiButton>
+
+        <UiButton type="submit" block>Сменить пароль</UiButton>
       </ValidationObserver>
     </template>
   </AuthWrapper>
@@ -55,7 +55,7 @@ import { mapActions } from 'vuex';
 export default {
   data() {
     return {
-      email: null,
+      passwordCurrent: null,
       password: null,
       passwordConfirm: null,
       error: null,
@@ -68,12 +68,16 @@ export default {
       if (!isValid) {
         return;
       }
-      const { email, password, passwordConfirm } = this;
-      await this.signup({ email, password1: password, password2: passwordConfirm })
-        .then((_res) => {
-          this.verifyPost();
+
+      await this.passwordChange({
+        old_password: this.passwordCurrent,
+        new_password1: this.password,
+        new_password2: this.passwordConfirm,
+      })
+        .then((res) => {
           this.error = null;
-          this.$router.push('/');
+          this.$toast.global.success({ message: res.detail });
+          this.$router.push('/profile');
         })
         .catch((err) => {
           const { data, code } = err;
@@ -85,7 +89,7 @@ export default {
           }
         });
     },
-    ...mapActions('auth', ['signup', 'verifyPost']),
+    ...mapActions('auth', ['passwordChange']),
   },
 };
 </script>
