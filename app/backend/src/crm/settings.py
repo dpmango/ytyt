@@ -32,6 +32,8 @@ ALLOWED_HOSTS = ['*']
 
 
 INSTALLED_APPS = [
+    'channels',
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -63,6 +65,8 @@ INSTALLED_APPS = [
     'search',
     'constants',
     'providers',
+
+    'chat',
 ]
 
 
@@ -96,6 +100,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'crm.wsgi.application'
+ASGI_APPLICATION = 'crm.asgi.application'
 
 
 DATABASES = {
@@ -111,6 +116,15 @@ CACHES = {
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
+    },
+}
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [('127.0.0.1', 6379)],
+        },
     },
 }
 

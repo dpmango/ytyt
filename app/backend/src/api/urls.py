@@ -29,6 +29,6 @@ urlpatterns = [
     re_path(r'^rest-auth/user/$', UserDetailsView.as_view(), name='rest_user_details'),
     re_path(r'^rest-auth/', include('rest_auth.urls')),
 
-    re_path(r'^rest-auth/registration/verify-email/', VerifyEmailView.as_view(), name='rest_verify_email'),
+    re_path(r'^rest-auth/registration/verify/', VerifyEmailView.as_view(), name='rest_verify_email'),
     re_path(r'^rest-auth/registration/', RegisterView.as_view(), name='rest_register'),
 ]

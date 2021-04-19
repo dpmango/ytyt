@@ -6,7 +6,7 @@ from django.utils.translation import ugettext_lazy as _
 from rest_auth.app_settings import TokenSerializer, JWTSerializer
 from rest_auth.registration.views import RegisterView as RegisterViewBase
 from rest_framework import status
-from rest_framework.generics import RetrieveAPIView, CreateAPIView
+from rest_framework.generics import CreateAPIView, UpdateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
@@ -36,7 +36,7 @@ class RegisterView(RegisterViewBase):
             return TokenSerializer(user.auth_token).data
 
 
-class VerifyEmailView(RetrieveAPIView, CreateAPIView, EmailNotificationMixin):
+class VerifyEmailView(CreateAPIView, UpdateAPIView, EmailNotificationMixin):
     """
     Класс для подтверждения email авторизованного пользователя
     """
@@ -60,7 +60,7 @@ class VerifyEmailView(RetrieveAPIView, CreateAPIView, EmailNotificationMixin):
 
     @swagger_auto_schema(manual_parameters=[
         Parameter('uid', IN_QUERY, type=TYPE_STRING), Parameter('token', IN_QUERY, type=TYPE_STRING)])
-    def get(self, request, *args, **kwargs):
+    def patch(self, request, *args, **kwargs):
         """
         Метод подтверждает email пользователя, если токен и uid корректные
         """

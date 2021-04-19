@@ -85,10 +85,11 @@ class VerifyEmailSerializer(serializers.Serializer):
         try:
             uid = force_text(uid_decoder(attrs['uid']))
             user = User._default_manager.get(pk=uid)
-        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        except (TypeError, ValueError, OverflowError, KeyError, User.DoesNotExist):
             raise ValidationError({'uid': ['Invalid value']})
 
-        if not default_token_generator.check_token(user, attrs['token']):
+        token = attrs.get('token')
+        if not token or not default_token_generator.check_token(user, token):
             raise ValidationError({'token': ['Invalid value']})
 
         attrs['user'] = user

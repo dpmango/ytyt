@@ -1,10 +1,14 @@
+import jwt
+from channels.db import database_sync_to_async
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.db.models import Q
 from django.utils.translation import ugettext as _
 from rest_framework import exceptions
-from rest_framework_jwt.authentication import JSONWebTokenAuthentication
-from rest_framework_jwt.settings import api_settings
+from rest_framework_jwt.authentication import (
+    JSONWebTokenAuthentication,
+    jwt_decode_handler,
+)
 
 
 def method_cache_key(cache_prefix='cache', method='unknown', **kwargs):
@@ -13,10 +17,6 @@ def method_cache_key(cache_prefix='cache', method='unknown', **kwargs):
     for k, v in dict(kwargs).items():
         sign_string.append('%s__%s' % (k, v))
     return '@'.join(sign_string)
-
-
-jwt_decode_handler = api_settings.JWT_DECODE_HANDLER
-jwt_get_username_from_payload = api_settings.JWT_PAYLOAD_GET_USERNAME_HANDLER
 
 
 class UserNameEmailJSONWebTokenAuthentication(JSONWebTokenAuthentication):
@@ -51,3 +51,36 @@ class UserNameEmailJSONWebTokenAuthentication(JSONWebTokenAuthentication):
             raise exceptions.AuthenticationFailed(msg)
 
         return user
+
+
+class WebSocketJSONWebTokenAuthentication(UserNameEmailJSONWebTokenAuthentication):
+
+    def get_jwt_value(self, query_params: dict) -> str:
+        """
+        Получение значения токена
+        :param query_params: Ключевые армгументы строки после парсинга
+        """
+        token = query_params.get('token') or []
+
+        if not token or len(token) == 0:
+            msg = _('Токен не указан')
+            raise exceptions.AuthenticationFailed(msg)
+
+        return token[0]
+
+    @database_sync_to_async
+    def authenticate(self, query_params: dict):
+        jwt_value = self.get_jwt_value(query_params)
+
+        try:
+            payload = jwt_decode_handler(jwt_value)
+        except jwt.ExpiredSignature:
+            msg = _('Signature has expired.')
+            raise exceptions.AuthenticationFailed(msg)
+        except jwt.DecodeError:
+            msg = _('Error decoding signature.')
+            raise exceptions.AuthenticationFailed(msg)
+        except jwt.InvalidTokenError:
+            raise exceptions.AuthenticationFailed()
+
+        return self.authenticate_credentials(payload)
