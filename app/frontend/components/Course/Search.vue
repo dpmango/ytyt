@@ -21,7 +21,7 @@
           <li v-for="course in list" :key="course.id">
             <NuxtLink class="card" :to="`/theme/${course.course_theme.id}/${course.course_lesson.id}`">
               <div class="card__content">
-                <div class="card__course">{{ course.course_title }}</div>
+                <div class="card__course">{{ course.course_theme.title }}</div>
                 <div class="card__title">{{ course.course_lesson.title }}</div>
                 <div class="card__description">{{ course.course_lesson.description }}</div>
               </div>
@@ -142,6 +142,9 @@ export default {
         &:active {
           background-color: white;
           outline: none;
+          &::placeholder {
+            color: transparent;
+          }
         }
       }
     }
@@ -160,7 +163,7 @@ export default {
     border-radius: 4px;
     opacity: 0;
     pointer-events: none;
-    max-height: 300px;
+    max-height: calc(100vh - 60px - 120px);
     overflow-y: auto;
     transition: opacity 0.2s $ease;
     &.is-active {
@@ -227,7 +230,7 @@ export default {
 .card {
   display: flex;
   flex-direction: column;
-  padding: 16px 12px;
+  padding: 16px 16px;
   border-bottom: 1px solid $borderColor;
   transition: background 0.25s $ease;
   &__course {

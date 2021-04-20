@@ -88,7 +88,7 @@
                 @onChange="(val) => (notifications = val)"
               />
 
-              <UiButton type="submit" block>Сохранить изменения</UiButton>
+              <UiButton :is-loading="isLoading" type="submit" block>Сохранить изменения</UiButton>
             </ValidationObserver>
           </div>
         </div>
@@ -110,6 +110,7 @@ export default {
   props: {},
   data() {
     return {
+      isLoading: false,
       email: null,
       name: null,
       github: null,
@@ -195,6 +196,13 @@ export default {
         formData.append('avatar', avatarFile);
       }
 
+      this.isLoading = true;
+
+      await this.startUpadte(formData);
+
+      this.isLoading = false;
+    },
+    async startUpadte(formData) {
       await this.update(formData)
         .then((_res) => {
           this.error = null;

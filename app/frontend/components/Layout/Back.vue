@@ -28,8 +28,11 @@ export default {
   color: $colorPrimary;
   cursor: pointer;
   transition: color 0.25s $ease;
+  span {
+    vertical-align: middle;
+  }
   .svg-icon {
-    font-size: 18px;
+    font-size: 20px;
     margin-right: 8px;
   }
   &:hover {

@@ -37,7 +37,7 @@ export const refreshTokenService = async ($api, request) => {
 
 export const verifyGetService = async ($api, params) => {
   try {
-    const { data } = await $api.get(endpoints.auth.verifyEmail, { params });
+    const { data } = await $api.patch(endpoints.auth.verifyEmail, params);
 
     return [null, mapData(data)];
   } catch (error) {

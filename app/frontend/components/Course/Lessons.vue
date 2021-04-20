@@ -53,7 +53,7 @@ export default {
   background: #fff;
   box-shadow: 0 6px 24px -4px rgba(23, 24, 24, 0.1);
   border-radius: 8px;
-  padding: 14px 20px;
+  padding: 14px 48px 14px 20px;
   transition: box-shadow 0.25s $ease;
   &:hover {
     box-shadow: 0 8px 26px -2px rgba(23, 24, 24, 0.18);
