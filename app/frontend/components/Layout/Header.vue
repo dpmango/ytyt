@@ -1,6 +1,6 @@
 <template>
   <header class="header">
-    <div class="container container--wide">
+    <div class="container">
       <div class="header__wrapper">
         <NuxtLink to="/" class="header__logo">
           <img src="~/assets/img/logo-simple.png" srcset="~/assets/img/logo-simple@2x.png 2x" alt="logo" />

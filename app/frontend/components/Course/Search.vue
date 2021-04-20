@@ -3,7 +3,7 @@
     <div class="search__trigger" @click="handleTriggerClick">
       <UiSvgIcon name="search" />
     </div>
-    <div class="search__wrapper" :class="[visible && 'is-visible']">
+    <div class="search__wrapper" :class="[visible && 'is-visible', active && 'is-active']">
       <div class="search__input">
         <UiInput
           :value="input"
@@ -17,17 +17,25 @@
         />
       </div>
       <div class="search__results" :class="[active && 'is-active']">
-        <ul class="search__list" @click="handleSelect">
-          <li v-for="course in list" :key="course.id">
-            <NuxtLink class="card" :to="`/theme/${course.course_theme.id}/${course.course_lesson.id}`">
-              <div class="card__content">
-                <div class="card__course">{{ course.course_theme.title }}</div>
-                <div class="card__title">{{ course.course_lesson.title }}</div>
-                <div class="card__description">{{ course.course_lesson.description }}</div>
-              </div>
-            </NuxtLink>
-          </li>
-        </ul>
+        <template v-if="isMinLength">
+          <ul v-if="list.length" class="search__list" @click="handleSelect">
+            <li v-for="course in list" :key="course.id">
+              <NuxtLink class="card" :to="`/theme/${course.course_theme.id}/${course.course_lesson.id}`">
+                <div class="card__content">
+                  <div class="card__course">{{ course.course_theme.title }}</div>
+                  <div class="card__title">{{ course.course_lesson.title }}</div>
+                  <div class="card__description">{{ course.course_lesson.description }}</div>
+                </div>
+              </NuxtLink>
+            </li>
+          </ul>
+          <div v-else class="search__results-empty">
+            <span>
+              Результатов по запросу <strong>{{ input }}</strong> не найдено
+            </span>
+            <a href="#" @click="resetSearch">Сборсить поиск</a>
+          </div>
+        </template>
       </div>
     </div>
   </div>
@@ -46,10 +54,15 @@ export default {
       list: [],
     };
   },
+  computed: {
+    isMinLength() {
+      return this.input.trim().length >= 2;
+    },
+  },
   created() {
     // throught created because of this. context
-    this.handleDebounced = debounce(async (v) => {
-      const res = await this.search({ text: v })
+    this.handleDebounced = debounce(async (str) => {
+      const res = await this.search({ text: str })
         .then((res) => {
           this.list = res;
         })
@@ -72,7 +85,9 @@ export default {
   methods: {
     handleChange(v) {
       this.input = v;
-      this.handleDebounced(v);
+      if (this.isMinLength) {
+        this.handleDebounced(v.trim());
+      }
     },
     handleFocus(e) {
       e.stopPropagation();
@@ -82,6 +97,9 @@ export default {
     handleClose() {
       this.active = false;
       this.visible = false;
+    },
+    resetSearch() {
+      this.input = '';
     },
     clickOutside(e) {
       if (!e.target.closest('.header__search')) {
@@ -140,6 +158,7 @@ export default {
         padding-bottom: 7px;
         &:focus,
         &:active {
+          border-color: transparent;
           background-color: white;
           outline: none;
           &::placeholder {
@@ -151,11 +170,22 @@ export default {
   }
   &__wrapper {
     position: relative;
+    &.is-active {
+      .search__input {
+        ::v-deep .input__input {
+          input {
+            background: white;
+            box-shadow: 0 6px 24px -4px rgba(23, 24, 24, 0.1);
+          }
+        }
+      }
+    }
   }
   &__results {
     position: absolute;
     z-index: 1;
-    top: 100%;
+    top: calc(100% - 16px);
+    padding-top: 20px;
     left: 0;
     right: 0;
     background: white;
@@ -163,6 +193,7 @@ export default {
     border-radius: 4px;
     opacity: 0;
     pointer-events: none;
+    min-height: 1px;
     max-height: calc(100vh - 60px - 120px);
     overflow-y: auto;
     transition: opacity 0.2s $ease;
@@ -181,6 +212,20 @@ export default {
         .card {
           border-bottom: 0;
         }
+      }
+    }
+  }
+  &__results-empty {
+    padding: 16px;
+    text-align: center;
+    font-size: 15px;
+    a {
+      display: inline-block;
+      margin-top: 6px;
+      color: $colorPrimary;
+      transition: color 0.25s $ease;
+      &:hover {
+        color: $fontColor;
       }
     }
   }
@@ -228,11 +273,21 @@ export default {
 }
 
 .card {
+  position: relative;
   display: flex;
   flex-direction: column;
-  padding: 16px 16px;
-  border-bottom: 1px solid $borderColor;
+  padding: 16px 13px;
   transition: background 0.25s $ease;
+  &::after {
+    display: inline-block;
+    content: ' ';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 115px;
+    height: 1px;
+    background: $borderColor;
+  }
   &__course {
     font-size: 14px;
     color: $colorGray;
