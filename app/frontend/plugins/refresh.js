@@ -2,7 +2,7 @@ const UPDATE_INTERVAL = 12 * 60 * 60 * 1000;
 
 async function refreshToken(token, store, $toast) {
   try {
-    const response = await store.dispatch('auth/refreshToken', { token });
+    await store.dispatch('auth/refreshToken', { token });
   } catch (error) {
     store.commit('auth/logOut');
     $toast.global.error({ message: 'Ошибка обновления токена' });

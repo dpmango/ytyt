@@ -22,7 +22,7 @@
     </template>
     <template v-if="status === 4">
       <UiSvgIcon name="lock" />
-      <span>Заблокирован</span>
+      <span>Не оплачен</span>
     </template>
   </div>
 </template>

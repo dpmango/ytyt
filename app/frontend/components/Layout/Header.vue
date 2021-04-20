@@ -18,7 +18,7 @@
         </div>
         <div class="header__user">
           <NuxtLink to="/profile">
-            <div class="header__user-details">{{ user.first_name }}</div>
+            <!-- <div class="header__user-details">{{ user.first_name }}</div> -->
             <div class="header__user-avatar">
               <img :src="user.thumbnail_avatar" :alt="user.first_name" />
             </div>
