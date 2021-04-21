@@ -24,6 +24,7 @@ export default {
     '~/plugins/filters.js',
     '~/plugins/event-bus.js',
     '~/plugins/global-mixins.js',
+    { src: '~/plugins/markdown.js', mode: 'client' },
     { src: '~/plugins/toast.js', mode: 'client' },
     { src: '~/plugins/vee-validate.js', mode: 'client' },
   ],

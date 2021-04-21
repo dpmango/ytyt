@@ -76,6 +76,7 @@ export default {
     flex: 0 0 294px;
     max-width: 294px;
     background: white;
+    border-right: 1px solid rgba(147, 149, 152, 0.2);
   }
   &__content {
     position: relative;

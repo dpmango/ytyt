@@ -115,14 +115,16 @@ export default {
     async setNextFragment() {
       await this.requestFragment({
         id: this.activeSection,
-      }).then((res) => {
-        if (res.id) {
-          this.activeSection = res.id;
-        } else if (res.course_id) {
-          // eslint-disable-next-line no-console
-          console.log('end of lesson');
-        }
-      });
+      })
+        .then((res) => {
+          if (res.id) {
+            this.activeSection = res.id;
+          } else if (res.course_id) {
+            // eslint-disable-next-line no-console
+            console.log('end of lesson');
+          }
+        })
+        .catch((_err) => {});
     },
     setFragment(id, status) {
       if (status && status !== 4) {

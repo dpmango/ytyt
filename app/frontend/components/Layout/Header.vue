@@ -1,6 +1,6 @@
 <template>
   <header class="header">
-    <div class="container container--wide">
+    <div class="container">
       <div class="header__wrapper">
         <NuxtLink to="/" class="header__logo">
           <img src="~/assets/img/logo-simple.png" srcset="~/assets/img/logo-simple@2x.png 2x" alt="logo" />
@@ -18,7 +18,7 @@
         </div>
         <div class="header__user">
           <NuxtLink to="/profile">
-            <div class="header__user-details">{{ user.first_name }}</div>
+            <!-- <div class="header__user-details">{{ user.first_name }}</div> -->
             <div class="header__user-avatar">
               <img :src="user.thumbnail_avatar" :alt="user.first_name" />
             </div>

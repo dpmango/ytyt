@@ -3,6 +3,17 @@
     <div class="container">
       <LayoutBack :to="`/`" title="Вернуться к списку" />
 
+      <div v-if="theme" class="lessons__title">
+        <h1 class="h2-title">{{ theme.title }}</h1>
+        <div class="lessons__title-stats">
+          <span>{{ stats }}</span>
+        </div>
+      </div>
+
+      <template v-else>
+        <UiLoader :loading="true" theme="block" />
+      </template>
+
       <div class="list">
         <div v-for="lesson in list" :key="lesson.id" class="list__row">
           <NuxtLink
@@ -26,9 +37,26 @@
 </template>
 
 <script>
+import Plurize from '~/helpers/Plurize';
+
 export default {
   props: {
+    themes: Array,
     list: Array,
+  },
+  computed: {
+    theme() {
+      const theme = this.themes.find((x) => x.id === parseInt(this.$route.params.id));
+      if (theme) {
+        return theme;
+      }
+
+      return null;
+    },
+    stats() {
+      const plural = Plurize(this.theme.count_lessons, 'урок', 'урока', 'уроков');
+      return `${this.theme.completed_count_lessons} / ${this.theme.count_lessons} ${plural}`;
+    },
   },
 };
 </script>
@@ -36,6 +64,14 @@ export default {
 <style lang="scss" scoped>
 .lessons {
   padding-top: 24px;
+  &__title {
+    // h1 instance with h2 class
+    margin: 4px 0 0;
+  }
+  &__title-stats {
+    margin-top: 6px;
+    font-size: 15px;
+  }
 }
 
 .list {
@@ -53,7 +89,7 @@ export default {
   background: #fff;
   box-shadow: 0 6px 24px -4px rgba(23, 24, 24, 0.1);
   border-radius: 8px;
-  padding: 14px 20px;
+  padding: 14px 48px 14px 20px;
   transition: box-shadow 0.25s $ease;
   &:hover {
     box-shadow: 0 8px 26px -2px rgba(23, 24, 24, 0.18);
