@@ -9,9 +9,12 @@ https://docs.djangoproject.com/en/3.1/howto/deployment/asgi/
 
 import os
 
+import django
 from channels.routing import ProtocolTypeRouter
 from channels.routing import URLRouter
 from django.core.asgi import get_asgi_application
+
+django.setup()
 
 from users.websockets import routing
 from users.websockets.middleware import JWTAuthMiddlewareStack

@@ -116,9 +116,8 @@ class LessonFragmentViewSet(FlexibleSerializerModelViewSetMixin,
                 # В противном случае — даем доступ к следующей теме
                 if not next_course_theme.free_access and \
                         course_access.access_type not in AccessBase.AVAILABLE_ACCESS_TYPES_FULL:
-                    raise exceptions.PermissionDenied(
-                        'Для доступа к теме `%s` вам необходимо произвести оплату' % next_course_theme.title
-                    )
+                    msg = 'Для доступа к теме `%s` вам необходимо произвести оплату' % next_course_theme.title
+                    return Response({'detail': msg}, status=status.HTTP_403_FORBIDDEN)
 
                 # Проверка на скорость прохождения курса
                 CourseThemeAccess.objects.check_learning_speed(request.user, course_access)
