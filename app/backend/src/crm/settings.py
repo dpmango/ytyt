@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'django.contrib.staticfiles',
 
+    'files',
+
     'rest_framework',
     'rest_framework.authtoken',
     'drf_yasg',
@@ -66,7 +68,7 @@ INSTALLED_APPS = [
     'constants',
     'providers',
 
-    'chat',
+    'dialogs',
 ]
 
 

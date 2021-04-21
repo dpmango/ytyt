@@ -1,9 +1,14 @@
+from bs4 import BeautifulSoup
 from django.db import models
-from users.models import User
 from markdownx.models import MarkdownxField
+
+from files.models import File
+from users.models import User
 
 
 class Dialog(models.Model):
+
+    date_created = models.DateTimeField('Дата создания', auto_now=True)
     users = models.ManyToManyField(
         User,
         verbose_name='Пользователи',
@@ -12,10 +17,8 @@ class Dialog(models.Model):
         related_query_name="dialog_users",
     )
 
-    date_created = models.DateTimeField('Дата создания', auto_now=True)
-
     @property
-    def websocket_key(self) -> str:
+    def ws_key(self) -> str:
         return 'dialog__%s' % self.id
 
 
@@ -24,8 +27,12 @@ class DialogMessage(models.Model):
     dialog = models.ForeignKey(Dialog, on_delete=models.CASCADE)
 
     body = MarkdownxField('Сообщение', null=True, blank=True)
+    file = models.ForeignKey(File, on_delete=models.SET_NULL, null=True, blank=True)
     date_created = models.DateTimeField('Дата отправления', auto_now_add=True)
     date_read = models.DateTimeField('Дата прочтения', null=True, blank=True)
 
     class Meta:
         ordering = ('-date_created', )
+
+    def get_text_body(self):
+        return ''.join(BeautifulSoup(self.body, features='html.parser').findAll(text=True))

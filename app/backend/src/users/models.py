@@ -157,3 +157,7 @@ class User(AbstractBaseUser, PermissionsMixin, ReviewersMixins):
         if self.is_superuser:
             return [permissions.GROUP_ADMINISTRATOR]
         return [group.id for group in self.groups.all()]
+
+    @property
+    def ws_key(self) -> str:
+        return 'users__%s' % self.id
