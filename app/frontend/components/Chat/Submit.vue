@@ -1,25 +1,23 @@
 <template>
   <div class="chat-submit">
-    <ValidationObserver
-      ref="form"
-      v-slot="{ invalid }"
-      tag="form"
-      class="chat-submit__form"
-      @submit.prevent="handleSubmit"
-    >
-      <ValidationProvider v-slot="{ errors }" rules="required">
-        <UiInput
-          textarea
-          :value="text"
-          rows="1"
-          placeholder="Сообщение.."
-          :error="errors[0]"
-          icon="paper-clip"
-          icon-position="left"
-          @onChange="(v) => (text = v)"
-        />
-      </ValidationProvider>
-    </ValidationObserver>
+    <client-only>
+      <template slot="placeholder">
+        <UiLoader :loading="true" theme="block" />
+      </template>
+
+      <ValidationObserver
+        ref="form"
+        v-slot="{ invalid }"
+        tag="form"
+        class="chat-submit__form"
+        @submit.prevent="handleSubmit"
+      >
+        <ValidationProvider v-slot="{ errors }" rules="required">
+          <UiMarkdownEditor @change="(v) => (text = v)" />
+        </ValidationProvider>
+        <UiButton type="submit">Отправить</UiButton>
+      </ValidationObserver>
+    </client-only>
   </div>
 </template>
 
@@ -56,4 +54,9 @@ export default {
     }
   }
 }
+
+// ::v-deep .CodeMirror,
+// ::v-deep.CodeMirror-scroll {
+//   min-height: 200px;
+// }
 </style>

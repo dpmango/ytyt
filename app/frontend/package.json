@@ -27,9 +27,13 @@
     "cookie-universal-nuxt": "^2.1.4",
     "core-js": "^3.9.1",
     "dayjs": "^1.10.4",
+    "github-markdown-css": "^4.0.0",
+    "highlight.js": "^10.7.2",
     "lodash": "^4.17.21",
     "nuxt": "^2.15.3",
+    "simplemde": "^1.11.2",
     "vee-validate": "^3.4.5",
+    "vue-simplemde": "^2.0.0",
     "vue-spinner": "^1.0.4",
     "vuex": "^3.6.2"
   },
