@@ -7,12 +7,24 @@ from dialogs.models import DialogMessage, Dialog
 from files.models import File
 from providers.mailgun.mixins import EmailNotificationMixin
 from users.models import User
+from django.forms.models import model_to_dict
 
 
 class DialogEvent(EmailNotificationMixin):
+    EVENT_DIALOG_LOAD = 'dialogs.load'
+    EVENT_DIALOG_MESSAGES_LOAD = 'dialogs.messages.load'
+    EVENT_DIALOG_MESSAGES_CREATE = 'dialogs.messages.create'
+    EVENT_DIALOG_MESSAGES_SEEN = 'dialogs.messages.seen'
+
+    EVENTS = (
+        (EVENT_DIALOG_LOAD, 'Загрузка всех диалогов'),
+        (EVENT_DIALOG_MESSAGES_LOAD, 'Загрузка сообщений диалога'),
+        (EVENT_DIALOG_MESSAGES_CREATE, 'Создание сообщения в диалоге'),
+        (EVENT_DIALOG_MESSAGES_SEEN, 'Сделать сообщение прочитанным'),
+    )
 
     @staticmethod
-    def _dialogs_load(user: User, limit=None, offset=None, **kwargs) -> typing.Optional[list]:
+    def _dialogs_load(user: User, limit=None, offset=None, **kwargs) -> dict:
         """
         Получение всех диалогов пользователя
         :param user: Пользователь, который загрузил чат
@@ -26,12 +38,13 @@ class DialogEvent(EmailNotificationMixin):
         dialogs = dialogs.distinct('id')[offset:limit]
 
         dialogs = DialogWithLastMessageSerializers(dialogs, many=True, context={'user': user}).data
-        return sorted(
+        dialogs = sorted(
             dialogs, key=lambda dialog: (dialog.get('last_message') or {}).get('date_created') or '-1', reverse=True
         )
+        return {'data': dialogs, 'to': user}
 
     @staticmethod
-    def _dialogs_messages_load(user: User, dialog_id=None, limit=None, offset=None, **kwargs) -> typing.Optional[list]:
+    def _dialogs_messages_load(user: User, dialog_id=None, limit=None, offset=None, **kwargs) -> typing.Optional[dict]:
         """
         Получение всех сообщений диалога
         :param user: Пользователь, который загрузил чат
@@ -50,7 +63,8 @@ class DialogEvent(EmailNotificationMixin):
             return None
 
         messages = DialogMessage.objects.filter(dialog=dialog)[offset:limit]
-        return DefaultDialogMessageSerializers(messages, many=True, context={'user': user}).data
+        messages = DefaultDialogMessageSerializers(messages, many=True, context={'user': user}).data
+        return {'data': messages, 'to': user}
 
     @staticmethod
     def _dialogs_messages_seen(user: User, dialog_id=None, message_id=None, **kwargs) -> typing.Optional[dict]:
@@ -69,11 +83,12 @@ class DialogEvent(EmailNotificationMixin):
 
         message = DialogMessage.objects.get(id=message_id)
         message.date_read = timezone.now()
-        message.save(update_fields=['date_read'])
+        message = message.save(update_fields=['date_read'])
 
-        return DefaultDialogMessageSerializers(message, context={'user': user}).data
+        return {'data': message, 'to': user}
 
-    def _dialogs_messages_create(self, user: User, dialog_id=None, body=None, file_id=None, **kwargs):
+    def _dialogs_messages_create(
+            self, user: User, dialog_id=None, body=None, file_id=None, **kwargs) -> typing.Optional[dict]:
         """
         Создание сообщения
         Так же уведомляются все пользователи, которые есть в диалоге
@@ -87,7 +102,6 @@ class DialogEvent(EmailNotificationMixin):
         if not dialog_id:
             return None
 
-        # TODO: Если будут еще события, то вынести это в проверку доступов
         dialog = Dialog.objects.filter(id=dialog_id).first()
         if not dialog or user not in dialog.users.all():
             return None
@@ -100,13 +114,19 @@ class DialogEvent(EmailNotificationMixin):
         message = DialogMessage.objects.create(dialog_id=dialog_id, user=user, body=body, file_id=file_id)
         message = DefaultDialogMessageSerializers(message, context={'user': user}).data
 
-        users_to_notification = set(dialog.users.all()) - {user}
+        users_to_notification = set(dialog.users.all())
+        users_to_email_notification = users_to_notification - {user}
 
-        for _user in users_to_notification:
-            # self.send_mail(message, _user.email)
-            self.push(data=message, user=_user)
+        context = {**message, **model_to_dict(user)}
 
-        return message
+        for _user in users_to_email_notification:
+            self.send_mail(context, _user.email)
 
-    subject_template_raw = 'Новое сообщение от ...'
+        return {'data': message, 'to': users_to_notification}
+
+    subject_template_raw = 'Новое сообщение от {email}'
     email_template_raw = 'Сообщение: {body}'
+
+    @classmethod
+    def __name__(cls) -> str:
+        return 'dialogs'

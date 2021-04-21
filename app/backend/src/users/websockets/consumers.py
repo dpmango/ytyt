@@ -45,8 +45,8 @@ class UserConsumer(JsonWebsocketConsumer, ConsumerEvents):
         :param content: Декодированные данные из сокета
         :param kwargs: Дополнительные аргументы
         """
-        data = self.receive_event(content, user=self.user, **kwargs)
-        self.push(user=self.user, data=data)
+        event_data = self.receive_event(content, user=self.user, **kwargs)
+        self.push(**event_data)
 
     def disconnect(self, close_code) -> None:
         """
@@ -57,14 +57,29 @@ class UserConsumer(JsonWebsocketConsumer, ConsumerEvents):
             self.user.ws_key, self.channel_name
         )
 
+    def push(self, to: typing.Union[typing.Set[User], User], data: typing.Union[dict, list]) -> None:
+        """
+        Непосредственная отправка данных в сокет.
+        Момент отправки данных в сокет генерирует доплнительные события:
+            - Уведолмения о количестве непрочитанных диалогов
+
+        :param to: Набор пользователей, которым нужно разослать в сокет данные
+        :param data: Данные для отправки
+        """
+        to = {to} if isinstance(to, User) else to
+
+        for user in to:
+            # Отправляем в сокет данные по основному событию
+            async_to_sync(self.channel_layer.group_send)(user.ws_key, {'type': 'ws_send', **data})
+
+            # Порождаем дополнительные события для того же юзера
+            async_to_sync(self.channel_layer.group_send)(
+                user.ws_key, {'type': 'ws_send', **self.events.notifications.get_dialogs_count(user)}
+            )
+
     def ws_send(self, event: dict) -> None:
         """
         Метод распределяет по всей подключенной группе
         :param event: Данные события
         """
         self.send(text_data=json.dumps(event))
-
-    def push(self, user: User, data) -> None:
-        async_to_sync(self.channel_layer.group_send)(
-            user.ws_key, {'type': 'ws_send', **data}
-        )
