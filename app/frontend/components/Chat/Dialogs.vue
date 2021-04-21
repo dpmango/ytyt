@@ -52,7 +52,6 @@ export default {
 .dialog {
   display: flex;
   border-bottom: 1px solid rgba(147, 149, 152, 0.2);
-  border-right: 1px solid rgba(147, 149, 152, 0.2);
   padding: 17px 12px;
   transition: background 0.25s $ease;
   cursor: pointer;

@@ -3,7 +3,7 @@
     <div class="search__trigger" @click="handleTriggerClick">
       <UiSvgIcon name="search" />
     </div>
-    <div class="search__wrapper" :class="[visible && 'is-visible', active && 'is-active']">
+    <div class="search__wrapper" :class="[visible && 'is-visible', active && isMinLength && 'is-active']">
       <div class="search__input">
         <UiInput
           :value="input"
@@ -16,8 +16,8 @@
           @onChange="handleChange"
         />
       </div>
-      <div class="search__results" :class="[active && 'is-active']">
-        <template v-if="isMinLength">
+      <div v-if="isMinLength" class="search__results" :class="[active && 'is-active']">
+        <template v-if="!isLoading">
           <ul v-if="list.length" class="search__list" @click="handleSelect">
             <li v-for="course in list" :key="course.id">
               <NuxtLink class="card" :to="`/theme/${course.course_theme.id}/${course.course_lesson.id}`">
@@ -36,6 +36,10 @@
             <a href="#" @click="resetSearch">Сборсить поиск</a>
           </div>
         </template>
+
+        <template v-else>
+          <UiLoader :loading="true" theme="block" />
+        </template>
       </div>
     </div>
   </div>
@@ -48,6 +52,7 @@ import { mapActions } from 'vuex';
 export default {
   data() {
     return {
+      isLoading: false,
       input: '',
       active: false,
       visible: false,
@@ -65,9 +70,11 @@ export default {
       const res = await this.search({ text: str })
         .then((res) => {
           this.list = res;
+          this.isLoading = false;
         })
         .catch((err) => {
           if (err.code === 403) {
+            this.isLoading = false;
             this.$toast.global.error({ message: err.data.detail });
             this.$router.push('/payment');
           }
@@ -85,6 +92,7 @@ export default {
   methods: {
     handleChange(v) {
       this.input = v;
+      this.isLoading = true;
       if (this.isMinLength) {
         this.handleDebounced(v.trim());
       }
@@ -191,14 +199,11 @@ export default {
     background: white;
     box-shadow: 0 8px 24px -4px rgba(23, 24, 24, 0.12);
     border-radius: 4px;
-    opacity: 0;
     pointer-events: none;
     min-height: 1px;
     max-height: calc(100vh - 60px - 120px);
     overflow-y: auto;
-    transition: opacity 0.2s $ease;
     &.is-active {
-      opacity: 1;
       pointer-events: all;
     }
   }
