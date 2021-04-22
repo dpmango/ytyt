@@ -17,10 +17,14 @@
         </div>
       </div>
     </div>
+    <div v-if="!socket.isConnected" class="chat__loader">
+      <UiLoader theme="block" :loading="true" />
+    </div>
   </div>
 </template>
 
 <script>
+import Vue from 'vue';
 import { mapActions, mapGetters } from 'vuex';
 
 export default {
@@ -31,15 +35,18 @@ export default {
     };
   },
   computed: {
-    ...mapGetters('chat', ['messages', 'head', 'dialogs']),
+    ...mapGetters('chat', ['messages', 'head', 'dialogs', 'socket']),
   },
-  created() {
-    // sockets ws:
-    // this.handleTestGetUser();
+  mounted() {
+    this.connect();
+  },
+  beforeDestroy() {
+    this.disconnect();
   },
   methods: {
     setDialog(id) {
       this.activeDialog = id;
+      // console.log(this.$socket);
     },
     handleClickBack() {
       this.activeDialog = null;
@@ -47,7 +54,7 @@ export default {
     async handleSubmit() {
       const isValid = await this.$refs.form.validate();
     },
-    // ...mapActions('auth', ['logout', 'getUserInfo', 'update']),
+    ...mapActions('chat', ['connect', 'disconnect']),
   },
 };
 </script>
@@ -101,6 +108,18 @@ export default {
     margin-top: auto;
     background: white;
     box-shadow: 0 0 12px 0 rgba($fontColor, 0.05);
+  }
+  &__loader {
+    position: absolute;
+    z-index: 5;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(white, 0.5);
   }
 }
 
