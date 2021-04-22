@@ -126,7 +126,3 @@ class DialogEvent(EmailNotificationMixin):
 
     subject_template_raw = 'Новое сообщение от {email}'
     email_template_raw = 'Сообщение: {body}'
-
-    @classmethod
-    def __name__(cls) -> str:
-        return 'dialogs'

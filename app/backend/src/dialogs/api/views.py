@@ -1,9 +1,6 @@
-from django.shortcuts import render
+from rest_framework import viewsets, status
 
 
-def index(request):
-    return render(request, 'dialogs/index.html')
+class DialogViewSet(viewsets.mixins.CreateModelMixin, viewsets.GenericViewSet):
 
-
-def dialog(request, dialog_id):
-    return render(request, 'dialogs/dialog.html', {'dialog_id': dialog_id})
+    pass

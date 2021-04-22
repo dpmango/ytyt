@@ -1,5 +1,5 @@
 from django.urls import path
-from dialogs.api.views import index, dialog
+from dialogs.views import index, dialog
 
 
 app_name = 'dialog'

@@ -9,9 +9,10 @@ class ConsumerEvents:
     Вспомогательный класс для поддержки событий в сокетах
     """
 
-    _event_classes = (
-        DialogEvent, InsidePlatformNotificationEvent
-    )
+    _event_classes = {
+        'dialogs': DialogEvent(),
+        'notifications': InsidePlatformNotificationEvent(),
+    }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -22,7 +23,7 @@ class ConsumerEvents:
         """
         Декларирование всех существующих событий
         """
-        self.events = type('Event', (), {event.__name__(): event() for event in self._event_classes})
+        self.events = type('Event', (), {event_name: event for event_name, event in self._event_classes.items()})()
 
     def get_name_events(self) -> typing.List[str]:
         """
@@ -30,7 +31,8 @@ class ConsumerEvents:
         :return: Список с названиями событий
         """
         return [
-            getattr(cl, ev, None) for cl in self.events.__dir__() for ev in cl.__dir__() if ev.startswith('EVENT_')
+            getattr(obj, event, None) for obj in self._event_classes.values() for event in obj.__dir__()
+            if event.startswith('EVENT_')
         ]
 
     def receive_event(self, content: dict, **kwargs) -> dict:
@@ -47,10 +49,16 @@ class ConsumerEvents:
         if event not in events:
             return {}
 
-        event_class, *_ = event.strip('.')
+        event_class, *_ = event.split('.')
         event_func_name = '_%s' % event.replace('.', '_')
-        event_func = getattr(self.events, event_func_name, None)
+        print(event_class)
+        print(event_func_name)
 
+        event_obj = getattr(self.events, event_class, None)
+        if not event_obj:
+            return {}
+
+        event_func = getattr(event_obj, event_func_name, None)
         if not event_func or not callable(event_func):
             return {}
 

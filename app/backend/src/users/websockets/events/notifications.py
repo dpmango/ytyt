@@ -16,10 +16,10 @@ class InsidePlatformNotificationEvent:
         Функция для явного вызова события notifications.dialogs.count
         :param user: Пользователь
         """
-        return {
-            'data': self._notifications_dialogs_count(user),
-            'event': self.EVENT_NOTIFICATIONS_DIALOG_COUNT,
-        }
+        data = self._notifications_dialogs_count(user)
+        data = data.get('data')
+
+        return {'data': data, 'event': self.EVENT_NOTIFICATIONS_DIALOG_COUNT}
 
     @staticmethod
     def _notifications_dialogs_count(user: User, **kwargs) -> dict:
@@ -32,7 +32,3 @@ class InsidePlatformNotificationEvent:
         dialogs_count = dialogs_count.order_by('dialog__id').distinct('dialog__id').count()
 
         return {'data': dialogs_count, 'to': user}
-
-    @classmethod
-    def __name__(cls) -> str:
-        return 'notifications'

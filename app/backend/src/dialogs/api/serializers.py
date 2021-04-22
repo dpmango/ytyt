@@ -8,7 +8,7 @@ from files.api.serializers import DefaultFileSerializer
 class DefaultDialogMessageSerializers(serializers.ModelSerializer):
     user = UserDetailSerializer()
     body = serializers.SerializerMethodField()
-    file = DefaultFileSerializer()
+    file = DefaultFileSerializer(required=False)
 
     @staticmethod
     def get_body(obj: DialogMessage):

@@ -57,7 +57,7 @@ class UserConsumer(JsonWebsocketConsumer, ConsumerEvents):
             self.user.ws_key, self.channel_name
         )
 
-    def push(self, to: typing.Union[typing.Set[User], User], data: typing.Union[dict, list]) -> None:
+    def push(self, to: typing.Union[typing.Set[User], User], data: typing.Union[dict, list], **kwargs) -> None:
         """
         Непосредственная отправка данных в сокет.
         Момент отправки данных в сокет генерирует доплнительные события:
@@ -70,7 +70,7 @@ class UserConsumer(JsonWebsocketConsumer, ConsumerEvents):
 
         for user in to:
             # Отправляем в сокет данные по основному событию
-            async_to_sync(self.channel_layer.group_send)(user.ws_key, {'type': 'ws_send', **data})
+            async_to_sync(self.channel_layer.group_send)(user.ws_key, {'type': 'ws_send', 'data': data})
 
             # Порождаем дополнительные события для того же юзера
             async_to_sync(self.channel_layer.group_send)(

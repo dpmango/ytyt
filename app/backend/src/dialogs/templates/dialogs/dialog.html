@@ -11,9 +11,16 @@
     {{ room_name|json_script:"dialog_id" }}
     <script>
         urlParams = new URLSearchParams(window.location.search);
+
+        wsProtocol = 'ws'
+        if (window.location.protocol === 'https:') {
+                wsProtocol = 'wss'
+        }
+        console.log('wsProtocol: ' + wsProtocol)
+
         token = urlParams.get('token');
         const chatSocket = new WebSocket(
-            'wss://'
+            wsProtocol + '://'
             + window.location.host
             + '/ws/'
             + '?token=' + token
@@ -42,7 +49,7 @@
             chatSocket.send(JSON.stringify({
                 'message': message,
                 'event': 'dialogs.messages.create',
-                'dialog_id': dialog_id,
+                'dialog_id': 1,
                 {#'message_id': 1#}
                 'body': message
             }));

@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 from django.db import models
 from markdownx.models import MarkdownxField
 
+from courses.models import CourseLesson
 from files.models import File
 from users.models import User
 
@@ -23,8 +24,9 @@ class Dialog(models.Model):
 
 
 class DialogMessage(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    dialog = models.ForeignKey(Dialog, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    dialog = models.ForeignKey(Dialog, on_delete=models.SET_NULL, null=True, blank=True)
+    lesson = models.ForeignKey(CourseLesson, on_delete=models.SET_NULL, null=True, blank=True)
 
     body = MarkdownxField('Сообщение', null=True, blank=True)
     file = models.ForeignKey(File, on_delete=models.SET_NULL, null=True, blank=True)
