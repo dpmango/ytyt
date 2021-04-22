@@ -7,13 +7,7 @@ class ReviewersMixins(models.Model):
     Миксин-класс для работы с пользователем, как с ревьюером
     """
 
-    user_reviewers = models.ManyToManyField(
-        'users.User',
-        verbose_name=_('Ревьюеры пользователя'),
-        blank=True,
-        related_name="reviewers_set",
-        related_query_name="reviewers",
-    )
+    reviewer = models.ForeignKey('users.User', on_delete=models.SET_NULL, blank=True, null=True)
 
     class Meta:
         abstract = True

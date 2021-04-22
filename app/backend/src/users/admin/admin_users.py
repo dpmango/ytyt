@@ -42,7 +42,7 @@ class UserAdmin(BaseUserAdmin):
         }),
         (_('Ревьюеры'), {
             'fields': (
-                'user_reviewers',
+                'reviewer',
             ),
         }),
     )
@@ -60,7 +60,6 @@ class UserAdmin(BaseUserAdmin):
     filter_horizontal = (
         'groups',
         'user_permissions',
-        'user_reviewers',
     )
 
     def get_avatar(self, obj):

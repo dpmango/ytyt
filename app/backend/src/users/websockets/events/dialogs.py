@@ -23,6 +23,10 @@ class DialogEvent(EmailNotificationMixin):
         (EVENT_DIALOG_MESSAGES_SEEN, 'Сделать сообщение прочитанным'),
     )
 
+    GENERATING_NOTIFICATIONS_EVENTS = (
+        EVENT_DIALOG_MESSAGES_CREATE, EVENT_DIALOG_MESSAGES_SEEN
+    )
+
     @staticmethod
     def _dialogs_load(user: User, limit=None, offset=None, **kwargs) -> dict:
         """
@@ -120,7 +124,8 @@ class DialogEvent(EmailNotificationMixin):
         context = {**message, **model_to_dict(user)}
 
         for _user in users_to_email_notification:
-            self.send_mail(context, _user.email)
+            if _user.email_notifications:
+                self.send_mail(context, _user.email)
 
         return {'data': message, 'to': users_to_notification}
 

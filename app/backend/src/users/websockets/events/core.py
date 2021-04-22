@@ -25,6 +25,15 @@ class ConsumerEvents:
         """
         self.events = type('Event', (), {event_name: event for event_name, event in self._event_classes.items()})()
 
+    def get_generating_notifications_events(self) -> typing.List[str]:
+        """
+        Метод вернет список событий, которые должны порождать события уведомлений
+        """
+        return [
+            event for event_obj in self._event_classes.values()
+            for event in getattr(event_obj, 'GENERATING_NOTIFICATIONS_EVENTS', ())
+        ]
+
     def get_name_events(self) -> typing.List[str]:
         """
         Получение всех возможных событий из каждого класса-события
@@ -51,8 +60,6 @@ class ConsumerEvents:
 
         event_class, *_ = event.split('.')
         event_func_name = '_%s' % event.replace('.', '_')
-        print(event_class)
-        print(event_func_name)
 
         event_obj = getattr(self.events, event_class, None)
         if not event_obj:
