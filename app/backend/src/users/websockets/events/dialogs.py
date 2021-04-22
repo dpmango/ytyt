@@ -87,7 +87,7 @@ class DialogEvent(EmailNotificationMixin):
 
         message = DialogMessage.objects.get(id=message_id)
         message.date_read = timezone.now()
-        message = message.save(update_fields=['date_read'])
+        message.save(update_fields=['date_read'])
 
         message = DefaultDialogMessageSerializers(message, context={'user': user}).data
         return {'data': message, 'to': user}
