@@ -41,10 +41,10 @@ class DialogEvent(EmailNotificationMixin):
         dialogs = user.dialog_users_set.all().order_by('id').prefetch_related('dialogmessage_set')
         dialogs = dialogs.distinct('id')[offset:limit]
 
+        sorted_func = lambda dialog: (dialog.get('last_message') or {}).get('date_created') or '-1'
+
         dialogs = DialogWithLastMessageSerializers(dialogs, many=True, context={'user': user}).data
-        dialogs = sorted(
-            dialogs, key=lambda dialog: (dialog.get('last_message') or {}).get('date_created') or '-1', reverse=True
-        )
+        dialogs = sorted(dialogs, key=sorted_func, reverse=True)
         return {'data': dialogs, 'to': user}
 
     @staticmethod

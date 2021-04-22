@@ -57,17 +57,22 @@ class UserConsumer(JsonWebsocketConsumer, ConsumerEvents):
             self.user.ws_key, self.channel_name
         )
 
-    def push(self, to: typing.Union[typing.Set[User], User], data: typing.Union[dict, list], **kwargs) -> None:
+    def push(self,
+             to: typing.Union[typing.Set[User], User] = None, data: typing.Union[dict, list] = None, **kwargs) -> None:
         """
         Непосредственная отправка данных в сокет.
         Момент отправки данных в сокет генерирует доплнительные события:
             - Уведолмения о количестве непрочитанных диалогов
 
+        Дополнительно закрываем сокет, если данные для отправления и пользователь не существуют по какой-то причине
         :param to: Набор пользователей, которым нужно разослать в сокет данные
         :param data: Данные для отправки
         """
-        to = {to} if isinstance(to, User) else to
+        if to == data is None:
+            self.close(1000)
+            return
 
+        to = {to} if isinstance(to, User) else to
         for user in to:
             # Отправляем в сокет данные по основному событию
             async_to_sync(self.channel_layer.group_send)(user.ws_key, {'type': 'ws_send', 'data': data})
