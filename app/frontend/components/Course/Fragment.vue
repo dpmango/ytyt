@@ -10,7 +10,8 @@
           :sections-count="sectionsCount"
           :sections="sections"
           :active-section="activeSection"
-          :set-fragment="setFragment"
+          @setFragment="setFragment"
+          @handleQuestionClick="handleQuestionClick"
         />
 
         <div class="lesson__content">
@@ -40,7 +41,7 @@
 
                   <div class="lesson__actions">
                     <UiButton @click.prevent="setNextFragment">Продолжить</UiButton>
-                    <!-- <UiButton :disabled="true" theme="outline">Задать вопрос куратору</UiButton> -->
+                    <UiButton theme="outline" @click="handleQuestionClick">Задать вопрос куратору</UiButton>
                   </div>
                 </div>
               </template>
@@ -61,6 +62,8 @@
 </template>
 
 <script>
+import { mapActions } from 'vuex';
+
 export default {
   props: {
     data: Object,
@@ -136,6 +139,23 @@ export default {
         this.setFragment(this.prevSectionId, 2);
       }
     },
+    async handleQuestionClick() {
+      await this.createChat({
+        body: 'У меня вопрос',
+        lesson_id: 1,
+      })
+        .then((res) => {
+          this.$router.push('/messages');
+        })
+        .catch((err) => {
+          const { data, code } = err;
+
+          if (data && code === 403) {
+            this.$toast.global.error({ message: data.detail });
+          }
+        });
+    },
+    ...mapActions('chat', ['createChat']),
   },
 };
 </script>

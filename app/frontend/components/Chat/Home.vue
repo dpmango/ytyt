@@ -5,56 +5,55 @@
         <ChatDialogs :dialogs="dialogs" :active-dialog="activeDialog" :set-dialog="setDialog" />
       </div>
 
-      <div class="chat__content">
+      <div v-if="head" class="chat__content">
         <div class="chat__head">
-          <ChatHead :click-back="handleClickBack" :data="head" />
+          <ChatHead :click-back="handleClickBack" :head="head" />
         </div>
-        <div class="chat__dialog">
+        <div ref="dialog" class="chat__dialog">
           <ChatMessages :messages="messages" />
         </div>
         <div class="chat__submit">
-          <ChatSubmit />
+          <ChatSubmit @messageSend="messageSend" />
         </div>
       </div>
     </div>
-    <div v-if="!socket.isConnected" class="chat__loader">
+    <div v-if="!isConnected" class="chat__loader">
       <UiLoader theme="block" :loading="true" />
     </div>
   </div>
 </template>
 
 <script>
-import Vue from 'vue';
-import { mapActions, mapGetters } from 'vuex';
+import { mapActions, mapGetters, mapMutations } from 'vuex';
+import { scrollToEnd } from '~/helpers/Scroll';
 
 export default {
   props: {},
-  data() {
-    return {
-      activeDialog: null,
-    };
-  },
   computed: {
-    ...mapGetters('chat', ['messages', 'head', 'dialogs', 'socket']),
+    ...mapGetters('chat', ['activeDialog', 'dialogs', 'head', 'messages', 'socket', 'isConnected']),
   },
   mounted() {
-    this.connect();
+    if (!this.isConnected) {
+      this.connect();
+    }
   },
   beforeDestroy() {
-    this.disconnect();
+    if (this.isConnected) {
+      this.disconnect();
+    }
   },
   methods: {
     setDialog(id) {
-      this.activeDialog = id;
-      // console.log(this.$socket);
+      this.getMessages({ id });
     },
     handleClickBack() {
-      this.activeDialog = null;
+      this.setActiveDialog(null);
     },
-    async handleSubmit() {
-      const isValid = await this.$refs.form.validate();
+    messageSend() {
+      scrollToEnd(500, this.$refs.dialog);
     },
-    ...mapActions('chat', ['connect', 'disconnect']),
+    ...mapActions('chat', ['connect', 'disconnect', 'getDialogs', 'getMessages']),
+    ...mapMutations('chat', ['setActiveDialog']),
   },
 };
 </script>

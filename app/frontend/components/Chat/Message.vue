@@ -1,37 +1,34 @@
 <template>
-  <div class="messages">
-    <template v-if="messages">
-      <ChatMessage v-for="message in messages" :key="message.id" :message="message" />
-    </template>
-
-    <div v-else class="messages__loader">
-      <UiLoader :loading="true" theme="block" />
+  <div class="message" :class="[isIncoming ? 'message--incoming' : 'message--outcoming']">
+    <div class="message__wrapper">
+      <div class="message__content" v-html="message.body" />
+      <div class="message__time">{{ timestamp }}</div>
     </div>
   </div>
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
+import { timeToTimeStamp } from '~/helpers/Date';
+
 export default {
   name: 'ChatMessages',
   props: {
-    messages: Array,
+    message: Object,
+  },
+  computed: {
+    isIncoming() {
+      return this.message.user.id === this.user.id;
+    },
+    timestamp() {
+      return timeToTimeStamp(this.message.date_created);
+    },
+    ...mapGetters('auth', ['user']),
   },
 };
 </script>
 
 <style lang="scss" scoped>
-.messages {
-  position: relative;
-  flex: 1 0 auto;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  padding: 24px;
-  // &__loader {
-
-  // }
-}
-
 .message {
   margin: 4px 0;
   display: flex;
@@ -62,12 +59,6 @@ export default {
       background: #1e88e5;
       color: white;
     }
-  }
-}
-
-@include r($sm) {
-  .messages {
-    padding: 16px;
   }
 }
 </style>

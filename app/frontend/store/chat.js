@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 // import { loginService } from '~/api/auth';
 import Vue from 'vue';
-import { DIALOGS_TEST_DATA, HEAD_TEST_DATA, MESSAGES_TEST_DATA } from '~/api/mockData';
+import { createChatService, filesService } from '~/api/chat';
 
 const EVENTS = {
   DIALOGS: 'dialogs.load',
@@ -11,92 +11,160 @@ const EVENTS = {
   NOTIFICATION_COUNT: 'notifications.dialogs.count',
 };
 
+const ERRORS = {
+  NOT_CONNECTED: 'Not connected to server',
+  NOT_CONNECTED_TO_CHAT: 'Chat not started',
+  ALREADY_CONNECTED: 'Already connected to server',
+  ALREADY_CONNECTED_TO_CHAT: 'Chat already started',
+  MISSING_ARGUMENT: 'Required argument is missing',
+  INVALID_ARGUMENT: 'Required argument has invalid type or value',
+};
+
 export const state = () => ({
-  dialogs: DIALOGS_TEST_DATA,
-  head: HEAD_TEST_DATA,
-  messages: MESSAGES_TEST_DATA,
+  activeDialog: null,
+  dialogs: [],
+  messages: [],
   socket: {
     isConnected: false,
-    message: '',
     reconnectError: false,
   },
 });
 
 export const getters = {
+  activeDialog: (state) => state.activeDialog,
   dialogs: (state) => state.dialogs,
-  head: (state) => state.head,
   messages: (state) => state.messages,
   socket: (state) => state.socket,
+  isConnected: (state) => state.socket.isConnected,
+  head: (state) => {
+    if (state.activeDialog) {
+      const dialog = state.dialogs.find((x) => x.id === state.activeDialog);
+
+      if (dialog) {
+        const { first_name, last_name, thumbnail_avatar } = dialog.last_message.user;
+
+        return { first_name, last_name, thumbnail_avatar };
+      }
+    }
+    return false;
+  },
 };
 
 export const mutations = {
   SOCKET_ONOPEN(state, event) {
-    console.log('open', event);
+    console.log('SOCKET_ONOPEN', event);
     this.$socket = event.currentTarget;
     state.socket.isConnected = true;
   },
   SOCKET_ONCLOSE(state, event) {
-    console.log('close', event);
+    console.log('SOCKET_ONCLOSE', event);
     state.socket.isConnected = false;
   },
   SOCKET_ONERROR(state, event) {
-    console.error(state, event);
+    console.error('SOCKET_ONERROR', event);
   },
-  // default handler called for all methods
   SOCKET_ONMESSAGE(state, message) {
-    console.log('onmessage', message);
-    state.socket.message = message;
+    console.log('SOCKET_ONMESSAGE', message);
+    const { event, data } = message;
+
+    // TODO - sorting better to be done on backend
+    switch (event) {
+      case EVENTS.DIALOGS:
+        state.dialogs = data.sort((a, b) => a.id - b.id);
+        break;
+
+      case EVENTS.MESSAGES:
+        if (data.length) {
+          state.activeDialog = data[0].dialog;
+        }
+        state.messages = data.sort((a, b) => a.id - b.id);
+        break;
+
+      case EVENTS.SEND_MESSAGE:
+        // TODO - tmp
+        if (data !== 1) {
+          state.messages.push(data);
+        }
+        break;
+
+      case EVENTS.READ_MESSAGE:
+        // state.dialogs = data;
+        break;
+
+      case EVENTS.NOTIFICATION_COUNT:
+        // state.dialogs = data;
+        break;
+
+      default:
+        break;
+    }
   },
-  // mutations for reconnect methods
   SOCKET_RECONNECT(state, count) {
     console.info(state, count);
   },
   SOCKET_RECONNECT_ERROR(state) {
     state.socket.reconnectError = true;
   },
-  // logOut(state) {
-  //   state.sign_token = '';
-  //   state.user = {};
-  //   this.$cookies.remove('ytyt_token');
-  //   this.$api.setToken(false);
-  // },
-  // updateToken(state, token) {
-  //   if (token) {
-  //     state.token = token;
-  //     this.$cookies.set('ytyt_token', token);
-  //     // TODO - token not set on client - transformed request instaed
-  //     // this.$api.setToken(token, 'JWT');
-  //   }
-  // },
-  // updateUser(state, user) {
-  //   state.user = { ...state.user, ...user };
-  // },
-  // updateUserPhoto(state, picture) {
-  //   state.user.picture.url = picture.url;
-  // },
+
+  // Static (inner) mutations
+  setActiveDialog(state, id) {},
 };
 
 export const actions = {
-  connect({ commit }, request) {
-    Vue.prototype.$connect();
+  connect({ commit, dispatch }, request) {
+    return new Promise((resolve) => {
+      Vue.prototype.$connect();
+
+      this.watch(
+        (state) => {
+          return state.chat.socket.isConnected;
+        },
+        (connect) => {
+          if (connect) {
+            dispatch('getDialogs');
+            resolve(connect);
+          }
+        }
+      );
+    });
   },
   disconnect({ commit }, request) {
     Vue.prototype.$disconnect();
   },
-  sendMessage(context, message) {
-    this.$socket.send(message);
+  getDialogs({ commit }, request) {
+    // if (this.$socket) return;
+    this.$socket.sendObj({
+      event: EVENTS.DIALOGS,
+    });
   },
-  // changeRoom({ commit }, request) {},
-  // async getMessages({ commit }, request) {
-  //   const [err, result] = await loginService(this.$api, request);
+  getMessages({ commit }, request) {
+    this.$socket.sendObj({
+      event: EVENTS.MESSAGES,
+      dialog_id: request.id,
+    });
+  },
+  sendMessage({ commit }, request) {
+    this.$socket.sendObj({
+      event: EVENTS.SEND_MESSAGE,
+      ...request,
+    });
+  },
+  async createChat({ commit }, request) {
+    const [err, result] = await createChatService(this.$api, request);
 
-  //   if (err) throw err;
+    if (err) throw err;
 
-  //   const { token, user } = result;
+    // commit('verifyUserEmail');
 
-  //   commit('updateToken', token);
-  //   commit('updateUser', user);
+    return result;
+  },
+  async uploadFile({ commit }, request) {
+    const [err, result] = await filesService(this.$api, request);
 
-  //   return result;
-  // },
+    if (err) throw err;
+
+    // commit('verifyUserEmail');
+
+    return result;
+  },
 };

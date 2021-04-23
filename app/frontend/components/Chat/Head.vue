@@ -6,12 +6,12 @@
       </div>
       <div class="head__avatar">
         <div class="head__avatar-image">
-          <img :src="data.avatar" :alt="data.name" />
+          <img :src="head.thumbnail_avatar" :alt="head.first_name" />
         </div>
       </div>
       <div class="head__content">
-        <div class="head__title">{{ data.name }}</div>
-        <div class="head__status" :class="[data.status === 1 && 'is-online']">{{ status }}</div>
+        <div class="head__title">{{ head.first_name }} {{ head.last_name }}</div>
+        <div class="head__status" :class="[head.status === 1 && 'is-online']">{{ status }}</div>
       </div>
     </div>
   </div>
@@ -20,12 +20,13 @@
 <script>
 export default {
   props: {
-    data: Object,
+    head: Object,
     clickBack: Function,
   },
   computed: {
     status() {
-      return this.data.status === 1 ? 'Онлайн' : 'Оффлайн';
+      // TODO - wait api changes
+      return this.head.status === 1 ? 'Онлайн' : 'Оффлайн';
     },
   },
 };

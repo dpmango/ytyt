@@ -95,8 +95,8 @@ export default {
   display: inline-flex;
   justify-content: center;
   align-items: center;
-  padding: 16px 23px 15px;
-  border: 2px solid transparent;
+  padding: 17px 23px 16px;
+  border: 1px solid transparent;
   box-sizing: border-box;
   border-radius: 8px;
   font-weight: 500;
@@ -137,13 +137,11 @@ export default {
     color: $fontColor;
     background: transparent;
     border-color: $colorPrimary;
-    &:hover {
+    &:hover,
+    &:active {
       background: rgba($colorPrimary, 0.8);
       border-color: $colorPrimary;
-    }
-    &:active {
-      background: transparent;
-      border-color: $colorPrimary;
+      color: white;
     }
   }
   &.danger {
