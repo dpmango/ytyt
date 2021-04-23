@@ -75,13 +75,13 @@ class UserConsumer(JsonWebsocketConsumer, ConsumerEvents):
         to = {to} if isinstance(to, User) else to
         for user in to:
             # Отправляем в сокет данные по основному событию
-            async_to_sync(self.channel_layer.group_send)(user.ws_key, {'type': 'ws_send', 'data': data})
+            async_to_sync(self.channel_layer.group_send)(user.ws_key, {'type': 'ws_send', 'data': data, **kwargs})
 
             if kwargs.get('event') in self.get_generating_notifications_events():
 
                 # Порождаем дополнительные события для того же юзера
                 async_to_sync(self.channel_layer.group_send)(
-                    user.ws_key, {'type': 'ws_send', **self.events.notifications.get_dialogs_count(user)}
+                    user.ws_key, {'type': 'ws_send', **self.events.notifications.get_dialogs_count(user), **kwargs}
                 )
 
     def ws_send(self, event: dict) -> None:

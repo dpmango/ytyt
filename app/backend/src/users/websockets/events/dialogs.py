@@ -41,10 +41,24 @@ class DialogEvent(EmailNotificationMixin):
         dialogs = user.dialog_users_set.all().order_by('id').prefetch_related('dialogmessage_set')
         dialogs = dialogs.distinct('id')[offset:limit]
 
-        sorted_func = lambda dialog: (dialog.get('last_message') or {}).get('date_created') or '-1'
-
         dialogs = DialogWithLastMessageSerializers(dialogs, many=True, context={'user': user}).data
-        dialogs = sorted(dialogs, key=sorted_func)
+        dialogs_with_unread_message = []
+        dialogs_without_unread_message = []
+
+        for _dialog in dialogs:
+            last_message = _dialog.get('last_message') or {}
+
+            if last_message.get('user') or {}.get('id') != user.id or last_message.get('date_read') is not None:
+                dialogs_without_unread_message.append(_dialog)
+            else:
+                dialogs_with_unread_message.append(_dialog)
+
+        sorted_func = lambda dialog: (dialog.get('last_message') or {}).get('date_created') or '2222-01-01'
+
+        dialogs_with_unread_message = sorted(dialogs_with_unread_message, key=sorted_func)
+        dialogs_without_unread_message = sorted(dialogs_without_unread_message, key=sorted_func)
+
+        dialogs = dialogs_with_unread_message + dialogs_without_unread_message
         return {'data': dialogs, 'to': user}
 
     @staticmethod
