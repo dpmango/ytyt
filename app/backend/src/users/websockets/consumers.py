@@ -81,7 +81,7 @@ class UserConsumer(JsonWebsocketConsumer, ConsumerEvents):
 
                 # Порождаем дополнительные события для того же юзера
                 async_to_sync(self.channel_layer.group_send)(
-                    user.ws_key, {'type': 'ws_send', **self.events.notifications.get_dialogs_count(user), **kwargs}
+                    user.ws_key, {'type': 'ws_send', **self.events.notifications.get_dialogs_count(user)}
                 )
 
     def ws_send(self, event: dict) -> None:

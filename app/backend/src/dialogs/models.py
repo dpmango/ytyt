@@ -5,6 +5,7 @@ from markdownx.models import MarkdownxField
 from courses.models import CourseLesson
 from files.models import File
 from users.models import User
+from markdownx.utils import markdownify
 
 
 class Dialog(models.Model):
@@ -34,7 +35,10 @@ class DialogMessage(models.Model):
     date_read = models.DateTimeField('Дата прочтения', null=True, blank=True)
 
     class Meta:
-        ordering = ('-date_created', )
+        ordering = ('date_created', )
+
+    def get_body(self):
+        return markdownify(self.body)
 
     def get_text_body(self):
-        return ''.join(BeautifulSoup(self.body, features='html.parser').findAll(text=True))
+        return ''.join(BeautifulSoup(self.get_body(), features='html.parser').findAll(text=True))

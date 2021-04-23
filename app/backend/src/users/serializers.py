@@ -55,6 +55,19 @@ class UserDetailSerializer(serializers.ModelSerializer):
         read_only_fields = ('email', 'id')
 
 
+class UserSmallDetailSerializer(UserDetailSerializer):
+    class Meta:
+        model = User
+        fields = (
+            'id',
+            'email',
+            'first_name',
+            'last_name',
+            'avatar',
+            'thumbnail_avatar',
+        )
+
+
 class PasswordResetSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)
 

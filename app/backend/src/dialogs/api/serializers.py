@@ -3,7 +3,7 @@ from rest_framework import serializers, exceptions
 from dialogs.models import Dialog, DialogMessage
 from files.api.serializers import DefaultFileSerializer
 from users.models import User
-from users.serializers import UserDetailSerializer
+from users.serializers import UserSmallDetailSerializer
 
 
 class CreateDialogMessageSerializers(serializers.Serializer):
@@ -62,13 +62,13 @@ class CreateDialogMessageSerializers(serializers.Serializer):
 
 
 class DefaultDialogMessageSerializers(serializers.ModelSerializer):
-    user = UserDetailSerializer()
+    user = UserSmallDetailSerializer()
     body = serializers.SerializerMethodField()
     file = DefaultFileSerializer(required=False)
 
     @staticmethod
     def get_body(obj: DialogMessage):
-        return obj.get_text_body()
+        return obj.get_body()
 
     class Meta:
         model = DialogMessage
@@ -77,6 +77,17 @@ class DefaultDialogMessageSerializers(serializers.ModelSerializer):
 
 class DialogWithLastMessageSerializers(serializers.ModelSerializer):
     last_message = serializers.SerializerMethodField()
+    user = serializers.SerializerMethodField()
+
+    def get_user(self, obj: Dialog) -> dict:
+        """
+        Получение пользователя, с которым ведется диалог
+        :param obj: Объект диалога
+        """
+        for user in obj.users.all():
+            if user != self.context.get('user'):
+                return UserSmallDetailSerializer(user, context=self.context).data
+        return {}
 
     def get_last_message(self, obj: Dialog):
         message = obj.dialogmessage_set.all().first()
@@ -84,4 +95,4 @@ class DialogWithLastMessageSerializers(serializers.ModelSerializer):
 
     class Meta:
         model = Dialog
-        fields = ('id', 'last_message', )
+        fields = ('id', 'last_message', 'user')
