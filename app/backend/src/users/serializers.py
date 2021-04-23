@@ -36,6 +36,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
 
         if '/media/static' in instance.avatar.url:
             data['avatar'] = data['avatar'].replace('/media/static', '/static')
+            data['thumbnail_avatar'] = data['avatar']
 
         return data
 
@@ -55,7 +56,34 @@ class UserDetailSerializer(serializers.ModelSerializer):
         read_only_fields = ('email', 'id')
 
 
-class UserSmallDetailSerializer(UserDetailSerializer):
+class UserDialogSmallDetailSerializer(UserDetailSerializer):
+
+    def get_thumbnail_avatar(self, obj: User):
+        if '/media/static' in obj.avatar.url:
+            return None
+
+        thumb = get_thumbnail(obj.avatar, '64x64', crop='center', quality=99)
+        thumb_url = thumb.url
+
+        return urljoin(settings.MEDIA_URL, thumb_url)
+
+    def to_representation(self, instance: User):
+        data = super().to_representation(instance)
+
+        # Пробрасываем корректный base_url из сокета
+        data['avatar'] = '/'.join([
+            item.lstrip('/') for item in [self.context.get('base_url'), data['avatar']]
+        ])
+        data['thumbnail_avatar'] = '/'.join([
+            item.lstrip('/') for item in [self.context.get('base_url'), data['thumbnail_avatar']]
+        ])
+
+        if '/media/static' in instance.avatar.url:
+            data['avatar'] = data['avatar'].replace('/media/static', '/static')
+            data['thumbnail_avatar'] = data['avatar']
+
+        return data
+
     class Meta:
         model = User
         fields = (

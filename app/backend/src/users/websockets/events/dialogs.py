@@ -41,7 +41,9 @@ class DialogEvent(EmailNotificationMixin):
         dialogs = user.dialog_users_set.all().order_by('id').prefetch_related('dialogmessage_set')
         dialogs = dialogs.distinct('id')[offset:limit]
 
-        dialogs = DialogWithLastMessageSerializers(dialogs, many=True, context={'user': user}).data
+        context = {'user': user, 'base_url': kwargs.get('base_url')}
+        dialogs = DialogWithLastMessageSerializers(dialogs, many=True, context=context).data
+
         dialogs_with_unread_message = []
         dialogs_without_unread_message = []
 
@@ -74,14 +76,16 @@ class DialogEvent(EmailNotificationMixin):
         limit = limit or 20
 
         if not dialog_id:
-            return None
+            return {'to': user, 'data': 'Не указан `dialog_id`', 'exception': True}
 
         dialog = Dialog.objects.filter(id=dialog_id).first()
         if not dialog or user not in dialog.users.all():
-            return None
+            return {'to': user, 'data': 'Диалог не принадлежит пользователю', 'exception': True}
 
         messages = DialogMessage.objects.filter(dialog=dialog)[offset:limit]
-        messages = DefaultDialogMessageSerializers(messages, many=True, context={'user': user}).data
+
+        context = {'user': user, 'base_url': kwargs.get('base_url')}
+        messages = DefaultDialogMessageSerializers(messages, many=True, context=context).data
         return {'data': messages, 'to': user}
 
     @staticmethod
@@ -93,17 +97,18 @@ class DialogEvent(EmailNotificationMixin):
         :param message_id: ID сообщения, которое должно быть прочитанным
         """
         if not message_id:
-            return None
+            return {'to': user, 'data': 'Не указан `message_id`', 'exception': True}
 
         dialog = Dialog.objects.filter(id=dialog_id).first()
         if not dialog or user not in dialog.users.all():
-            return None
+            return {'to': user, 'data': 'Диалог не принадлежит пользователю', 'exception': True}
 
         message = DialogMessage.objects.get(id=message_id)
         message.date_read = timezone.now()
         message.save(update_fields=['date_read'])
 
-        message = DefaultDialogMessageSerializers(message, context={'user': user}).data
+        context = {'user': user, 'base_url': kwargs.get('base_url')}
+        message = DefaultDialogMessageSerializers(message, context=context).data
         return {'data': message, 'to': user}
 
     def _dialogs_messages_create(
@@ -118,20 +123,19 @@ class DialogEvent(EmailNotificationMixin):
         :param kwargs: Дополнительные аргументы для создания сообщения
         :return: typing.Optional[dict]
         """
-        if not dialog_id:
-            return None
-
         dialog = Dialog.objects.filter(id=dialog_id).first()
         if not dialog or user not in dialog.users.all():
-            return None
+            return {'to': user, 'data': 'Диалог не принадлежит пользователю', 'exception': True}
 
         if isinstance(file_id, int):
             file = File.objects.filter(id=file_id).first()
             if file.user != user:
-                return None
+                return {'to': user, 'data': 'Файл не принадлежит пользователю', 'exception': True}
 
         message = DialogMessage.objects.create(dialog_id=dialog_id, user=user, body=body, file_id=file_id)
-        message = DefaultDialogMessageSerializers(message, context={'user': user}).data
+
+        context = {'user': user, 'base_url': kwargs.get('base_url')}
+        message = DefaultDialogMessageSerializers(message, context=context).data
 
         users_to_notification = set(dialog.users.all())
         users_to_email_notification = users_to_notification - {user}

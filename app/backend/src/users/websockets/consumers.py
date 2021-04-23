@@ -21,6 +21,8 @@ class UserConsumer(JsonWebsocketConsumer, ConsumerEvents):
         Декларирование необходимых параметров для работы с сокетами
         """
         self.user = self.scope['user']
+        self.headers = {k.decode(): v.decode() for k, v in self.scope['headers']}
+        self.base_url = self.headers.get('origin')
 
     def connect(self) -> None:
         """
@@ -45,7 +47,7 @@ class UserConsumer(JsonWebsocketConsumer, ConsumerEvents):
         :param content: Декодированные данные из сокета
         :param kwargs: Дополнительные аргументы
         """
-        event_data = self.receive_event(content, user=self.user, **kwargs)
+        event_data = self.receive_event(content, user=self.user, base_url=self.base_url, **kwargs)
         self.push(**event_data)
 
     def disconnect(self, close_code) -> None:
@@ -72,17 +74,22 @@ class UserConsumer(JsonWebsocketConsumer, ConsumerEvents):
             self.close(1000)
             return
 
-        to = {to} if isinstance(to, User) else to
-        for user in to:
-            # Отправляем в сокет данные по основному событию
-            async_to_sync(self.channel_layer.group_send)(user.ws_key, {'type': 'ws_send', 'data': data, **kwargs})
+        # Если при обработке получили ошибку — отправляем ее в ответ и закрываем сокет
+        elif kwargs.get('exception', False) is True:
+            async_to_sync(self.channel_layer.group_send)(self.user.ws_key, {'type': 'ws_send', 'data': data, **kwargs})
 
-            if kwargs.get('event') in self.get_generating_notifications_events():
+        else:
+            to = {to} if isinstance(to, User) else to
+            for user in to:
+                # Отправляем в сокет данные по основному событию
+                async_to_sync(self.channel_layer.group_send)(user.ws_key, {'type': 'ws_send', 'data': data, **kwargs})
 
-                # Порождаем дополнительные события для того же юзера
-                async_to_sync(self.channel_layer.group_send)(
-                    user.ws_key, {'type': 'ws_send', **self.events.notifications.get_dialogs_count(user)}
-                )
+                if kwargs.get('event') in self.get_generating_notifications_events():
+
+                    # Порождаем дополнительные события для того же юзера
+                    async_to_sync(self.channel_layer.group_send)(
+                        user.ws_key, {'type': 'ws_send', **self.events.notifications.get_dialogs_count(user)}
+                    )
 
     def ws_send(self, event: dict) -> None:
         """
