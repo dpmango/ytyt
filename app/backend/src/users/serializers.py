@@ -15,6 +15,7 @@ from sorl.thumbnail import get_thumbnail
 from courses.models import Course
 from courses_access.models.course import CourseAccess
 from users.models import User
+from dialogs.models import Dialog
 
 
 class UserDetailSerializer(serializers.ModelSerializer):
@@ -182,12 +183,27 @@ class PasswordChangeSerializer(rest_auth_serializers.PasswordChangeSerializer):
 
 class RegisterSerializer(rest_auth_registration_serializers.RegisterSerializer):
 
-    def save(self, request):
+    def save(self, request) -> User:
+        """
+        Измененное поведение сохранение пользователя при регистрации
+        Добавлено:
+            1. Предоставление триал-версии к первому курсу
+            2. Приставлен ревьюер-педагог
+            3. Создан диалог с педагогом
+        :param request: Объект запроса
+        """
         user = super().save(request)
 
-        # При регистрации юзера даем триал-доступ к курсу
         course = Course.objects.order_by('id').first()
         if course:
             CourseAccess.objects.set_trial(course, user)
+
+        educator = User.reviewers.get_less_busy_educator()
+        user.reviewer = educator
+        user.save()
+
+        dialog = Dialog.objects.create()
+        dialog.users.add(user, educator)
+        dialog.save()
 
         return user

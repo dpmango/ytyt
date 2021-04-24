@@ -124,8 +124,11 @@ class LessonFragmentViewSet(FlexibleSerializerModelViewSetMixin,
                 CourseThemeAccess.objects.set_access_with_lesson(next_course_theme, user)
                 return Response({'course_id': course.id}, status=status.HTTP_202_ACCEPTED)
 
+            # Если доступной темы нет, то курс закончен.
             CourseAccess.objects.set_status(course, user, AccessBase.COURSES_STATUS_COMPLETED)
-        # Если доступной темы нет, то курс закончен
+
+        # Дополнительно удаляем ревьюера у пользователя
+        user.remove_reviewer()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def get_serializer_context(self):
