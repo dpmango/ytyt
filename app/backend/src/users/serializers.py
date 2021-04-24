@@ -14,12 +14,28 @@ from sorl.thumbnail import get_thumbnail
 
 from courses.models import Course
 from courses_access.models.course import CourseAccess
-from users.models import User
 from dialogs.models import Dialog
+from users.models import User
 
 
 class UserDetailSerializer(serializers.ModelSerializer):
     thumbnail_avatar = serializers.SerializerMethodField()
+    dialog = serializers.SerializerMethodField()
+
+    @staticmethod
+    def get_dialog(obj: User):
+        """
+        Получение диалога с ревьюером. Если запрашиваемый юзер — работник сервиса, то возвращать ничего не нужно
+        :param obj: Пользователь
+        """
+        if obj.is_staff:
+            return None
+
+        dialog = obj.dialog_users_set.first()
+        if not dialog:
+            return None
+
+        return {'id': dialog.id}
 
     def get_thumbnail_avatar(self, obj: User):
         if '/media/static' in obj.avatar.url:
@@ -53,6 +69,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
             'thumbnail_avatar',
             'email_notifications',
             'email_confirmed',
+            'dialog'
         )
         read_only_fields = ('email', 'id')
 
