@@ -2,6 +2,7 @@ import typing
 
 from .dialogs import DialogEvent
 from .notifications import InsidePlatformNotificationEvent
+from .users import UserEvent
 
 
 class ConsumerEvents:
@@ -10,6 +11,7 @@ class ConsumerEvents:
     """
 
     _event_classes = {
+        'users': UserEvent(),
         'dialogs': DialogEvent(),
         'notifications': InsidePlatformNotificationEvent(),
     }

@@ -1,6 +1,7 @@
 from django.contrib.auth.base_user import BaseUserManager, AbstractBaseUser
 from django.contrib.auth.models import Group
 from django.contrib.auth.models import PermissionsMixin
+from django.core.cache import cache
 from django.core.mail import send_mail
 from django.db import models
 from django.db.models import Q
@@ -10,6 +11,7 @@ from sorl.thumbnail import ImageField
 
 from users import permissions
 from users.mixins import ReviewersMixins
+from users.utils import method_cache_key
 
 
 class UserManager(BaseUserManager):
@@ -40,6 +42,18 @@ class UserManager(BaseUserManager):
             raise ValueError('Superuser must have is_superuser=True.')
 
         return self._create_user(email, password, **extra_fields)
+
+    @staticmethod
+    def check_status_online(user_id: int) -> bool:
+        return bool(cache.get(method_cache_key(cache_prefix='users__online', user_id=user_id)))
+
+    @staticmethod
+    def set_status_online(user_id: int) -> None:
+        cache.set(method_cache_key(cache_prefix='users__online', user_id=user_id), 1)
+
+    @staticmethod
+    def set_status_offline(user_id: int) -> None:
+        cache.set(method_cache_key(cache_prefix='users__online', user_id=user_id), 0)
 
 
 class ReviewersManager(models.Manager):

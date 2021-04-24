@@ -51,12 +51,13 @@ class UserDetailSerializer(serializers.ModelSerializer):
             'avatar',
             'thumbnail_avatar',
             'email_notifications',
-            'email_confirmed'
+            'email_confirmed',
         )
         read_only_fields = ('email', 'id')
 
 
 class UserDialogSmallDetailSerializer(UserDetailSerializer):
+    status_online = serializers.SerializerMethodField()
 
     def get_thumbnail_avatar(self, obj: User):
         if '/media/static' in obj.avatar.url:
@@ -84,6 +85,10 @@ class UserDialogSmallDetailSerializer(UserDetailSerializer):
 
         return data
 
+    @staticmethod
+    def get_status_online(obj: User):
+        return User.objects.check_status_online(obj.id)
+
     class Meta:
         model = User
         fields = (
@@ -93,6 +98,7 @@ class UserDialogSmallDetailSerializer(UserDetailSerializer):
             'last_name',
             'avatar',
             'thumbnail_avatar',
+            'status_online',
         )
 
 

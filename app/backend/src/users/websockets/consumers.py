@@ -35,10 +35,22 @@ class UserConsumer(JsonWebsocketConsumer, ConsumerEvents):
             self.close(1000)
             return
 
-        async_to_sync(self.channel_layer.group_add)(
-            self.user.ws_key, self.channel_name
-        )
+        async_to_sync(self.channel_layer.group_add)(self.user.ws_key, self.channel_name)
+        User.objects.set_status_online(user_id=self.user.id)
+
+        self.notification_related_users()
         self.accept()
+
+    def notification_related_users(self) -> None:
+        """
+        Дополнительное уведомление всех связанных с пользователем людей
+        """
+        related_users = self.events.users.get_related_users(user=self.user)
+        event_status_data = self.events.users.get_user_status_online(user=self.user)
+
+        for _user in related_users:
+            # Уведомляем о смене статуса пользователя
+            async_to_sync(self.channel_layer.group_send)(_user.ws_key, {'type': 'ws_send', **event_status_data})
 
     def receive_json(self, content, **kwargs) -> None:
         """
@@ -55,6 +67,9 @@ class UserConsumer(JsonWebsocketConsumer, ConsumerEvents):
         Отключение пользователя от диалога, если диалог существует
         :param close_code: Код отключения от сокета
         """
+        User.objects.set_status_offline(user_id=self.user.id)
+        self.notification_related_users()
+
         async_to_sync(self.channel_layer.group_discard)(
             self.user.ws_key, self.channel_name
         )
