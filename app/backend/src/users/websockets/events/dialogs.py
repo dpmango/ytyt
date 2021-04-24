@@ -28,7 +28,16 @@ class DialogEvent(EmailNotificationMixin):
     )
 
     @staticmethod
-    def _dialogs_load(user: User, limit=None, offset=None, **kwargs) -> dict:
+    def get_meta(limit, offset, total) -> dict:
+        return {
+            'meta': {
+                'limit': limit,
+                'offset': offset,
+                'total': total
+            }
+        }
+
+    def _dialogs_load(self, user: User, limit=None, offset=None, **kwargs) -> dict:
         """
         Получение всех диалогов пользователя
         :param user: Пользователь, который загрузил чат
@@ -61,10 +70,11 @@ class DialogEvent(EmailNotificationMixin):
         dialogs_without_unread_message = sorted(dialogs_without_unread_message, key=sorted_func)
 
         dialogs = dialogs_with_unread_message + dialogs_without_unread_message
-        return {'data': dialogs, 'to': user}
+        dialogs_count = user.dialog_users_set.count()
+        return {'data': dialogs, 'to': user, **self.get_meta(limit, offset, dialogs_count)}
 
-    @staticmethod
-    def _dialogs_messages_load(user: User, dialog_id=None, limit=None, offset=None, **kwargs) -> typing.Optional[dict]:
+    def _dialogs_messages_load(
+            self, user: User, dialog_id=None, limit=None, offset=None, **kwargs) -> typing.Optional[dict]:
         """
         Получение всех сообщений диалога
         :param user: Пользователь, который загрузил чат
@@ -82,13 +92,17 @@ class DialogEvent(EmailNotificationMixin):
         if not dialog or user not in dialog.users.all():
             return {'to': user, 'data': 'Диалог не принадлежит пользователю', 'exception': True}
 
-        messages = DialogMessage.objects.filter(dialog=dialog).order_by('-date_created')[offset:offset+limit]
+        messages = DialogMessage.objects.filter(dialog=dialog).order_by('-date_created')
+
+        messages_count = messages.count()
+        messages = messages[offset:offset+limit]
+
         messages = sorted(messages, key=lambda message: message.date_created)
 
         context = {'user': user, 'base_url': kwargs.get('base_url')}
         messages = DefaultDialogMessageSerializers(messages, many=True, context=context).data
 
-        return {'data': messages, 'to': user}
+        return {'data': messages, 'to': user, **self.get_meta(limit, offset, messages_count)}
 
     @staticmethod
     def _dialogs_messages_seen(user: User, dialog_id=None, message_id=None, **kwargs) -> typing.Optional[dict]:
