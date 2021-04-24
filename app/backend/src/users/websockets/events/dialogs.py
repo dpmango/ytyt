@@ -28,7 +28,7 @@ class DialogEvent(EmailNotificationMixin):
     )
 
     @staticmethod
-    def get_meta(limit, offset, total) -> dict:
+    def generate_meta(limit, offset, total) -> dict:
         """
         Получение метаданных ответа на событиях, где есть пагинация
         :param limit: Количество записей
@@ -77,7 +77,7 @@ class DialogEvent(EmailNotificationMixin):
 
         dialogs = dialogs_with_unread_message + dialogs_without_unread_message
         dialogs_count = user.dialog_users_set.count()
-        return {'data': dialogs, 'to': user, **self.get_meta(limit, offset, dialogs_count)}
+        return {'data': dialogs, 'to': user, **self.generate_meta(limit, offset, dialogs_count)}
 
     def _dialogs_messages_load(
             self, user: User, dialog_id=None, limit=None, offset=None, **kwargs) -> typing.Optional[dict]:
@@ -108,7 +108,7 @@ class DialogEvent(EmailNotificationMixin):
         context = {'user': user, 'base_url': kwargs.get('base_url')}
         messages = DefaultDialogMessageSerializers(messages, many=True, context=context).data
 
-        return {'data': messages, 'to': user, **self.get_meta(limit, offset, messages_count)}
+        return {'data': messages, 'to': user, **self.generate_meta(limit, offset, messages_count)}
 
     @staticmethod
     def _dialogs_messages_seen(user: User, dialog_id=None, message_id=None, **kwargs) -> typing.Optional[dict]:
