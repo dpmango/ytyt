@@ -1,7 +1,10 @@
 <template>
   <div class="chat">
     <div class="chat__wrapper" :class="[activeDialog && 'is-dialog-active']">
-      <div class="chat__sidebar">
+      <div ref="sidebar" class="chat__sidebar">
+        <div v-if="scrollDialogs.isLoading" class="chat__sidebar-loader">
+          <UiLoader theme="block" :loading="true" />
+        </div>
         <ChatDialogs :dialogs="dialogs" :active-dialog="activeDialog" :set-dialog="setDialog" />
       </div>
 
@@ -9,7 +12,10 @@
         <div class="chat__head">
           <ChatHead v-if="head" :click-back="handleClickBack" :head="head" />
         </div>
-        <div ref="dialog" class="chat__dialog">
+        <div ref="dialogs" class="chat__dialog">
+          <div v-if="scrollMessages.isLoading" class="chat__dialog-loader">
+            <UiLoader theme="block" :loading="true" />
+          </div>
           <ChatMessages :messages="messages" />
         </div>
         <div class="chat__submit">
@@ -32,30 +38,49 @@ export default {
   props: {},
   data() {
     return {
-      scrollFetch: {
+      scrollDialogs: {
+        lastScroll: null,
+        direction: null,
         isLoading: false,
-        moreAvailable: true,
+      },
+      scrollMessages: {
+        lastScroll: null,
+        direction: null,
+        isLoading: false,
       },
     };
   },
   computed: {
-    ...mapGetters('chat', ['activeDialog', 'dialogs', 'head', 'messages', 'socket', 'isConnected']),
+    ...mapGetters('chat', [
+      'activeDialog',
+      'dialogs',
+      'head',
+      'messages',
+      'messagesMeta',
+      'dialogsMeta',
+      'socket',
+      'isConnected',
+    ]),
   },
   watch: {
     activeDialog() {
       // TODO - any alternatives to timeout? (rendering accures a bit later)
       setTimeout(() => {
-        scrollToEnd(500, this.$refs.dialog);
+        scrollToEnd(500, this.$refs.dialogs);
       }, 200);
     },
   },
   created() {
-    // throught created because of this. context
-    this.scrollWithThrottle = throttle(this.handleDialogScroll, 100);
+    this.scrollSidebarWithThrottle = throttle(this.handleSidebarScroll, 100);
+    this.scrollDialogsWithThrottle = throttle(this.handleDialogScroll, 100);
   },
   mounted() {
-    if (this.$refs.dialog) {
-      this.$refs.dialog.addEventListener('scroll', this.scrollWithThrottle, false);
+    if (this.$refs.sidebar) {
+      this.$refs.sidebar.addEventListener('scroll', this.scrollSidebarWithThrottle, false);
+    }
+
+    if (this.$refs.dialogs) {
+      this.$refs.dialogs.addEventListener('scroll', this.scrollDialogsWithThrottle, false);
     }
 
     if (!this.isConnected) {
@@ -63,8 +88,12 @@ export default {
     }
   },
   beforeDestroy() {
-    if (this.$refs.dialog) {
-      this.$refs.dialog.removeEventListener('scroll', this.scrollWithThrottle, false);
+    if (this.$refs.sidebar) {
+      this.$refs.sidebar.removeEventListener('scroll', this.scrollSidebarWithThrottle, false);
+    }
+
+    if (this.$refs.dialogs) {
+      this.$refs.dialogs.removeEventListener('scroll', this.scrollDialogsWithThrottle, false);
     }
 
     if (this.isConnected) {
@@ -78,19 +107,44 @@ export default {
     handleClickBack() {
       this.setActiveDialog(null);
     },
-    handleDialogScroll() {
-      const listDOM = this.$refs.dialog;
+    async handleSidebarScroll() {
+      const { scrollHeight, scrollTop, offsetHeight } = this.$refs.sidebar;
+      const { lastScroll, direction, isLoading } = this.scrollDialogs;
 
-      const scrollRemaining = listDOM.scrollHeight - listDOM.scrollTop - listDOM.offsetHeight;
+      const scrollBottom = scrollHeight - scrollTop - offsetHeight;
 
-      console.log(scrollRemaining);
+      if (direction === 'down' && scrollBottom <= 150 && !isLoading) {
+        const { total, limit, offset } = this.dialogsMeta;
 
-      if (scrollRemaining <= 150 && !this.scrollFetch.isLoading && this.scrollFetch.moreAvailable) {
-        this.scrollFetch.isLoading = true;
+        if (total > limit + offset) {
+          this.scrollDialogs.isLoading = true;
+          await this.getDialogs({ offset: offset + limit });
+          this.scrollDialogs.isLoading = false;
+        }
       }
+
+      this.scrollDialogs.direction = scrollTop >= lastScroll ? 'down' : 'up';
+      this.scrollDialogs.lastScroll = scrollTop;
+    },
+    async handleDialogScroll() {
+      const { scrollTop } = this.$refs.dialogs;
+      const { lastScroll, direction, isLoading } = this.scrollMessages;
+
+      if (direction === 'up' && scrollTop <= 150 && !isLoading) {
+        const { total, limit, offset } = this.messagesMeta;
+
+        if (total > limit + offset) {
+          this.scrollMessages.isLoading = true;
+          await this.getMessages({ id: this.activeDialog, offset: offset + limit });
+          this.scrollMessages.isLoading = false;
+        }
+      }
+
+      this.scrollMessages.direction = scrollTop >= lastScroll ? 'down' : 'up';
+      this.scrollMessages.lastScroll = scrollTop;
     },
     messageSend() {
-      scrollToEnd(500, this.$refs.dialog);
+      scrollToEnd(500, this.$refs.dialogs);
     },
     ...mapActions('chat', ['connect', 'disconnect', 'getDialogs', 'getMessages']),
     ...mapMutations('chat', ['setActiveDialog']),
@@ -123,6 +177,7 @@ export default {
     max-width: 294px;
     background: white;
     border-right: 1px solid rgba(147, 149, 152, 0.2);
+    overflow-y: auto;
   }
   &__content {
     position: relative;
@@ -136,6 +191,7 @@ export default {
     flex: 0 0 auto;
   }
   &__dialog {
+    position: relative;
     flex: 0 1 auto;
     display: flex;
     flex-direction: column;
@@ -159,6 +215,20 @@ export default {
     align-items: center;
     justify-content: center;
     background: rgba(white, 0.5);
+  }
+  &__dialog-loader {
+    position: absolute;
+    z-index: 5;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  &__sidebar-loader {
+    position: absolute;
+    z-index: 5;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
   }
 }
 

@@ -6,7 +6,7 @@ export const djs = (x) => {
   return dayjs(x);
 };
 
-export const isToday = (date) => djs().set('hours', 0).diff(date, 'days') === 0;
+export const isToday = (date) => djs().diff(date, 'days') === 0;
 
 export const timeToTimeStamp = (time) => {
   const djsTime = djs(time);

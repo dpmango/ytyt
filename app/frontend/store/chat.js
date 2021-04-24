@@ -12,20 +12,22 @@ const EVENTS = {
   ONLINE: 'users.status.online',
 };
 
-const ERRORS = {
-  NOT_CONNECTED: 'Not connected to server',
-  NOT_CONNECTED_TO_CHAT: 'Chat not started',
-  ALREADY_CONNECTED: 'Already connected to server',
-  ALREADY_CONNECTED_TO_CHAT: 'Chat already started',
-  MISSING_ARGUMENT: 'Required argument is missing',
-  INVALID_ARGUMENT: 'Required argument has invalid type or value',
-};
+// const ERRORS = {
+//   NOT_CONNECTED: 'Not connected to server',
+//   NOT_CONNECTED_TO_CHAT: 'Chat not started',
+//   ALREADY_CONNECTED: 'Already connected to server',
+//   ALREADY_CONNECTED_TO_CHAT: 'Chat already started',
+//   MISSING_ARGUMENT: 'Required argument is missing',
+//   INVALID_ARGUMENT: 'Required argument has invalid type or value',
+// };
 
 export const state = () => ({
   activeDialog: null,
   notificationCount: 0,
   dialogs: [],
   messages: [],
+  messagesMeta: {},
+  dialogsMeta: {},
   socket: {
     isConnected: false,
     reconnectError: false,
@@ -37,6 +39,8 @@ export const getters = {
   notificationCount: (state) => state.notificationCount,
   dialogs: (state) => state.dialogs,
   messages: (state) => state.messages,
+  dialogsMeta: (state) => state.dialogsMeta,
+  messagesMeta: (state) => state.messagesMeta,
   socket: (state) => state.socket,
   isConnected: (state) => state.socket.isConnected,
   head: (state) => {
@@ -72,20 +76,32 @@ export const mutations = {
 
     switch (event) {
       case EVENTS.DIALOGS:
-        state.dialogs = data;
+        if (meta.offset === 0) {
+          state.dialogs = data;
+        } else {
+          state.dialogs = [...data, ...state.dialogs];
+        }
+
+        state.dialogsMeta = meta;
         break;
 
       case EVENTS.MESSAGES:
         if (data.length) {
           state.activeDialog = data[0].dialog;
         }
-        state.messages = data;
+
+        if (meta.offset === 0) {
+          state.messages = data;
+        } else {
+          state.messages = [...data, ...state.messages];
+        }
+
+        state.messagesMeta = meta;
         break;
 
       case EVENTS.SEND_MESSAGE:
-        if (data !== 1) {
-          state.messages.push(data);
-        }
+        state.messages.push(data);
+
         break;
 
       case EVENTS.READ_MESSAGE:
@@ -140,18 +156,40 @@ export const actions = {
     Vue.prototype.$disconnect();
   },
   getDialogs({ commit }, request) {
-    this.$socket.sendObj({
-      event: EVENTS.DIALOGS,
-      limit: (request && request.limit) || 20,
-      offset: (request && request.offset) || 0,
+    return new Promise((resolve) => {
+      this.$socket.sendObj({
+        event: EVENTS.DIALOGS,
+        limit: (request && request.limit) || 20,
+        offset: (request && request.offset) || 0,
+      });
+
+      this.watch(
+        (state) => {
+          return state.chat.dialogs;
+        },
+        (dialogs) => {
+          resolve(dialogs);
+        }
+      );
     });
   },
   getMessages({ commit }, request) {
-    this.$socket.sendObj({
-      event: EVENTS.MESSAGES,
-      dialog_id: request.id,
-      limit: (request && request.limit) || 20,
-      offset: (request && request.offset) || 0,
+    return new Promise((resolve) => {
+      this.$socket.sendObj({
+        event: EVENTS.MESSAGES,
+        dialog_id: request.id,
+        limit: (request && request.limit) || 20,
+        offset: (request && request.offset) || 0,
+      });
+
+      this.watch(
+        (state) => {
+          return state.chat.messages;
+        },
+        (messages) => {
+          resolve(messages);
+        }
+      );
     });
   },
   getNotificationCount({ commit }, request) {
