@@ -104,7 +104,6 @@ class DialogEvent(EmailNotificationMixin):
         messages = messages[offset:offset+limit]
 
         messages = sorted(messages, key=lambda message: message.date_created)
-
         context = {'user': user, 'base_url': kwargs.get('base_url')}
         messages = DefaultDialogMessageSerializers(messages, many=True, context=context).data
 
