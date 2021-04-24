@@ -29,6 +29,12 @@ class DialogEvent(EmailNotificationMixin):
 
     @staticmethod
     def get_meta(limit, offset, total) -> dict:
+        """
+        Получение метаданных ответа на событиях, где есть пагинация
+        :param limit: Количество записей
+        :param offset: Количество записей для пропуска
+        :param total: Общее количество записей сущности
+        """
         return {
             'meta': {
                 'limit': limit,
