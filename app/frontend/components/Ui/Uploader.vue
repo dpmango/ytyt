@@ -90,6 +90,7 @@ export default {
   },
   watch: {
     uploadError(error) {
+      // eslint-disable-next-line no-console
       console.log('erorr', error);
       this.$emit('handleError', error);
     },

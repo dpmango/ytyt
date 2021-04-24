@@ -11,8 +11,8 @@
         <div class="header__messages">
           <NuxtLink to="/messages">
             <UiSvgIcon name="envelope" />
-            <div class="header__messages-count">
-              <span>{{ 12 }}</span>
+            <div v-if="notificationCount" class="header__messages-count">
+              <span>{{ notificationCount }}</span>
             </div>
           </NuxtLink>
         </div>
@@ -35,6 +35,7 @@ import { mapGetters } from 'vuex';
 export default {
   computed: {
     ...mapGetters('auth', ['user']),
+    ...mapGetters('chat', ['notificationCount']),
   },
 };
 </script>

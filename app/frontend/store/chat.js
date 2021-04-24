@@ -9,6 +9,7 @@ const EVENTS = {
   SEND_MESSAGE: 'dialogs.messages.create',
   READ_MESSAGE: 'dialogs.messages.seen',
   NOTIFICATION_COUNT: 'notifications.dialogs.count',
+  ONLINE: 'users.status.online',
 };
 
 const ERRORS = {
@@ -22,6 +23,7 @@ const ERRORS = {
 
 export const state = () => ({
   activeDialog: null,
+  notificationCount: 0,
   dialogs: [],
   messages: [],
   socket: {
@@ -32,6 +34,7 @@ export const state = () => ({
 
 export const getters = {
   activeDialog: (state) => state.activeDialog,
+  notificationCount: (state) => state.notificationCount,
   dialogs: (state) => state.dialogs,
   messages: (state) => state.messages,
   socket: (state) => state.socket,
@@ -41,9 +44,9 @@ export const getters = {
       const dialog = state.dialogs.find((x) => x.id === state.activeDialog);
 
       if (dialog) {
-        const { first_name, last_name, thumbnail_avatar } = dialog.last_message.user;
+        const { first_name, last_name, thumbnail_avatar, status_online, email } = dialog.user;
 
-        return { first_name, last_name, thumbnail_avatar };
+        return { first_name, last_name, thumbnail_avatar, status_online, email };
       }
     }
     return false;
@@ -65,23 +68,21 @@ export const mutations = {
   },
   SOCKET_ONMESSAGE(state, message) {
     console.log('SOCKET_ONMESSAGE', message);
-    const { event, data } = message;
+    const { event, data, meta } = message;
 
-    // TODO - sorting better to be done on backend
     switch (event) {
       case EVENTS.DIALOGS:
-        state.dialogs = data.sort((a, b) => a.id - b.id);
+        state.dialogs = data;
         break;
 
       case EVENTS.MESSAGES:
         if (data.length) {
           state.activeDialog = data[0].dialog;
         }
-        state.messages = data.sort((a, b) => a.id - b.id);
+        state.messages = data;
         break;
 
       case EVENTS.SEND_MESSAGE:
-        // TODO - tmp
         if (data !== 1) {
           state.messages.push(data);
         }
@@ -92,6 +93,10 @@ export const mutations = {
         break;
 
       case EVENTS.NOTIFICATION_COUNT:
+        state.notificationCount = data;
+        break;
+
+      case EVENTS.ONLINE:
         // state.dialogs = data;
         break;
 
@@ -107,7 +112,9 @@ export const mutations = {
   },
 
   // Static (inner) mutations
-  setActiveDialog(state, id) {},
+  setActiveDialog(state, id) {
+    state.activeDialog = id;
+  },
 };
 
 export const actions = {
@@ -122,6 +129,7 @@ export const actions = {
         (connect) => {
           if (connect) {
             dispatch('getDialogs');
+            dispatch('getNotificationCount');
             resolve(connect);
           }
         }
@@ -132,15 +140,23 @@ export const actions = {
     Vue.prototype.$disconnect();
   },
   getDialogs({ commit }, request) {
-    // if (this.$socket) return;
     this.$socket.sendObj({
       event: EVENTS.DIALOGS,
+      limit: (request && request.limit) || 20,
+      offset: (request && request.offset) || 0,
     });
   },
   getMessages({ commit }, request) {
     this.$socket.sendObj({
       event: EVENTS.MESSAGES,
       dialog_id: request.id,
+      limit: (request && request.limit) || 20,
+      offset: (request && request.offset) || 0,
+    });
+  },
+  getNotificationCount({ commit }, request) {
+    this.$socket.sendObj({
+      event: EVENTS.NOTIFICATION_COUNT,
     });
   },
   sendMessage({ commit }, request) {

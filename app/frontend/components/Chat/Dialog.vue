@@ -7,13 +7,13 @@
     </div>
     <div class="dialog__content">
       <div class="dialog__title">
-        <span class="dialog__title-name"> {{ user.first_name }} {{ user.last_name }} </span>
-        <!-- <div class="dialog__indicator">
-          <span>{{ dialog.indicator }}</span>
-        </div> -->
+        <span class="dialog__title-name">{{ title }}</span>
+        <div class="dialog__indicator">
+          <span>{{ 'tbd' }}</span>
+        </div>
         <div class="dialog__time">{{ timestamp }}</div>
       </div>
-      <div class="dialog__description">{{ message.body }}</div>
+      <div class="dialog__description" v-html="message.body" />
     </div>
   </div>
 </template>
@@ -31,7 +31,16 @@ export default {
       return this.dialog.last_message;
     },
     user() {
-      return this.dialog.last_message.user;
+      return this.dialog.user;
+    },
+    title() {
+      const { first_name, last_name, email } = this.user;
+
+      if (first_name) {
+        return `${first_name} ${last_name}`;
+      } else {
+        return email;
+      }
     },
     timestamp() {
       return timeToTimeStamp(this.message.date_created);
@@ -81,6 +90,7 @@ export default {
   &__content {
     flex: 0 0 calc(100% - 40px);
     max-width: calc(100% - 40px);
+    min-width: 1px;
     padding-left: 12px;
   }
   &__title {
@@ -92,6 +102,7 @@ export default {
     font-weight: 500;
     font-size: 15px;
     margin-right: 6px;
+    @include text-overflow;
   }
   &__indicator {
     width: 20px;
@@ -119,6 +130,9 @@ export default {
     font-size: 14px;
     color: rgba($fontColor, 0.7);
     @include text-overflow;
+    ::v-deep p {
+      margin: 0;
+    }
   }
 }
 </style>

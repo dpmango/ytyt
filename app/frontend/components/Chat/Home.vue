@@ -5,15 +5,15 @@
         <ChatDialogs :dialogs="dialogs" :active-dialog="activeDialog" :set-dialog="setDialog" />
       </div>
 
-      <div v-if="head" class="chat__content">
+      <div class="chat__content">
         <div class="chat__head">
-          <ChatHead :click-back="handleClickBack" :head="head" />
+          <ChatHead v-if="head" :click-back="handleClickBack" :head="head" />
         </div>
         <div ref="dialog" class="chat__dialog">
           <ChatMessages :messages="messages" />
         </div>
         <div class="chat__submit">
-          <ChatSubmit @messageSend="messageSend" />
+          <ChatSubmit v-if="head" @messageSend="messageSend" />
         </div>
       </div>
     </div>
@@ -24,20 +24,49 @@
 </template>
 
 <script>
+import throttle from 'lodash/throttle';
 import { mapActions, mapGetters, mapMutations } from 'vuex';
 import { scrollToEnd } from '~/helpers/Scroll';
 
 export default {
   props: {},
+  data() {
+    return {
+      scrollFetch: {
+        isLoading: false,
+        moreAvailable: true,
+      },
+    };
+  },
   computed: {
     ...mapGetters('chat', ['activeDialog', 'dialogs', 'head', 'messages', 'socket', 'isConnected']),
   },
+  watch: {
+    activeDialog() {
+      // TODO - any alternatives to timeout? (rendering accures a bit later)
+      setTimeout(() => {
+        scrollToEnd(500, this.$refs.dialog);
+      }, 200);
+    },
+  },
+  created() {
+    // throught created because of this. context
+    this.scrollWithThrottle = throttle(this.handleDialogScroll, 100);
+  },
   mounted() {
+    if (this.$refs.dialog) {
+      this.$refs.dialog.addEventListener('scroll', this.scrollWithThrottle, false);
+    }
+
     if (!this.isConnected) {
       this.connect();
     }
   },
   beforeDestroy() {
+    if (this.$refs.dialog) {
+      this.$refs.dialog.removeEventListener('scroll', this.scrollWithThrottle, false);
+    }
+
     if (this.isConnected) {
       this.disconnect();
     }
@@ -48,6 +77,17 @@ export default {
     },
     handleClickBack() {
       this.setActiveDialog(null);
+    },
+    handleDialogScroll() {
+      const listDOM = this.$refs.dialog;
+
+      const scrollRemaining = listDOM.scrollHeight - listDOM.scrollTop - listDOM.offsetHeight;
+
+      console.log(scrollRemaining);
+
+      if (scrollRemaining <= 150 && !this.scrollFetch.isLoading && this.scrollFetch.moreAvailable) {
+        this.scrollFetch.isLoading = true;
+      }
     },
     messageSend() {
       scrollToEnd(500, this.$refs.dialog);

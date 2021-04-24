@@ -10,8 +10,8 @@
         </div>
       </div>
       <div class="head__content">
-        <div class="head__title">{{ head.first_name }} {{ head.last_name }}</div>
-        <div class="head__status" :class="[head.status === 1 && 'is-online']">{{ status }}</div>
+        <div class="head__title">{{ title }}</div>
+        <div class="head__status" :class="[head.status_online && 'is-online']">{{ status }}</div>
       </div>
     </div>
   </div>
@@ -24,9 +24,17 @@ export default {
     clickBack: Function,
   },
   computed: {
+    title() {
+      const { first_name, last_name, email } = this.head;
+
+      if (first_name) {
+        return `${first_name} ${last_name}`;
+      } else {
+        return email;
+      }
+    },
     status() {
-      // TODO - wait api changes
-      return this.head.status === 1 ? 'Онлайн' : 'Оффлайн';
+      return this.head.status_online ? 'Онлайн' : 'Оффлайн';
     },
   },
 };

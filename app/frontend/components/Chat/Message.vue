@@ -42,6 +42,12 @@ export default {
   }
   &__content {
     font-size: 15px;
+    ::v-deep p {
+      margin: 0;
+      + p {
+        margin-top: 1em;
+      }
+    }
   }
   &__time {
     font-size: 13px;
@@ -50,15 +56,15 @@ export default {
   }
   &--incoming {
     justify-content: flex-end;
-    padding-right: 24px;
-  }
-  &--outcoming {
-    justify-content: flex-start;
-    padding-left: 24px;
+    // padding-right: 24px;
     .message__wrapper {
       background: #1e88e5;
       color: white;
     }
+  }
+  &--outcoming {
+    justify-content: flex-start;
+    // padding-left: 24px;
   }
 }
 </style>
