@@ -7,7 +7,6 @@ from courses.api.course.views import CourseViewSet
 from courses.api.course_lesson.views import CourseLessonViewSet
 from courses.api.course_theme.views import CourseThemeViewSet
 from courses.api.lesson_fragment.views import LessonFragmentViewSet
-from dialogs.api.views import DialogViewSet
 from files.api.views import FileUploadView
 from search.api.views import SearchViewSet
 from users.api.auth.views import PasswordResetView, UserDetailsView
@@ -18,7 +17,6 @@ router.register(r'files', FileUploadView, basename='files')
 router.register(r'constants', ConstantsViewSet, basename='constants')
 router.register(r'search', SearchViewSet, basename='search')
 router.register(r'courses', CourseViewSet, basename='courses')
-router.register(r'dialogs', DialogViewSet, basename='dialogs')
 router.register(r'courses/(?P<course_id>\d+)/themes', CourseThemeViewSet, basename='courses-themes')
 router.register(r'courses/(?P<course_id>\d+)/themes/(?P<course_theme_id>\d+)/lessons', CourseLessonViewSet,
                 basename='courses-lessons')
