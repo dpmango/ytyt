@@ -82,10 +82,12 @@ class DialogEvent(EmailNotificationMixin):
         if not dialog or user not in dialog.users.all():
             return {'to': user, 'data': 'Диалог не принадлежит пользователю', 'exception': True}
 
-        messages = DialogMessage.objects.filter(dialog=dialog)[offset:limit]
+        messages = DialogMessage.objects.filter(dialog=dialog).order_by('-date_created')[offset:offset+limit]
+        messages = sorted(messages, key=lambda message: message.date_created)
 
         context = {'user': user, 'base_url': kwargs.get('base_url')}
         messages = DefaultDialogMessageSerializers(messages, many=True, context=context).data
+
         return {'data': messages, 'to': user}
 
     @staticmethod
