@@ -3,14 +3,27 @@
     "model": "users.user",
     "pk": 1,
     "fields": {
-      "last_login": "2019-12-26T00:12:27.683Z",
+      "password": "pbkdf2_sha256$216000$RCTct4czzFy0$OG9xrhbl6Z/GTdVbdsJOdVvXLxGhOO1OSmHodkcedZA=",
+      "last_login": "2021-04-24T08:34:29.559Z",
       "is_superuser": true,
+      "reviewer": null,
       "email": "admin@admin.ad",
-      "password": "pbkdf2_sha256$150000$oS1E7wVmLK6p$Hrqq4n+BtlqGstFHp4kyzW2pPmiHbeloTc2tgm8e8AM=",
       "is_staff": true,
       "is_active": true,
       "date_joined": "2019-12-18T01:20:26.957Z",
-      "groups": [],
+      "email_confirmed": false,
+      "email_notifications": false,
+      "avatar": "static/default_avatar.jpg",
+      "last_name": "Ko",
+      "first_name": "Ma",
+      "middle_name": null,
+      "gender": 0,
+      "birthday": null,
+      "phone": null,
+      "github_url": null,
+      "groups": [
+        3
+      ],
       "user_permissions": []
     }
   }
