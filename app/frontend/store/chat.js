@@ -119,7 +119,22 @@ export const mutations = {
         break;
 
       case EVENTS.ONLINE: {
-        // status_online: true, user_id: 1}
+        const { user_id, status_online } = data;
+        state.dialogs = [
+          ...state.dialogs.map((x) =>
+            x.user.id !== user_id
+              ? x
+              : {
+                  ...x,
+                  ...{
+                    user: {
+                      ...x.user,
+                      ...{ status_online },
+                    },
+                  },
+                }
+          ),
+        ];
         break;
       }
 
