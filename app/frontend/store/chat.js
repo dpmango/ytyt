@@ -129,6 +129,8 @@ export const mutations = {
 
   // Static (inner) mutations
   setActiveDialog(state, id) {
+    state.messages = [];
+    state.messagesMeta = {};
     state.activeDialog = id;
   },
 };

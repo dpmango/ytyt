@@ -1,7 +1,7 @@
 <template>
   <div class="message" :class="[isIncoming ? 'message--incoming' : 'message--outcoming']">
     <div class="message__wrapper">
-      <div ref="content" class="message__content markdown-body" v-html="message.body" />
+      <div ref="content" class="message__content markdown-body" :class="[isIncoming && 'dark']" v-html="message.body" />
       <div class="message__time">{{ timestamp }}</div>
     </div>
   </div>
@@ -28,7 +28,7 @@ export default {
   mounted() {
     if (this.$refs.content) {
       this.$refs.content.querySelectorAll('code').forEach((block) => {
-        window.hljs.highlightBlock(block);
+        window.hljs.highlightElement(block);
       });
     }
   },
@@ -42,19 +42,13 @@ export default {
   &__wrapper {
     position: relative;
     padding: 14px 16px;
-    max-width: 440px;
+    max-width: 600px;
     background: #fff;
     box-shadow: 0 6px 24px -4px rgba(23, 24, 24, 0.1);
     border-radius: 8px;
   }
   &__content {
     font-size: 15px;
-    ::v-deep p {
-      margin: 0;
-      + p {
-        margin-top: 1em;
-      }
-    }
   }
   &__time {
     font-size: 13px;
@@ -63,21 +57,15 @@ export default {
   }
   &--incoming {
     justify-content: flex-end;
-    // padding-right: 24px;
+    padding-left: 24px;
     .message__wrapper {
       background: #1e88e5;
       color: white;
-      ::v-deep .markdown-body {
-        color: white;
-        code {
-          background: $fontColor;
-        }
-      }
     }
   }
   &--outcoming {
     justify-content: flex-start;
-    // padding-left: 24px;
+    padding-right: 24px;
   }
 }
 </style>
