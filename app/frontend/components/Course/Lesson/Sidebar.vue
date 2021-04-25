@@ -26,7 +26,7 @@
             section.status === 3 && 'is-compleated',
             section.status === 4 && 'is-locked',
           ]"
-          @click="setFragment(section.id, section.status)"
+          @click="$emit('setFragment', section.id, section.status)"
         >
           <div class="sidebar__lesson-icon">
             <UiSvgIcon name="checkmark" />
@@ -35,11 +35,11 @@
         </div>
       </div>
       <div class="sidebar__question">
-        <a href="#" class="lg-visible" @click="toggleTopicsVisibility">
+        <a href="#" class="lg-visible" @click.prevent="toggleTopicsVisibility">
           <UiSvgIcon name="menu" />
           <span>Содержание</span>
         </a>
-        <a href="#">
+        <a href="#" @click.prevent="$emit('handleQuestionClick')">
           <UiSvgIcon name="question-filled" />
           <span>Задать вопрос куратору</span>
         </a>
@@ -58,6 +58,7 @@ export default {
     sections: Array,
     activeSection: Number,
     setFragment: Function,
+    handleQuestionClick: Function,
   },
   data() {
     return {

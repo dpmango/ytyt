@@ -1,3 +1,5 @@
+import { rebuildSocket } from '~/helpers/RebuildSocket';
+
 const UPDATE_INTERVAL = 12 * 60 * 60 * 1000;
 
 async function refreshToken(token, store, $toast) {
@@ -12,8 +14,11 @@ async function refreshToken(token, store, $toast) {
 
 export default async function ({ $axios, store, $toast, $config }, inject) {
   const token = store.state.auth.token;
+
   if (token) {
     await refreshToken(token, store, $toast);
+
+    rebuildSocket();
 
     setInterval(async function () {
       await refreshToken(token, store, $toast);

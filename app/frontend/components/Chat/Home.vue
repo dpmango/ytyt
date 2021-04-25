@@ -1,53 +1,182 @@
 <template>
   <div class="chat">
     <div class="chat__wrapper" :class="[activeDialog && 'is-dialog-active']">
-      <div class="chat__sidebar">
+      <div ref="sidebar" class="chat__sidebar">
+        <div v-if="scrollDialogs.isLoading" class="chat__sidebar-loader">
+          <UiLoader theme="block" :loading="true" />
+        </div>
         <ChatDialogs :dialogs="dialogs" :active-dialog="activeDialog" :set-dialog="setDialog" />
       </div>
 
       <div class="chat__content">
         <div class="chat__head">
-          <ChatHead :click-back="handleClickBack" :data="head" />
+          <ChatHead v-if="head" :click-back="handleClickBack" :head="head" />
         </div>
-        <div class="chat__dialog">
+        <div ref="dialogs" class="chat__dialog">
+          <div v-if="scrollMessages.isLoading" class="chat__dialog-loader">
+            <UiLoader theme="block" :loading="true" />
+          </div>
           <ChatMessages :messages="messages" />
         </div>
         <div class="chat__submit">
-          <ChatSubmit />
+          <ChatSubmit v-if="head" />
         </div>
       </div>
+    </div>
+    <div v-if="!isConnected" class="chat__loader">
+      <UiLoader theme="block" :loading="true" />
     </div>
   </div>
 </template>
 
 <script>
-import { mapActions, mapGetters } from 'vuex';
+import throttle from 'lodash/throttle';
+import { mapActions, mapGetters, mapMutations } from 'vuex';
+import { scrollToEnd } from '~/helpers/Scroll';
 
 export default {
   props: {},
   data() {
     return {
-      activeDialog: null,
+      scrollDialogs: {
+        lastScroll: null,
+        direction: null,
+        isLoading: false,
+      },
+      scrollMessages: {
+        lastScroll: null,
+        direction: null,
+        isLoading: false,
+      },
     };
   },
   computed: {
-    ...mapGetters('chat', ['messages', 'head', 'dialogs']),
+    ...mapGetters('chat', [
+      'activeDialog',
+      'dialogs',
+      'head',
+      'messages',
+      'messagesMeta',
+      'dialogsMeta',
+      'socket',
+      'isConnected',
+    ]),
+  },
+  watch: {
+    messages() {
+      const { scrollHeight, offsetHeight } = this.$refs.sidebar;
+
+      scrollToEnd(500, this.$refs.dialogs);
+
+      // check read if no scroll height (scroll event wont be triggered)
+      if (scrollHeight <= offsetHeight) {
+        this.readMessages();
+      }
+    },
+    activeDialog() {
+      // TODO - any alternatives to timeout? (rendering accures a bit later)
+      setTimeout(() => {
+        scrollToEnd(0, this.$refs.dialogs);
+      }, 200);
+    },
   },
   created() {
-    // sockets ws:
-    // this.handleTestGetUser();
+    this.scrollSidebarWithThrottle = throttle(this.handleSidebarScroll, 300);
+    this.scrollDialogsWithThrottle = throttle(this.handleDialogScroll, 300);
+  },
+  mounted() {
+    if (this.$refs.sidebar) {
+      this.$refs.sidebar.addEventListener('scroll', this.scrollSidebarWithThrottle, false);
+    }
+
+    if (this.$refs.dialogs) {
+      this.$refs.dialogs.addEventListener('scroll', this.scrollDialogsWithThrottle, false);
+    }
+
+    // if (!this.isConnected) {
+    //   this.connect();
+    // }
+  },
+  beforeDestroy() {
+    if (this.$refs.sidebar) {
+      this.$refs.sidebar.removeEventListener('scroll', this.scrollSidebarWithThrottle, false);
+    }
+
+    if (this.$refs.dialogs) {
+      this.$refs.dialogs.removeEventListener('scroll', this.scrollDialogsWithThrottle, false);
+    }
+
+    // if (this.isConnected) {
+    //   this.disconnect();
+    // }
   },
   methods: {
     setDialog(id) {
-      this.activeDialog = id;
+      this.getMessages({ id });
+      this.setActiveDialog(id);
     },
     handleClickBack() {
-      this.activeDialog = null;
+      this.resetMessages();
     },
-    async handleSubmit() {
-      const isValid = await this.$refs.form.validate();
+    async handleSidebarScroll() {
+      const { scrollHeight, scrollTop, offsetHeight } = this.$refs.sidebar;
+      const { lastScroll, direction, isLoading } = this.scrollDialogs;
+
+      const scrollBottom = scrollHeight - scrollTop - offsetHeight;
+
+      if (direction === 'down' && scrollBottom <= 250 && !isLoading) {
+        const { total, limit, offset } = this.dialogsMeta;
+
+        if (total > limit + offset) {
+          this.scrollDialogs.isLoading = true;
+          await this.getDialogs({ offset: offset + limit });
+          this.scrollDialogs.isLoading = false;
+        }
+      }
+
+      this.scrollDialogs.direction = scrollTop >= lastScroll ? 'down' : 'up';
+      this.scrollDialogs.lastScroll = scrollTop;
     },
-    // ...mapActions('auth', ['logout', 'getUserInfo', 'update']),
+    async handleDialogScroll() {
+      const { scrollTop } = this.$refs.dialogs;
+      const { lastScroll, direction, isLoading } = this.scrollMessages;
+
+      if (direction === 'up' && scrollTop <= 250 && !isLoading) {
+        const { total, limit, offset } = this.messagesMeta;
+
+        if (total > limit + offset) {
+          this.scrollMessages.isLoading = true;
+          await this.getMessages({ id: this.activeDialog, offset: offset + limit });
+          this.scrollMessages.isLoading = false;
+        }
+      }
+
+      this.scrollMessages.direction = scrollTop >= lastScroll ? 'down' : 'up';
+      this.scrollMessages.lastScroll = scrollTop;
+
+      this.readMessages();
+    },
+    readMessages() {
+      const { offsetHeight } = this.$refs.sidebar;
+      const dialogsTop = this.$refs.dialogs.getBoundingClientRect().top;
+      const messages = this.$refs.dialogs.querySelectorAll('.message--outcoming[data-read="false"]');
+
+      if (!messages) return;
+
+      messages.forEach((message) => {
+        const rect = message.getBoundingClientRect();
+        const isVisible = rect.top - dialogsTop >= 0 && rect.top - rect.height <= offsetHeight;
+
+        if (isVisible) {
+          this.readMessage({
+            dialog_id: this.activeDialog,
+            message_id: message.getAttribute('data-id'),
+          });
+        }
+      });
+    },
+    ...mapActions('chat', ['connect', 'disconnect', 'getDialogs', 'getMessages', 'readMessage']),
+    ...mapMutations('chat', ['setActiveDialog', 'resetMessages']),
   },
 };
 </script>
@@ -77,6 +206,7 @@ export default {
     max-width: 294px;
     background: white;
     border-right: 1px solid rgba(147, 149, 152, 0.2);
+    overflow-y: auto;
   }
   &__content {
     position: relative;
@@ -90,6 +220,7 @@ export default {
     flex: 0 0 auto;
   }
   &__dialog {
+    position: relative;
     flex: 0 1 auto;
     display: flex;
     flex-direction: column;
@@ -101,6 +232,32 @@ export default {
     margin-top: auto;
     background: white;
     box-shadow: 0 0 12px 0 rgba($fontColor, 0.05);
+  }
+  &__loader {
+    position: absolute;
+    z-index: 5;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(white, 0.5);
+  }
+  &__dialog-loader {
+    position: absolute;
+    z-index: 5;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  &__sidebar-loader {
+    position: absolute;
+    z-index: 5;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
   }
 }
 

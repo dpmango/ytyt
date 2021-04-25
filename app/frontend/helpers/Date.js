@@ -6,11 +6,15 @@ export const djs = (x) => {
   return dayjs(x);
 };
 
+export const isToday = (date) => djs().diff(date, 'days') === 0;
+
 export const timeToTimeStamp = (time) => {
-  const djsTime = dayjs(time * 1000);
+  const djsTime = djs(time);
   let mask = 'DD MMM, HH:mm';
 
-  if (djs().year() !== djsTime.year()) {
+  if (isToday(djsTime)) {
+    mask = 'HH:mm';
+  } else if (djs().year() !== djsTime.year()) {
     mask = 'DD MMM YYYY, HH:mm';
   }
 
@@ -18,7 +22,7 @@ export const timeToTimeStamp = (time) => {
 };
 
 export const timeToHHMM = (time) => {
-  return dayjs(time * 1000).format('HH:mm');
+  return djs(time * 1000).format('HH:mm');
 };
 
 export const HHMMtoSeconds = (str) => {

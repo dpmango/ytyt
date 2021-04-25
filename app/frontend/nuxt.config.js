@@ -21,12 +21,13 @@ export default {
   plugins: [
     '~/plugins/axios',
     '~/plugins/refresh',
-    '~/plugins/filters.js',
-    '~/plugins/event-bus.js',
-    '~/plugins/global-mixins.js',
-    { src: '~/plugins/markdown.js', mode: 'client' },
-    { src: '~/plugins/toast.js', mode: 'client' },
-    { src: '~/plugins/vee-validate.js', mode: 'client' },
+    '~/plugins/filters',
+    '~/plugins/event-bus',
+    '~/plugins/global-mixins',
+    { src: '~/plugins/markdown', mode: 'client' },
+    { src: '~/plugins/toast', mode: 'client' },
+    { src: '~/plugins/socket', mode: 'client' },
+    { src: '~/plugins/vee-validate', mode: 'client' },
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
@@ -68,6 +69,7 @@ export default {
   // https://nuxtjs.org/blog/moving-from-nuxtjs-dotenv-to-runtime-config
   publicRuntimeConfig: {
     baseURL: process.env.BASE_URL,
+    socketURL: process.env.SOCKET_URL,
   },
 
   loading: {
