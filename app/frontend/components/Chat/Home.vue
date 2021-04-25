@@ -19,7 +19,7 @@
           <ChatMessages :messages="messages" />
         </div>
         <div class="chat__submit">
-          <ChatSubmit v-if="head" @messageSend="messageSend" />
+          <ChatSubmit v-if="head" />
         </div>
       </div>
     </div>
@@ -63,6 +63,16 @@ export default {
     ]),
   },
   watch: {
+    messages() {
+      const { scrollHeight, offsetHeight } = this.$refs.sidebar;
+
+      scrollToEnd(500, this.$refs.dialogs);
+
+      // check read if no scroll height (scroll event wont be triggered)
+      if (scrollHeight <= offsetHeight) {
+        this.readMessages();
+      }
+    },
     activeDialog() {
       // TODO - any alternatives to timeout? (rendering accures a bit later)
       setTimeout(() => {
@@ -128,9 +138,8 @@ export default {
       this.scrollDialogs.lastScroll = scrollTop;
     },
     async handleDialogScroll() {
-      const { scrollTop, offsetHeight } = this.$refs.dialogs;
+      const { scrollTop } = this.$refs.dialogs;
       const { lastScroll, direction, isLoading } = this.scrollMessages;
-      const dialogsTop = this.$refs.dialogs.getBoundingClientRect().top;
 
       if (direction === 'up' && scrollTop <= 250 && !isLoading) {
         const { total, limit, offset } = this.messagesMeta;
@@ -145,8 +154,14 @@ export default {
       this.scrollMessages.direction = scrollTop >= lastScroll ? 'down' : 'up';
       this.scrollMessages.lastScroll = scrollTop;
 
-      // read messages (seen)
+      this.readMessages();
+    },
+    readMessages() {
+      const { offsetHeight } = this.$refs.sidebar;
+      const dialogsTop = this.$refs.dialogs.getBoundingClientRect().top;
       const messages = this.$refs.dialogs.querySelectorAll('.message--outcoming[data-read="false"]');
+
+      if (!messages) return;
 
       messages.forEach((message) => {
         const rect = message.getBoundingClientRect();
@@ -159,9 +174,6 @@ export default {
           });
         }
       });
-    },
-    messageSend() {
-      scrollToEnd(500, this.$refs.dialogs);
     },
     ...mapActions('chat', ['connect', 'disconnect', 'getDialogs', 'getMessages', 'readMessage']),
     ...mapMutations('chat', ['setActiveDialog', 'resetMessages']),

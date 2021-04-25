@@ -59,6 +59,9 @@ export default {
   }
   &__content {
     font-size: 15px;
+    ::v-deep code {
+      border-radius: 8px;
+    }
   }
   &__meta {
     margin-top: 2px;

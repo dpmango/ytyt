@@ -33,9 +33,7 @@
 import { mapActions, mapGetters } from 'vuex';
 
 export default {
-  props: {
-    messageSend: Function,
-  },
+  props: {},
   data() {
     return {
       text: '',
@@ -61,7 +59,6 @@ export default {
 
         this.text = '';
         this.simplemde.value('');
-        this.$emit('messageSend');
         // this.simplemde.codemirror.refresh();
       }
     },
