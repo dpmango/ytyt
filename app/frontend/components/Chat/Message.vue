@@ -7,7 +7,12 @@
   >
     <div class="message__wrapper">
       <div ref="content" class="message__content markdown-body" :class="[isIncoming && 'dark']" v-html="message.body" />
-      <div class="message__time">{{ timestamp }}</div>
+      <div class="message__meta">
+        <div class="message__time">{{ timestamp }}</div>
+        <div v-if="message.date_read" class="message__seen">
+          <UiSvgIcon name="checkmark" />
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -55,10 +60,24 @@ export default {
   &__content {
     font-size: 15px;
   }
+  &__meta {
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
   &__time {
     font-size: 13px;
     text-align: right;
     opacity: 0.5;
+  }
+  &__seen {
+    font-size: 0;
+    margin-left: 6px;
+    opacity: 0.5;
+    .svg-icon {
+      font-size: 8px;
+    }
   }
   &--incoming {
     justify-content: flex-end;
