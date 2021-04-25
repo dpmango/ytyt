@@ -245,7 +245,7 @@
     padding: 0.2em 0.4em;
     margin: 0;
     font-size: 85%;
-    background-color: rgba(27, 31, 35, 0.05);
+    // background-color: rgba(27, 31, 35, 0.05);
     border-radius: 3px;
   }
 
@@ -258,7 +258,7 @@
     padding: 16px;
     overflow: auto;
     line-height: 1.45;
-    background-color: #f6f8fa;
+    // background-color: #f6f8fa;
     border-radius: 3px;
 
     > code {
@@ -420,6 +420,7 @@
     .hljs{
       display: inline-block;
       max-width: 100%;
+      vertical-align: middle;
     }
   }
 
@@ -436,9 +437,9 @@
     a {
       color: rgba(white, .7);
     }
-    code {
-      background: $fontColor;
-    }
+    // code {
+    //   background: $fontColor;
+    // }
     hr{
       background-color: rgba(white, .3);
     }

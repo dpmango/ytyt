@@ -14,7 +14,7 @@
           @handleQuestionClick="handleQuestionClick"
         />
 
-        <div class="lesson__content">
+        <div ref="content" class="lesson__content">
           <div class="lesson__box">
             <template v-if="activeSection === 0">
               <h3 class="h3-title">У вас нет доступа к этому уроку</h3>
@@ -37,7 +37,7 @@
                   class="lesson__section"
                   :class="[fragment.id === activeSection && 'is-active']"
                 >
-                  <div class="lesson__body" v-html="fragment.content"></div>
+                  <div class="lesson__body markdown-body" v-html="fragment.content"></div>
 
                   <div class="lesson__actions">
                     <UiButton @click.prevent="setNextFragment">Продолжить</UiButton>
@@ -102,6 +102,11 @@ export default {
       return this.data.accessible_lesson_fragments;
     },
   },
+  watch: {
+    activeSection() {
+      this.highlightSyntax();
+    },
+  },
   created() {
     // getting current user fragment from props
     const activeFragment = this.data.accessible_lesson_fragments.find((frag) => [1, 2].includes(frag.status));
@@ -113,6 +118,9 @@ export default {
     } else {
       this.activeSection = 0;
     }
+  },
+  mounted() {
+    // this.highlightSyntax();
   },
   methods: {
     async setNextFragment() {
@@ -137,6 +145,13 @@ export default {
     setPrevFragment() {
       if (this.isPrevAvailable) {
         this.setFragment(this.prevSectionId, 2);
+      }
+    },
+    highlightSyntax() {
+      if (this.$refs.content) {
+        this.$refs.content.querySelectorAll('code').forEach((block) => {
+          window.hljs.highlightElement(block);
+        });
       }
     },
     async handleQuestionClick() {

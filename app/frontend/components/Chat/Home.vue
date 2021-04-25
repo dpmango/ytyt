@@ -113,7 +113,7 @@ export default {
 
       const scrollBottom = scrollHeight - scrollTop - offsetHeight;
 
-      if (direction === 'down' && scrollBottom <= 150 && !isLoading) {
+      if (direction === 'down' && scrollBottom <= 250 && !isLoading) {
         const { total, limit, offset } = this.dialogsMeta;
 
         if (total > limit + offset) {
@@ -130,7 +130,7 @@ export default {
       const { scrollTop } = this.$refs.dialogs;
       const { lastScroll, direction, isLoading } = this.scrollMessages;
 
-      if (direction === 'up' && scrollTop <= 150 && !isLoading) {
+      if (direction === 'up' && scrollTop <= 250 && !isLoading) {
         const { total, limit, offset } = this.messagesMeta;
 
         if (total > limit + offset) {
