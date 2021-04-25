@@ -75,8 +75,6 @@ export default {
 
 <style lang="scss">
 @import 'simplemde/dist/simplemde.min.css';
-@import 'github-markdown-css';
-@import 'highlight.js/styles/atom-one-dark.css';
 
 .CodeMirror,
 .CodeMirror-scroll {

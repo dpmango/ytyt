@@ -1,7 +1,7 @@
 <template>
   <div class="message" :class="[isIncoming ? 'message--incoming' : 'message--outcoming']">
     <div class="message__wrapper">
-      <div class="message__content" v-html="message.body" />
+      <div ref="content" class="message__content markdown-body" v-html="message.body" />
       <div class="message__time">{{ timestamp }}</div>
     </div>
   </div>
@@ -24,6 +24,13 @@ export default {
       return timeToTimeStamp(this.message.date_created);
     },
     ...mapGetters('auth', ['user']),
+  },
+  mounted() {
+    if (this.$refs.content) {
+      this.$refs.content.querySelectorAll('code').forEach((block) => {
+        window.hljs.highlightBlock(block);
+      });
+    }
   },
 };
 </script>
@@ -60,6 +67,12 @@ export default {
     .message__wrapper {
       background: #1e88e5;
       color: white;
+      ::v-deep .markdown-body {
+        color: white;
+        code {
+          background: $fontColor;
+        }
+      }
     }
   }
   &--outcoming {
