@@ -66,13 +66,13 @@ export default {
     activeDialog() {
       // TODO - any alternatives to timeout? (rendering accures a bit later)
       setTimeout(() => {
-        scrollToEnd(500, this.$refs.dialogs);
+        scrollToEnd(0, this.$refs.dialogs);
       }, 200);
     },
   },
   created() {
-    this.scrollSidebarWithThrottle = throttle(this.handleSidebarScroll, 100);
-    this.scrollDialogsWithThrottle = throttle(this.handleDialogScroll, 100);
+    this.scrollSidebarWithThrottle = throttle(this.handleSidebarScroll, 300);
+    this.scrollDialogsWithThrottle = throttle(this.handleDialogScroll, 300);
   },
   mounted() {
     if (this.$refs.sidebar) {
@@ -83,9 +83,9 @@ export default {
       this.$refs.dialogs.addEventListener('scroll', this.scrollDialogsWithThrottle, false);
     }
 
-    if (!this.isConnected) {
-      this.connect();
-    }
+    // if (!this.isConnected) {
+    //   this.connect();
+    // }
   },
   beforeDestroy() {
     if (this.$refs.sidebar) {
@@ -96,16 +96,17 @@ export default {
       this.$refs.dialogs.removeEventListener('scroll', this.scrollDialogsWithThrottle, false);
     }
 
-    if (this.isConnected) {
-      this.disconnect();
-    }
+    // if (this.isConnected) {
+    //   this.disconnect();
+    // }
   },
   methods: {
     setDialog(id) {
       this.getMessages({ id });
+      this.setActiveDialog(id);
     },
     handleClickBack() {
-      this.setActiveDialog(null);
+      this.resetMessages();
     },
     async handleSidebarScroll() {
       const { scrollHeight, scrollTop, offsetHeight } = this.$refs.sidebar;
@@ -127,8 +128,9 @@ export default {
       this.scrollDialogs.lastScroll = scrollTop;
     },
     async handleDialogScroll() {
-      const { scrollTop } = this.$refs.dialogs;
+      const { scrollTop, offsetHeight } = this.$refs.dialogs;
       const { lastScroll, direction, isLoading } = this.scrollMessages;
+      const dialogsTop = this.$refs.dialogs.getBoundingClientRect().top;
 
       if (direction === 'up' && scrollTop <= 250 && !isLoading) {
         const { total, limit, offset } = this.messagesMeta;
@@ -142,12 +144,27 @@ export default {
 
       this.scrollMessages.direction = scrollTop >= lastScroll ? 'down' : 'up';
       this.scrollMessages.lastScroll = scrollTop;
+
+      // read messages (seen)
+      const messages = this.$refs.dialogs.querySelectorAll('.message--outcoming[data-read="false"]');
+
+      messages.forEach((message) => {
+        const rect = message.getBoundingClientRect();
+        const isVisible = rect.top - dialogsTop >= 0 && rect.top - rect.height <= offsetHeight;
+
+        if (isVisible) {
+          this.readMessage({
+            dialog_id: this.activeDialog,
+            message_id: message.getAttribute('data-id'),
+          });
+        }
+      });
     },
     messageSend() {
       scrollToEnd(500, this.$refs.dialogs);
     },
-    ...mapActions('chat', ['connect', 'disconnect', 'getDialogs', 'getMessages']),
-    ...mapMutations('chat', ['setActiveDialog']),
+    ...mapActions('chat', ['connect', 'disconnect', 'getDialogs', 'getMessages', 'readMessage']),
+    ...mapMutations('chat', ['setActiveDialog', 'resetMessages']),
   },
 };
 </script>

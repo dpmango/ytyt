@@ -1,5 +1,10 @@
 <template>
-  <div class="message" :class="[isIncoming ? 'message--incoming' : 'message--outcoming']">
+  <div
+    class="message"
+    :data-id="message.id"
+    :data-read="message.date_read ? 'true' : 'false'"
+    :class="[isIncoming ? 'message--incoming' : 'message--outcoming']"
+  >
     <div class="message__wrapper">
       <div ref="content" class="message__content markdown-body" :class="[isIncoming && 'dark']" v-html="message.body" />
       <div class="message__time">{{ timestamp }}</div>

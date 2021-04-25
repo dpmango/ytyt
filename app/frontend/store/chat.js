@@ -86,9 +86,9 @@ export const mutations = {
         break;
 
       case EVENTS.MESSAGES:
-        if (data.length) {
-          state.activeDialog = data[0].dialog;
-        }
+        // if (data.length) {
+        //   state.activeDialog = data[0].dialog;
+        // }
 
         if (meta.offset === 0) {
           state.messages = data;
@@ -104,17 +104,24 @@ export const mutations = {
 
         break;
 
-      case EVENTS.READ_MESSAGE:
-        // state.dialogs = data;
-        break;
+      case EVENTS.READ_MESSAGE: {
+        const { id, date_read } = data;
+        const message = state.messages.find((x) => x.id === id);
+        if (message) {
+          message.date_read = date_read;
 
+          state.messages = [...state.messages.map((x) => (x.id !== id ? x : { ...x, ...message }))];
+        }
+        break;
+      }
       case EVENTS.NOTIFICATION_COUNT:
         state.notificationCount = data;
         break;
 
-      case EVENTS.ONLINE:
-        // state.dialogs = data;
+      case EVENTS.ONLINE: {
+        // status_online: true, user_id: 1}
         break;
+      }
 
       default:
         break;
@@ -129,9 +136,12 @@ export const mutations = {
 
   // Static (inner) mutations
   setActiveDialog(state, id) {
+    state.activeDialog = id;
+  },
+  resetMessages(state) {
+    state.activeDialog = null;
     state.messages = [];
     state.messagesMeta = {};
-    state.activeDialog = id;
   },
 };
 
@@ -192,6 +202,13 @@ export const actions = {
           resolve(messages);
         }
       );
+    });
+  },
+  readMessage({ commit }, request) {
+    this.$socket.sendObj({
+      event: EVENTS.READ_MESSAGE,
+      dialog_id: request.dialog_id,
+      message_id: request.message_id,
     });
   },
   getNotificationCount({ commit }, request) {

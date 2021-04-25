@@ -13,14 +13,16 @@ export const mutations = {
 // https://github.com/nathantsoi/vue-native-websocket
 export default function ({ store, $config }, inject) {
   // TODO - will not handle refresh updates?
-  const socketWithToken = `${$config.socketURL}?token=${store.state.auth.token}`;
-  Vue.use(VueNativeSock, socketWithToken, {
-    store,
-    mutations,
-    connectManually: true,
-    format: 'json',
-    reconnection: true,
-    reconnectionAttempts: 2,
-    reconnectionDelay: 3000,
-  });
+  if (store.state.auth.token) {
+    const socketWithToken = `${$config.socketURL}?token=${store.state.auth.token}`;
+    Vue.use(VueNativeSock, socketWithToken, {
+      store,
+      mutations,
+      connectManually: true,
+      format: 'json',
+      reconnection: true,
+      reconnectionAttempts: 2,
+      reconnectionDelay: 3000,
+    });
+  }
 }
