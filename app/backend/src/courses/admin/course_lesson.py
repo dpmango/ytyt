@@ -1,4 +1,6 @@
 from django.contrib import admin
+from django.db import models
+from markdownx.widgets import AdminMarkdownxWidget
 
 from courses.forms import CourseLessonCreationForm
 from courses.models import CourseLesson
@@ -19,3 +21,7 @@ class CourseLessonAdmin(admin.ModelAdmin):
         'title',
         'content',
     )
+    #
+    # formfield_overrides = {
+    #     models.TextField: {'widget': AdminMarkdownxWidget},
+    # }

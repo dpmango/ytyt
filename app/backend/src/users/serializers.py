@@ -199,6 +199,15 @@ class PasswordChangeSerializer(rest_auth_serializers.PasswordChangeSerializer):
 
 
 class RegisterSerializer(rest_auth_registration_serializers.RegisterSerializer):
+    first_name = serializers.CharField(required=False)
+    last_name = serializers.CharField(required=False)
+
+    def get_cleaned_data(self):
+        return {
+            **super().get_cleaned_data(),
+            'first_name': self.validated_data.get('first_name') or '',
+            'last_name': self.validated_data.get('last_name') or '',
+        }
 
     def save(self, request) -> User:
         """
