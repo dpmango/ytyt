@@ -109,7 +109,7 @@ export const mutations = {
         break;
 
       case EVENTS.SEND_MESSAGE: {
-        if (state.activeDialog) {
+        if (state.activeDialog && data.dialog === state.activeDialog) {
           state.messages.push(data);
         }
 

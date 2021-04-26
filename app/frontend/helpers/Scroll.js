@@ -29,6 +29,7 @@ export const ScrollTo = (to, duration = 800, el) => {
 export const scrollToEnd = (duration, el) => {
   const element = el || document.scrollingElement || document.documentElement;
   const endOfThePageTop = element.scrollHeight;
+
   ScrollTo(endOfThePageTop, duration, el);
 };
 

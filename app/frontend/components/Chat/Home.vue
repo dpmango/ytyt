@@ -19,7 +19,7 @@
           <ChatMessages :messages="messages" />
         </div>
         <div class="chat__submit">
-          <ChatSubmit v-if="head" />
+          <ChatSubmit v-if="head" @onSubmit="scrollDialogsToBottom" />
         </div>
       </div>
     </div>
@@ -64,19 +64,18 @@ export default {
   },
   watch: {
     messages() {
-      const { scrollHeight, offsetHeight } = this.$refs.sidebar;
+      const { scrollTop, scrollHeight, offsetHeight } = this.$refs.dialogs;
+      const scrollBottom = scrollHeight - scrollTop - offsetHeight;
 
-      scrollToEnd(500, this.$refs.dialogs);
+      // prevent scrolling if user reading prev. messages or new messages loaded on 'up' scroll
+      if (scrollBottom <= 50) {
+        scrollToEnd(500, this.$refs.dialogs);
+      }
 
-      // check read if no scroll height (scroll event wont be triggered)
+      // check read status if no scroll height (scroll event wont be triggered)
       if (scrollHeight <= offsetHeight) {
         this.readMessages();
       }
-    },
-    activeDialog() {
-      setTimeout(() => {
-        scrollToEnd(0, this.$refs.dialogs);
-      }, 200);
     },
   },
   created() {
@@ -95,10 +94,6 @@ export default {
     if (this.$route.query && this.$route.query.id && this.isConnected) {
       this.setDialog(parseInt(this.$route.query.id));
     }
-
-    // if (!this.isConnected) {
-    //   this.connect();
-    // }
   },
   beforeDestroy() {
     if (this.$refs.sidebar) {
@@ -108,15 +103,14 @@ export default {
     if (this.$refs.dialogs) {
       this.$refs.dialogs.removeEventListener('scroll', this.scrollDialogsWithThrottle, false);
     }
-
-    // if (this.isConnected) {
-    //   this.disconnect();
-    // }
   },
   methods: {
-    setDialog(id) {
-      this.getMessages({ id });
+    async setDialog(id) {
+      await this.getMessages({ id });
       this.setActiveDialog(id);
+      setTimeout(() => {
+        scrollToEnd(0, this.$refs.dialogs);
+      }, 200);
     },
     handleClickBack() {
       this.resetMessages();
@@ -177,6 +171,14 @@ export default {
           });
         }
       });
+    },
+    connectSocket() {
+      if (!this.isConnected) {
+        this.connect();
+      }
+    },
+    scrollDialogsToBottom() {
+      scrollToEnd(500, this.$refs.dialogs);
     },
     ...mapActions('chat', ['connect', 'disconnect', 'getDialogs', 'getMessages', 'readMessage']),
     ...mapMutations('chat', ['setActiveDialog', 'resetMessages']),
