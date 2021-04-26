@@ -74,7 +74,6 @@ export default {
       }
     },
     activeDialog() {
-      // TODO - any alternatives to timeout? (rendering accures a bit later)
       setTimeout(() => {
         scrollToEnd(0, this.$refs.dialogs);
       }, 200);
@@ -91,6 +90,10 @@ export default {
 
     if (this.$refs.dialogs) {
       this.$refs.dialogs.addEventListener('scroll', this.scrollDialogsWithThrottle, false);
+    }
+
+    if (this.$route.query && this.$route.query.id && this.isConnected) {
+      this.setDialog(parseInt(this.$route.query.id));
     }
 
     // if (!this.isConnected) {

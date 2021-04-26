@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 // import { loginService } from '~/api/auth';
 import Vue from 'vue';
-import { createChatService, filesService } from '~/api/chat';
+import { filesService } from '~/api/chat';
 
 const EVENTS = {
   DIALOGS: 'dialogs.load',
@@ -9,6 +9,7 @@ const EVENTS = {
   SEND_MESSAGE: 'dialogs.messages.create',
   READ_MESSAGE: 'dialogs.messages.seen',
   NOTIFICATION_COUNT: 'notifications.dialogs.count',
+  MESSAGES_COUNT: 'notifications.dialogs.messages.count',
   ONLINE: 'users.status.online',
 };
 
@@ -29,6 +30,7 @@ export const state = () => ({
   messagesMeta: {},
   dialogsMeta: {},
   socket: {
+    error: null,
     isConnected: false,
     reconnectError: false,
   },
@@ -72,7 +74,14 @@ export const mutations = {
   },
   SOCKET_ONMESSAGE(state, message) {
     console.log('SOCKET_ONMESSAGE', message);
-    const { event, data, meta } = message;
+    const { event, data, meta, exception } = message;
+
+    if (exception) {
+      state.socket.error = data;
+      this.$toast.global.error({ message: data });
+    } else {
+      state.socket.error = null;
+    }
 
     switch (event) {
       case EVENTS.DIALOGS:
@@ -99,11 +108,13 @@ export const mutations = {
         state.messagesMeta = meta;
         break;
 
-      case EVENTS.SEND_MESSAGE:
-        state.messages.push(data);
+      case EVENTS.SEND_MESSAGE: {
+        if (state.activeDialog) {
+          state.messages.push(data);
+        }
 
         break;
-
+      }
       case EVENTS.READ_MESSAGE: {
         const { id, date_read } = data;
         const message = state.messages.find((x) => x.id === id);
@@ -116,6 +127,9 @@ export const mutations = {
       }
       case EVENTS.NOTIFICATION_COUNT:
         state.notificationCount = data;
+        break;
+
+      case EVENTS.MESSAGES_COUNT:
         break;
 
       case EVENTS.ONLINE: {
@@ -162,25 +176,29 @@ export const mutations = {
 
 export const actions = {
   connect({ commit, dispatch }, request) {
-    return new Promise((resolve) => {
-      Vue.prototype.$connect();
+    if (Vue.prototype.$connect) {
+      return new Promise((resolve) => {
+        Vue.prototype.$connect();
 
-      this.watch(
-        (state) => {
-          return state.chat.socket.isConnected;
-        },
-        (connect) => {
-          if (connect) {
-            dispatch('getDialogs');
-            dispatch('getNotificationCount');
-            resolve(connect);
+        this.watch(
+          (state) => {
+            return state.chat.socket.isConnected;
+          },
+          (connect) => {
+            if (connect) {
+              dispatch('getDialogs');
+              dispatch('getNotificationCount');
+              resolve(connect);
+            }
           }
-        }
-      );
-    });
+        );
+      });
+    }
   },
   disconnect({ commit }, request) {
-    Vue.prototype.$disconnect();
+    if (Vue.prototype.$disconnect) {
+      Vue.prototype.$disconnect();
+    }
   },
   getDialogs({ commit }, request) {
     return new Promise((resolve) => {
@@ -236,15 +254,6 @@ export const actions = {
       event: EVENTS.SEND_MESSAGE,
       ...request,
     });
-  },
-  async createChat({ commit }, request) {
-    const [err, result] = await createChatService(this.$api, request);
-
-    if (err) throw err;
-
-    // commit('verifyUserEmail');
-
-    return result;
   },
   async uploadFile({ commit }, request) {
     const [err, result] = await filesService(this.$api, request);

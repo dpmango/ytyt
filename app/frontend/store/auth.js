@@ -23,6 +23,7 @@ export const state = () => ({
     thumbnail_avatar: null,
     email_notifications: undefined,
     email_confirmed: undefined,
+    dialog: null,
   },
 });
 
