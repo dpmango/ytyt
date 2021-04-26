@@ -1,5 +1,10 @@
 <template>
-  <div class="dialog" :class="[activeDialog === dialog.id && 'is-current']" @click="$emit('setDialog', dialog.id)">
+  <div
+    class="dialog"
+    :data-id="dialog.id"
+    :class="[activeDialog === dialog.id && 'is-current']"
+    @click="$emit('setDialog', dialog.id)"
+  >
     <div class="dialog__avatar">
       <div class="dialog__avatar-image">
         <img :src="user.thumbnail_avatar" :alt="user.first_name" />

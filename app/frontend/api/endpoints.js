@@ -19,7 +19,6 @@ export default {
     search: '/api/search/',
   },
   chat: {
-    newMessage: '/api/dialogs/new-message/',
     files: '/api/files/',
   },
 };

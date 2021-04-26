@@ -39,7 +39,7 @@
           <UiSvgIcon name="menu" />
           <span>Содержание</span>
         </a>
-        <a href="#" @click.prevent="$emit('handleQuestionClick')">
+        <a v-if="user.dialog" href="#" @click.prevent="$emit('handleQuestionClick')">
           <UiSvgIcon name="question-filled" />
           <span>Задать вопрос куратору</span>
         </a>
@@ -49,6 +49,8 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
+
 export default {
   props: {
     progress: Number,
@@ -64,6 +66,9 @@ export default {
     return {
       visible: false,
     };
+  },
+  computed: {
+    ...mapGetters('auth', ['user']),
   },
   methods: {
     toggleTopicsVisibility() {
@@ -152,7 +157,7 @@ export default {
       pointer-events: none;
       .sidebar {
         &__lesson-icon {
-          background: $colorGray;
+          // background: $colorGray;
           border-color: $colorGray;
         }
         &__lesson-name {

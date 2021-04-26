@@ -153,14 +153,11 @@ export default {
 
       const { email, name, notifications, github, avatarFile } = this;
 
-      // TODO - better refactor to multiple fields
       const formatName = (str) => {
         const split = str.split(' ');
-        let [first, middle, last] = [null, null, null];
+        let [first, last] = [null, null];
 
-        if (split.length > 2) {
-          [first, middle, last] = split;
-        } else if (split.length > 1) {
+        if (split.length > 1) {
           [first, last] = split;
         } else {
           first = split;
@@ -168,7 +165,6 @@ export default {
 
         return {
           first_name: first,
-          middle_name: middle,
           last_name: last,
         };
       };
