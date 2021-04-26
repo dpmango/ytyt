@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 import os
 import environ
 import datetime
+from urllib.parse import urlparse
 
 
 SRC_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -42,6 +43,8 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'django.contrib.staticfiles',
 
+    'files',
+
     'rest_framework',
     'rest_framework.authtoken',
     'drf_yasg',
@@ -66,7 +69,7 @@ INSTALLED_APPS = [
     'constants',
     'providers',
 
-    'chat',
+    'dialogs',
 ]
 
 
@@ -123,7 +126,7 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            'hosts': [('127.0.0.1', 6379)],
+            'hosts': [(urlparse(REDIS_URL).hostname, urlparse(REDIS_URL).port)],
         },
     },
 }
@@ -195,6 +198,7 @@ LOGOUT_ON_PASSWORD_CHANGE = False
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
+DEFAULT_ADMIN_EMAIL = env('DEFAULT_ADMIN_EMAIL')
 
 MAILGUN_TOKEN = env('MAILGUN_TOKEN')
 MAILGUN_HOST = env('MAILGUN_HOST')

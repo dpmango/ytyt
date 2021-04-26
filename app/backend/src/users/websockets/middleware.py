@@ -1,4 +1,3 @@
-
 from urllib.parse import parse_qs
 
 from channels.auth import AuthMiddleware
@@ -30,6 +29,3 @@ class JWTAuthMiddleware(AuthMiddleware):
 
 def JWTAuthMiddlewareStack(inner):
     return CookieMiddleware(SessionMiddleware(JWTAuthMiddleware(inner)))
-
-
-

@@ -14,11 +14,28 @@ from sorl.thumbnail import get_thumbnail
 
 from courses.models import Course
 from courses_access.models.course import CourseAccess
+from dialogs.models import Dialog
 from users.models import User
 
 
 class UserDetailSerializer(serializers.ModelSerializer):
     thumbnail_avatar = serializers.SerializerMethodField()
+    dialog = serializers.SerializerMethodField()
+
+    @staticmethod
+    def get_dialog(obj: User):
+        """
+        Получение диалога с ревьюером. Если запрашиваемый юзер — работник сервиса, то возвращать ничего не нужно
+        :param obj: Пользователь
+        """
+        if obj.is_staff:
+            return None
+
+        dialog = obj.dialog_users_set.first()
+        if not dialog:
+            return None
+
+        return {'id': dialog.id}
 
     def get_thumbnail_avatar(self, obj: User):
         if '/media/static' in obj.avatar.url:
@@ -36,12 +53,14 @@ class UserDetailSerializer(serializers.ModelSerializer):
 
         if '/media/static' in instance.avatar.url:
             data['avatar'] = data['avatar'].replace('/media/static', '/static')
+            data['thumbnail_avatar'] = data['avatar']
 
         return data
 
     class Meta:
         model = User
         fields = (
+            'id',
             'email',
             'first_name',
             'last_name',
@@ -49,9 +68,56 @@ class UserDetailSerializer(serializers.ModelSerializer):
             'avatar',
             'thumbnail_avatar',
             'email_notifications',
-            'email_confirmed'
+            'email_confirmed',
+            'dialog'
         )
         read_only_fields = ('email', 'id')
+
+
+class UserDialogSmallDetailSerializer(UserDetailSerializer):
+    status_online = serializers.SerializerMethodField()
+
+    def get_thumbnail_avatar(self, obj: User):
+        if '/media/static' in obj.avatar.url:
+            return None
+
+        thumb = get_thumbnail(obj.avatar, '64x64', crop='center', quality=99)
+        thumb_url = thumb.url
+
+        return urljoin(settings.MEDIA_URL, thumb_url)
+
+    def to_representation(self, instance: User):
+        data = super().to_representation(instance)
+
+        # Пробрасываем корректный base_url из сокета
+        data['avatar'] = '/'.join([
+            item.lstrip('/') for item in [self.context.get('base_url'), data['avatar']]
+        ])
+        data['thumbnail_avatar'] = '/'.join([
+            item.lstrip('/') for item in [self.context.get('base_url'), data['thumbnail_avatar']]
+        ])
+
+        if '/media/static' in instance.avatar.url:
+            data['avatar'] = data['avatar'].replace('/media/static', '/static')
+            data['thumbnail_avatar'] = data['avatar']
+
+        return data
+
+    @staticmethod
+    def get_status_online(obj: User):
+        return User.objects.check_status_online(obj.id)
+
+    class Meta:
+        model = User
+        fields = (
+            'id',
+            'email',
+            'first_name',
+            'last_name',
+            'avatar',
+            'thumbnail_avatar',
+            'status_online',
+        )
 
 
 class PasswordResetSerializer(serializers.Serializer):
@@ -134,12 +200,27 @@ class PasswordChangeSerializer(rest_auth_serializers.PasswordChangeSerializer):
 
 class RegisterSerializer(rest_auth_registration_serializers.RegisterSerializer):
 
-    def save(self, request):
+    def save(self, request) -> User:
+        """
+        Измененное поведение сохранение пользователя при регистрации
+        Добавлено:
+            1. Предоставление триал-версии к первому курсу
+            2. Приставлен ревьюер-педагог
+            3. Создан диалог с педагогом
+        :param request: Объект запроса
+        """
         user = super().save(request)
 
-        # При регистрации юзера даем триал-доступ к курсу
-        course = Course.objects.first()
+        course = Course.objects.order_by('id').first()
         if course:
             CourseAccess.objects.set_trial(course, user)
+
+        educator = User.reviewers.get_less_busy_educator()
+        user.reviewer = educator
+        user.save()
+
+        dialog = Dialog.objects.create()
+        dialog.users.add(user, educator)
+        dialog.save()
 
         return user

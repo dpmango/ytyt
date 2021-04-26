@@ -1,5 +1,4 @@
 from django.db import transaction
-from rest_framework import exceptions
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -116,9 +115,8 @@ class LessonFragmentViewSet(FlexibleSerializerModelViewSetMixin,
                 # В противном случае — даем доступ к следующей теме
                 if not next_course_theme.free_access and \
                         course_access.access_type not in AccessBase.AVAILABLE_ACCESS_TYPES_FULL:
-                    raise exceptions.PermissionDenied(
-                        'Для доступа к теме `%s` вам необходимо произвести оплату' % next_course_theme.title
-                    )
+                    msg = 'Для доступа к теме `%s` вам необходимо произвести оплату' % next_course_theme.title
+                    return Response({'detail': msg}, status=status.HTTP_403_FORBIDDEN)
 
                 # Проверка на скорость прохождения курса
                 CourseThemeAccess.objects.check_learning_speed(request.user, course_access)
@@ -126,8 +124,11 @@ class LessonFragmentViewSet(FlexibleSerializerModelViewSetMixin,
                 CourseThemeAccess.objects.set_access_with_lesson(next_course_theme, user)
                 return Response({'course_id': course.id}, status=status.HTTP_202_ACCEPTED)
 
+            # Если доступной темы нет, то курс закончен.
             CourseAccess.objects.set_status(course, user, AccessBase.COURSES_STATUS_COMPLETED)
-        # Если доступной темы нет, то курс закончен
+
+        # Дополнительно удаляем ревьюера у пользователя
+        user.remove_reviewer()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def get_serializer_context(self):

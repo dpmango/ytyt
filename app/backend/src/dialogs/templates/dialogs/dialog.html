@@ -8,24 +8,28 @@
     <textarea id="chat-log" cols="100" rows="20"></textarea><br>
     <input id="chat-message-input" type="text" size="100"><br>
     <input id="chat-message-submit" type="button" value="Send">
-    {{ room_name|json_script:"room-name" }}
+    {{ room_name|json_script:"dialog_id" }}
     <script>
-        const roomName = JSON.parse(document.getElementById('room-name').textContent);
-        const token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjozMSwidXNlcm5hbWUiOiJtYXQuY29uaWFldkB5YW5kZXgucnUiLCJleHAiOjE2MTg3NDY1NDAsImVtYWlsIjoibWF0LmNvbmlhZXZAeWFuZGV4LnJ1Iiwib3JpZ19pYXQiOjE2MTg2NjAxNDB9.e7kuIZTW-iQ54JW5U1DoQFt0flCeII8QO_Oj-lqH8pY'
+        urlParams = new URLSearchParams(window.location.search);
 
+        wsProtocol = 'ws'
+        if (window.location.protocol === 'https:') {
+                wsProtocol = 'wss'
+        }
+        console.log('wsProtocol: ' + wsProtocol)
+
+        token = urlParams.get('token');
         const chatSocket = new WebSocket(
-            'ws://'
+            wsProtocol + '://'
             + window.location.host
-            + '/ws/chat/'
-            + roomName
-            + '/'
+            + '/ws/'
             + '?token=' + token
         );
 
-
         chatSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
-            document.querySelector('#chat-log').value += (data.message + '\n');
+            console.log(data);
+            {#document.querySelector('#chat-log').value += (data.message + '\n');#}
         };
 
         chatSocket.onclose = function(e) {
@@ -43,7 +47,13 @@
             const messageInputDom = document.querySelector('#chat-message-input');
             const message = messageInputDom.value;
             chatSocket.send(JSON.stringify({
-                'message': message
+                'message': message,
+                'event': 'dialogs.messages.create',
+                'dialog_id': 14,
+                {#'limit': 5,#}
+                {#'offset': 0,#}
+                {#'file_id': 8,#}
+                'body': message
             }));
             messageInputDom.value = '';
         };

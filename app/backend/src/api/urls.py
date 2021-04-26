@@ -7,11 +7,13 @@ from courses.api.course.views import CourseViewSet
 from courses.api.course_lesson.views import CourseLessonViewSet
 from courses.api.course_theme.views import CourseThemeViewSet
 from courses.api.lesson_fragment.views import LessonFragmentViewSet
+from files.api.views import FileUploadView
 from search.api.views import SearchViewSet
 from users.api.auth.views import PasswordResetView, UserDetailsView
 from users.api.registration.views import RegisterView, VerifyEmailView
 
 router = routers.DefaultRouter()
+router.register(r'files', FileUploadView, basename='files')
 router.register(r'constants', ConstantsViewSet, basename='constants')
 router.register(r'search', SearchViewSet, basename='search')
 router.register(r'courses', CourseViewSet, basename='courses')

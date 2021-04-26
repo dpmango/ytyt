@@ -7,11 +7,12 @@ from rest_framework import exceptions
 from courses.models import CourseTheme
 from courses_access.common.models import AccessManagerBase, AccessBase
 from courses_access.models.course_lesson import CourseLessonAccess
+from providers.mailgun.mixins import EmailNotificationMixin
 from users.models import User
+from django.forms.models import model_to_dict
 
 
-
-class CourseThemeAccessManager(AccessManagerBase):
+class CourseThemeAccessManager(AccessManagerBase, EmailNotificationMixin):
     """
     Базовый менеджер для работы с доступами к темам курса
     """
@@ -114,10 +115,15 @@ class CourseThemeAccessManager(AccessManagerBase):
         course_access.block_reason = AccessBase.BLOCK_REASON_FAST_PASSAGE
         course_access.save(update_fields=['status', 'block_reason'])
 
+        self.send_mail({**model_to_dict(course_access), **model_to_dict(user)})
+
         raise exceptions.PermissionDenied({
             'detail': 'Доступ к курсу временно ограничен. Пожалуйста, свяжитесь с администрацией',
             'block_reason': dict(AccessBase.BLOCK_REASONS).get(course_access.block_reason)
         })
+
+    subject_template_raw = 'У {email} был ограничен доступ к курсу'
+    email_template_raw = 'Доступ к курсу ограничен по причине {block_reason}'
 
 
 class CourseThemeAccess(AccessBase):

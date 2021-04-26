@@ -5,11 +5,11 @@ from courses.api.lesson_fragment.serializers import (
 )
 from courses.models import CourseLesson
 from courses_access.common.models import AccessBase
-from courses_access.common.serializers import AccessBaseSerializers
+from courses_access.common.serializers import AccessSerializers
 from courses_access.models import LessonFragmentAccess, CourseLessonAccess, CourseThemeAccess
 
 
-class DefaultCourseLessonSerializers(AccessBaseSerializers):
+class DefaultCourseLessonSerializers(AccessSerializers):
     class Meta:
         model = CourseLesson
         exclude = ('content', 'order', 'course_theme', 'date_updated', 'date_created')

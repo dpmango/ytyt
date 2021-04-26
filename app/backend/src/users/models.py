@@ -1,6 +1,10 @@
+import random
+import typing
+
 from django.contrib.auth.base_user import BaseUserManager, AbstractBaseUser
 from django.contrib.auth.models import Group
 from django.contrib.auth.models import PermissionsMixin
+from django.core.cache import cache
 from django.core.mail import send_mail
 from django.db import models
 from django.db.models import Q
@@ -10,6 +14,7 @@ from sorl.thumbnail import ImageField
 
 from users import permissions
 from users.mixins import ReviewersMixins
+from users.utils import method_cache_key
 
 
 class UserManager(BaseUserManager):
@@ -41,46 +46,60 @@ class UserManager(BaseUserManager):
 
         return self._create_user(email, password, **extra_fields)
 
+    @staticmethod
+    def check_status_online(user_id: int) -> bool:
+        return bool(cache.get(method_cache_key(cache_prefix='users__online', user_id=user_id)))
+
+    @staticmethod
+    def set_status_online(user_id: int) -> None:
+        cache.set(method_cache_key(cache_prefix='users__online', user_id=user_id), 1)
+
+    @staticmethod
+    def set_status_offline(user_id: int) -> None:
+        cache.set(method_cache_key(cache_prefix='users__online', user_id=user_id), 0)
+
 
 class ReviewersManager(models.Manager):
 
-    LIMIT_STUDENTS = 1
-
-    def get_less_busy_educator(self):
+    def get_less_busy_educator(self) -> typing.Optional['User']:
         """
-        Метод вернет наиболее свободного преподавателя
-        :return:
+        Метод вернет наиболее свободного преподавателя, который НЕ является обычным ревьюером
         """
-        pass
-
-    def get_less_busy(self) -> 'User':
         educator_group = Group.objects.get(pk=permissions.GROUP_EDUCATOR)
 
-        reviewers = self.filter(
-            ~Q(groups=educator_group),
-            is_active=True,
-            is_staff=True,
-        )#.prefetch_related('user_reviewers')
+        reviewers = self.filter(groups=educator_group, is_active=True, is_staff=True, reviewer__isnull=True)
+        reviewers = reviewers.prefetch_related('reviewer')
 
-        # print(self._get_reviewer(reviewers))
+        return self._hyperbolic_distribution(reviewers)
 
-        # for reviewer in reviewers:
-        #     if reviewer.user_reviewers.count() >= self.LIMIT_STUDENTS:
-        #         continue
-        #     return reviewer
+    def get_less_busy(self) -> typing.Optional['User']:
+        """
+        Метод вернет наиболее свободного ревьюера, который НЕ является преподавателем
+        """
+        educator_group = Group.objects.get(pk=permissions.GROUP_EDUCATOR)
 
-        # filter_query = ~Q(courseaccess__status=AccessStatuses.COURSES_STATUS_COMPLETED)
-        # filter_query &= Q(courseaccess__access_type__in=AccessStatuses.AVAILABLE_ACCESS_TYPES_FULL)
-        # filter_query &= Q(is_staff=False, is_active=True)
-        #
-        # user = User.objects.filter(filter_query).prefetch_related('user_reviewers')
-        # user = user.annotate(cnt=Count('lessonfragmentaccess'))
-        # user = user.order_by('-cnt', 'lessonfragmentaccess__lesson_fragment__date_updated')
-        # user = user.first()
-        #
-        #
-        # potential_reviewer = users.user_reviewers.first()
-        # print(potential_reviewer)
+        reviewers = self.filter(~Q(groups=educator_group), is_active=True, is_staff=True, reviewer__isnull=True)
+        reviewers = reviewers.prefetch_related('reviewer')
+
+        return self._hyperbolic_distribution(reviewers)
+
+    @staticmethod
+    def _hyperbolic_distribution(queryset: typing.List['User']) -> typing.Optional['User']:
+        """
+        Метод использует функцию-гиперболу для получения веса распределения для преподавателя
+        Далее происводится случайная выборка с учетом весов
+        - Чем меньше студентов у препода, тем выше вес
+        - Если у пользователя нет студентов, то ему отдается приоритет
+        :param queryset: Выборка реквьюеров
+        """
+        random.seed(timezone.now())
+
+        if len(queryset) == 0:
+            return None
+
+        hyperbola = lambda x: 1 / (x if x != 0 else .001)
+        queryset_weights = list(map(lambda reviewer: hyperbola(reviewer.user_set.count() / 10), queryset))
+        return random.choices(queryset, weights=queryset_weights)[0]
 
 
 class User(AbstractBaseUser, PermissionsMixin, ReviewersMixins):
@@ -157,3 +176,15 @@ class User(AbstractBaseUser, PermissionsMixin, ReviewersMixins):
         if self.is_superuser:
             return [permissions.GROUP_ADMINISTRATOR]
         return [group.id for group in self.groups.all()]
+
+    @property
+    def ws_key(self) -> str:
+        return 'users__%s' % self.id
+
+    def remove_reviewer(self) -> 'User':
+        """
+        Метод удаляет ревьюера у пользователя
+        """
+        self.reviewer = None
+        self.save()
+        return self

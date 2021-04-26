@@ -13,5 +13,5 @@ dockerize -wait tcp://${DB_HOST}:${DB_PORT}
 ./manage.py sync_permissions
 #./manage.py sync_db
 
-# Запуск команды
-./manage.py runserver 0.0.0.0:8000
+# Запуск
+daphne -b 0.0.0.0 -p 8000 crm.asgi:application
