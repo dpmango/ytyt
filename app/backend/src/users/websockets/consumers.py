@@ -60,7 +60,7 @@ class UserConsumer(JsonWebsocketConsumer, ConsumerEvents):
         :param kwargs: Дополнительные аргументы
         """
         event_data = self.receive_event(content, user=self.user, base_url=self.base_url, **kwargs)
-        self.push(**event_data)
+        self.push(**event_data, content=content)
 
     def disconnect(self, close_code) -> None:
         """
@@ -101,10 +101,17 @@ class UserConsumer(JsonWebsocketConsumer, ConsumerEvents):
 
                 if kwargs.get('event') in self.get_generating_notifications_events():
 
-                    # Порождаем дополнительные события для того же юзера
+                    # Порождаем дополнительное событие — количество диалогов с непрочитанными сообщениями
                     async_to_sync(self.channel_layer.group_send)(
                         user.ws_key, {'type': 'ws_send', **self.events.notifications.get_dialogs_count(user)}
                     )
+
+                    # Порождаем дополнительное событие — количество непрочитанных сообщений для каждого диалога
+                    messages_count = self.events.notifications.get_dialog_messages_count(
+                        user, **kwargs.get('content') or {}
+                    )
+                    print(user)
+                    async_to_sync(self.channel_layer.group_send)(user.ws_key, {'type': 'ws_send', **messages_count})
 
     def ws_send(self, event: dict) -> None:
         """

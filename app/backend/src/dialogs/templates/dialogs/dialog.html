@@ -48,10 +48,10 @@
             const message = messageInputDom.value;
             chatSocket.send(JSON.stringify({
                 'message': message,
-                'event': 'dialogs.messages.load',
-                'dialog_id': 2,
-                'limit': 5,
-                'offset': 0,
+                'event': 'dialogs.messages.create',
+                'dialog_id': 14,
+                {#'limit': 5,#}
+                {#'offset': 0,#}
                 {#'file_id': 8,#}
                 'body': message
             }));

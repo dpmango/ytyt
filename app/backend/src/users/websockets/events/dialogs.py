@@ -121,7 +121,8 @@ class DialogEvent(EmailNotificationMixin):
             return {'to': user, 'data': 'Не указан `message_id`', 'exception': True}
 
         dialog = Dialog.objects.filter(id=dialog_id).first()
-        if not dialog or user not in dialog.users.all():
+        dialog_users = dialog.users.all()
+        if not dialog or user not in dialog_users:
             return {'to': user, 'data': 'Диалог не принадлежит пользователю', 'exception': True}
 
         message = DialogMessage.objects.get(id=message_id)
@@ -130,7 +131,7 @@ class DialogEvent(EmailNotificationMixin):
 
         context = {'user': user, 'base_url': kwargs.get('base_url')}
         message = DefaultDialogMessageSerializers(message, context=context).data
-        return {'data': message, 'to': user}
+        return {'data': message, 'to': dialog_users}
 
     def _dialogs_messages_create(
             self, user: User, dialog_id=None, body=None, file_id=None, **kwargs) -> typing.Optional[dict]:
