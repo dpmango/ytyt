@@ -40,6 +40,7 @@
 
 <script>
 import { mapActions } from 'vuex';
+import { rebuildSocket } from '~/helpers/RebuildSocket';
 
 export default {
   data() {
@@ -61,6 +62,7 @@ export default {
       await this.login({ email, password })
         .then((_res) => {
           this.error = null;
+          rebuildSocket();
           this.$router.push('/');
         })
         .catch((err) => {

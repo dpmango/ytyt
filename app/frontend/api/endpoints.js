@@ -18,4 +18,8 @@ export default {
     complete: '/api/lessons-fragments/:id/completed/',
     search: '/api/search/',
   },
+  chat: {
+    newMessage: '/api/dialogs/new-message/',
+    files: '/api/files/',
+  },
 };

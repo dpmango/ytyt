@@ -11,6 +11,9 @@ export default {
   props: {
     error: Object,
   },
+  mouted() {
+    console.log(this.error);
+  },
 };
 </script>
 

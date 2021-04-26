@@ -13,12 +13,17 @@ export default {
   middleware: ['auth'],
   computed: {
     showConfirmationNotification() {
-      if (this.$route.name === 'Messages') {
+      if (['Messages'].includes(this.$route.name)) {
         return false;
       }
 
       return true;
     },
+  },
+  mounted() {
+    if (!this.$store.getters['chat/isConnected']) {
+      this.$store.dispatch('chat/connect');
+    }
   },
 };
 </script>

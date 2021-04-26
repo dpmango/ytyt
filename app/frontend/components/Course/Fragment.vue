@@ -10,10 +10,11 @@
           :sections-count="sectionsCount"
           :sections="sections"
           :active-section="activeSection"
-          :set-fragment="setFragment"
+          @setFragment="setFragment"
+          @handleQuestionClick="handleQuestionClick"
         />
 
-        <div class="lesson__content">
+        <div ref="content" class="lesson__content">
           <div class="lesson__box">
             <template v-if="activeSection === 0">
               <h3 class="h3-title">У вас нет доступа к этому уроку</h3>
@@ -36,11 +37,11 @@
                   class="lesson__section"
                   :class="[fragment.id === activeSection && 'is-active']"
                 >
-                  <div class="lesson__body" v-html="fragment.content"></div>
+                  <div class="lesson__body markdown-body" v-html="fragment.content"></div>
 
                   <div class="lesson__actions">
                     <UiButton @click.prevent="setNextFragment">Продолжить</UiButton>
-                    <!-- <UiButton :disabled="true" theme="outline">Задать вопрос куратору</UiButton> -->
+                    <UiButton theme="outline" @click="handleQuestionClick">Задать вопрос куратору</UiButton>
                   </div>
                 </div>
               </template>
@@ -61,6 +62,8 @@
 </template>
 
 <script>
+import { mapActions } from 'vuex';
+
 export default {
   props: {
     data: Object,
@@ -99,6 +102,11 @@ export default {
       return this.data.accessible_lesson_fragments;
     },
   },
+  watch: {
+    activeSection() {
+      this.highlightSyntax();
+    },
+  },
   created() {
     // getting current user fragment from props
     const activeFragment = this.data.accessible_lesson_fragments.find((frag) => [1, 2].includes(frag.status));
@@ -110,6 +118,9 @@ export default {
     } else {
       this.activeSection = 0;
     }
+  },
+  mounted() {
+    // this.highlightSyntax();
   },
   methods: {
     async setNextFragment() {
@@ -136,6 +147,30 @@ export default {
         this.setFragment(this.prevSectionId, 2);
       }
     },
+    highlightSyntax() {
+      if (this.$refs.content) {
+        this.$refs.content.querySelectorAll('code').forEach((block) => {
+          window.hljs.highlightElement(block);
+        });
+      }
+    },
+    async handleQuestionClick() {
+      await this.createChat({
+        body: 'У меня вопрос',
+        lesson_id: 1,
+      })
+        .then((res) => {
+          this.$router.push('/messages');
+        })
+        .catch((err) => {
+          const { data, code } = err;
+
+          if (data && code === 403) {
+            this.$toast.global.error({ message: data.detail });
+          }
+        });
+    },
+    ...mapActions('chat', ['createChat']),
   },
 };
 </script>
