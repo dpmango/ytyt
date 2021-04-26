@@ -9,6 +9,8 @@
 </template>
 
 <script>
+import { mapGetters, mapActions } from 'vuex';
+
 export default {
   middleware: ['auth'],
   computed: {
@@ -19,11 +21,23 @@ export default {
 
       return true;
     },
+    ...mapGetters('chat', ['isConnected']),
+  },
+  watch: {
+    isConnected(newVal, oldVal) {
+      if (newVal === true) {
+        this.getDialogs();
+        this.getNotificationCount();
+      }
+    },
   },
   mounted() {
-    if (!this.$store.getters['chat/isConnected']) {
-      this.$store.dispatch('chat/connect');
+    if (!this.isConnected) {
+      this.connect();
     }
+  },
+  methods: {
+    ...mapActions('chat', ['connect', 'getDialogs', 'getNotificationCount']),
   },
 };
 </script>

@@ -9,6 +9,10 @@
       </div>
 
       <div class="chat__content">
+        <div v-if="socket.error || socket.reconnectError" class="chat__error">
+          <p>{{ socket.error || 'Возникала ошибка. Попробуйте обновить' }}</p>
+          <UiButton size="small" theme="success" @click="rebuildSocket">Обновить</UiButton>
+        </div>
         <div class="chat__head">
           <ChatHead v-if="head" :click-back="handleClickBack" :head="head" />
         </div>
@@ -33,6 +37,7 @@
 import throttle from 'lodash/throttle';
 import { mapActions, mapGetters, mapMutations } from 'vuex';
 import { scrollToEnd } from '~/helpers/Scroll';
+import { rebuildSocket } from '~/helpers/RebuildSocket';
 
 export default {
   props: {},
@@ -172,10 +177,8 @@ export default {
         }
       });
     },
-    connectSocket() {
-      if (!this.isConnected) {
-        this.connect();
-      }
+    rebuildSocket() {
+      rebuildSocket(this);
     },
     scrollDialogsToBottom() {
       scrollToEnd(500, this.$refs.dialogs);
@@ -263,6 +266,27 @@ export default {
     bottom: 0;
     left: 50%;
     transform: translateX(-50%);
+  }
+  &__error {
+    position: absolute;
+    z-index: 6;
+    top: 84px;
+    left: 24px;
+    right: 24px;
+    padding: 7px 15px;
+    display: flex;
+    align-items: center;
+    border: 2px solid $colorRed;
+    background: white;
+    border-radius: 8px;
+    p {
+      font-size: 15px;
+      font-weight: 500;
+      margin: 0 10px 0 0;
+    }
+    .button {
+      margin-left: auto;
+    }
   }
 }
 

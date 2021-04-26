@@ -177,22 +177,7 @@ export const mutations = {
 export const actions = {
   connect({ commit, dispatch }, request) {
     if (Vue.prototype.$connect) {
-      return new Promise((resolve) => {
-        Vue.prototype.$connect();
-
-        this.watch(
-          (state) => {
-            return state.chat.socket.isConnected;
-          },
-          (connect) => {
-            if (connect) {
-              dispatch('getDialogs');
-              dispatch('getNotificationCount');
-              resolve(connect);
-            }
-          }
-        );
-      });
+      Vue.prototype.$connect();
     }
   },
   disconnect({ commit }, request) {
