@@ -41,7 +41,9 @@
 
                   <div class="lesson__actions">
                     <UiButton @click.prevent="setNextFragment">Продолжить</UiButton>
-                    <UiButton theme="outline" @click="handleQuestionClick">Задать вопрос куратору</UiButton>
+                    <UiButton v-if="user.dialog" theme="outline" @click="handleQuestionClick">
+                      Задать вопрос куратору
+                    </UiButton>
                   </div>
                 </div>
               </template>
@@ -62,7 +64,7 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex';
+import { mapGetters, mapActions } from 'vuex';
 
 export default {
   props: {
@@ -101,6 +103,7 @@ export default {
     fragmentVisible() {
       return this.data.accessible_lesson_fragments;
     },
+    ...mapGetters('auth', ['user']),
   },
   watch: {
     activeSection() {
@@ -154,23 +157,9 @@ export default {
         });
       }
     },
-    async handleQuestionClick() {
-      await this.createChat({
-        body: 'У меня вопрос',
-        lesson_id: 1,
-      })
-        .then((res) => {
-          this.$router.push('/messages');
-        })
-        .catch((err) => {
-          const { data, code } = err;
-
-          if (data && code === 403) {
-            this.$toast.global.error({ message: data.detail });
-          }
-        });
+    handleQuestionClick() {
+      this.$router.push(`/messages?id=${this.user.dialog.id}`);
     },
-    ...mapActions('chat', ['createChat']),
   },
 };
 </script>
