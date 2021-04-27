@@ -109,7 +109,7 @@ export const mutations = {
         break;
 
       case EVENTS.SEND_MESSAGE: {
-        if (state.activeDialog) {
+        if (state.activeDialog && data.dialog === state.activeDialog) {
           state.messages.push(data);
         }
 
@@ -129,8 +129,24 @@ export const mutations = {
         state.notificationCount = data;
         break;
 
-      case EVENTS.MESSAGES_COUNT:
+      case EVENTS.MESSAGES_COUNT: {
+        const { count, dialog_id } = data;
+
+        state.dialogs = [
+          ...state.dialogs.map((x) =>
+            x.id !== dialog_id
+              ? x
+              : {
+                  ...x,
+                  ...{
+                    unread_messages_count: count,
+                  },
+                }
+          ),
+        ];
+
         break;
+      }
 
       case EVENTS.ONLINE: {
         const { user_id, status_online } = data;
@@ -177,22 +193,7 @@ export const mutations = {
 export const actions = {
   connect({ commit, dispatch }, request) {
     if (Vue.prototype.$connect) {
-      return new Promise((resolve) => {
-        Vue.prototype.$connect();
-
-        this.watch(
-          (state) => {
-            return state.chat.socket.isConnected;
-          },
-          (connect) => {
-            if (connect) {
-              dispatch('getDialogs');
-              dispatch('getNotificationCount');
-              resolve(connect);
-            }
-          }
-        );
-      });
+      Vue.prototype.$connect();
     }
   },
   disconnect({ commit }, request) {

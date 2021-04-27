@@ -51,6 +51,7 @@ export const mutations = {
       thumbnail_avatar: null,
       email_notifications: undefined,
       email_confirmed: undefined,
+      dialog: null,
     };
 
     this.$cookies.remove('ytyt_token');
@@ -172,12 +173,16 @@ export const actions = {
 
     return result;
   },
-  async logout({ commit }) {
+  async logout({ commit, dispatch }) {
     const [err, result] = await logoutService(this.$api);
 
     if (err) throw err;
 
     commit('logOut');
+
+    dispatch('chat/disconnect', null, { root: true });
+
+    this.$router.push('/auth/login');
 
     return result;
   },

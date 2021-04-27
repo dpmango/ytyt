@@ -1,27 +1,36 @@
 import { rebuildSocket } from '~/helpers/RebuildSocket';
 
-const UPDATE_INTERVAL = 12 * 60 * 60 * 1000;
+const UPDATE_INTERVAL = 10 * 60 * 1000; // 10 mins
 
-async function refreshToken(token, store, $toast) {
-  try {
-    await store.dispatch('auth/refreshToken', { token });
-  } catch (error) {
-    store.commit('auth/logOut');
-    $toast.global.error({ message: 'Ошибка обновления токена' });
-    // throw new Error('Ошибка обновления токена');
+async function refreshToken(context) {
+  const token = context.store.state.auth.token;
+
+  console.log('refreshing token', token);
+
+  if (token) {
+    try {
+      await context.store.dispatch('auth/refreshToken', { token });
+      rebuildSocket({
+        $config: context.$config,
+        $store: context.store,
+      });
+    } catch (error) {
+      context.store.commit('auth/logOut');
+      context.$toast.global.error({ message: 'Ошибка обновления токена' });
+      // throw new Error('Ошибка обновления токена');
+    }
   }
 }
 
-export default async function ({ $axios, store, $toast, $config }, inject) {
-  const token = store.state.auth.token;
+export default function (context, inject) {
+  // if (token) {
+  //   // await refreshToken(token, store, $toast);
+  //   // rebuildSocket();
+  // }
 
-  if (token) {
-    await refreshToken(token, store, $toast);
+  // TODO - add cookies timestamps
 
-    rebuildSocket();
-
-    setInterval(async function () {
-      await refreshToken(token, store, $toast);
-    }, UPDATE_INTERVAL);
-  }
+  setInterval(() => {
+    refreshToken(context);
+  }, UPDATE_INTERVAL);
 }

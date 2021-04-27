@@ -253,14 +253,16 @@
   pre {
     font-family: SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace;
     word-wrap: normal;
-    font-size: 12px;
+    font-size: 15px;
     margin-top: 0;
     margin-bottom: 0;
-    padding: 16px;
+    padding: 12px;
     overflow: auto;
     line-height: 1.45;
     // background-color: #f6f8fa;
-    border-radius: 3px;
+    border-radius: 4px;
+    color: #383a42;
+    background: #fafafa;
 
     > code {
       display: inline;
@@ -270,7 +272,7 @@
       font-size: 100%;
       word-break: normal;
       white-space: pre;
-      background: transparent;
+      // background: transparent;
       border: 0;
       overflow: visible;
       line-height: inherit;
@@ -339,20 +341,20 @@
   }
 
 
-  .highlight {
-    margin-bottom: 16px;
+  // .highlight {
+  //   margin-bottom: 16px;
 
-    pre {
-      margin-bottom: 0;
-      word-break: normal;
-      padding: 16px;
-      overflow: auto;
-      font-size: 85%;
-      line-height: 1.45;
-      background-color: #f6f8fa;
-      border-radius: 3px;
-    }
-  }
+  //   pre {
+  //     margin-bottom: 0;
+  //     word-break: normal;
+  //     padding: 16px;
+  //     overflow: auto;
+  //     font-size: 15px;
+  //     line-height: 1.45;
+  //     background-color: #f6f8fa;
+  //     border-radius: 3px;
+  //   }
+  // }
 
   .tab-size {
     &[data-tab-size="1"] {
@@ -425,10 +427,84 @@
     }
   }
 
-  .hljs{
-    white-space: pre;
+  // atom-one-light.css
+  .hljs {
+    color: #383a42;
+    background: #fafafa;
   }
 
+  .hljs-comment,
+  .hljs-quote {
+    color: #a0a1a7;
+    font-style: italic;
+  }
+
+  .hljs-doctag,
+  .hljs-keyword,
+  .hljs-formula {
+    color: #a626a4;
+  }
+
+  .hljs-section,
+  .hljs-name,
+  .hljs-selector-tag,
+  .hljs-deletion,
+  .hljs-subst {
+    color: #e45649;
+  }
+
+  .hljs-literal {
+    color: #0184bb;
+  }
+
+  .hljs-string,
+  .hljs-regexp,
+  .hljs-addition,
+  .hljs-attribute,
+  .hljs-meta-string {
+    color: #50a14f;
+  }
+
+  .hljs-attr,
+  .hljs-variable,
+  .hljs-template-variable,
+  .hljs-type,
+  .hljs-selector-class,
+  .hljs-selector-attr,
+  .hljs-selector-pseudo,
+  .hljs-number {
+    color: #986801;
+  }
+
+  .hljs-symbol,
+  .hljs-bullet,
+  .hljs-link,
+  .hljs-meta,
+  .hljs-selector-id,
+  .hljs-title {
+    color: #4078f2;
+  }
+
+  .hljs-built_in,
+  .hljs-title.class_,
+  .hljs-class .hljs-title {
+    color: #c18401;
+  }
+
+  .hljs-emphasis {
+    font-style: italic;
+  }
+
+  .hljs-strong {
+    font-weight: bold;
+  }
+
+  .hljs-link {
+    text-decoration: underline;
+  }
+
+
+  // dark theme
   &.dark{
     color: white;
     h1, h2 {
@@ -443,6 +519,91 @@
     // }
     hr{
       background-color: rgba(white, .3);
+    }
+
+    pre {
+      color: #abb2bf;
+      background: #282c34;
+    }
+
+    table {
+      td, th {
+        border: 1px solid darken(#282c34, 10%);
+      }
+
+      tr {
+        background-color:#282c34;
+        border-top: 1px solid darken(#282c34, 10%);
+
+        &:nth-child(2n) {
+          background-color: darken(#282c34, 5%);
+        }
+      }
+    }
+
+
+    // highlight.js/styles/atom-one-dark.css
+    .hljs {
+      color: #abb2bf;
+      background: #282c34;
+    }
+
+    .hljs-comment,
+    .hljs-quote {
+      color: #5c6370;
+      font-style: italic;
+    }
+
+    .hljs-doctag,
+    .hljs-keyword,
+    .hljs-formula {
+      color: #c678dd;
+    }
+
+    .hljs-section,
+    .hljs-name,
+    .hljs-selector-tag,
+    .hljs-deletion,
+    .hljs-subst {
+      color: #e06c75;
+    }
+
+    .hljs-literal {
+      color: #56b6c2;
+    }
+
+    .hljs-string,
+    .hljs-regexp,
+    .hljs-addition,
+    .hljs-attribute,
+    .hljs-meta-string {
+      color: #98c379;
+    }
+
+    .hljs-attr,
+    .hljs-variable,
+    .hljs-template-variable,
+    .hljs-type,
+    .hljs-selector-class,
+    .hljs-selector-attr,
+    .hljs-selector-pseudo,
+    .hljs-number {
+      color: #d19a66;
+    }
+
+    .hljs-symbol,
+    .hljs-bullet,
+    .hljs-link,
+    .hljs-meta,
+    .hljs-selector-id,
+    .hljs-title {
+      color: #61aeee;
+    }
+
+    .hljs-built_in,
+    .hljs-title.class_,
+    .hljs-class .hljs-title {
+      color: #e6c07b;
     }
 
   }

@@ -62,7 +62,7 @@ export default {
       await this.login({ email, password })
         .then((_res) => {
           this.error = null;
-          rebuildSocket();
+          rebuildSocket(this);
           this.$router.push('/');
         })
         .catch((err) => {

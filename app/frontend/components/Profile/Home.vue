@@ -219,8 +219,6 @@ export default {
       await this.logout()
         .then((res) => {
           this.$toast.global.success({ message: res.detail });
-
-          this.$router.push('/auth/login');
         })
         .catch((_err) => {});
     },
