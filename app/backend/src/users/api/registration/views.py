@@ -40,6 +40,7 @@ class VerifyEmailView(CreateAPIView, UpdateAPIView, EmailNotificationMixin):
     """
     Класс для подтверждения email авторизованного пользователя
     """
+    http_method_names = ['get', 'post', 'patch', 'delete', 'head', 'options', 'trace']
 
     serializer_class = VerifyEmailSerializer
     permission_classes = (IsAuthenticated, )

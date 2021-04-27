@@ -109,7 +109,7 @@ class UserConsumer(JsonWebsocketConsumer, ConsumerEvents):
                     )
 
                     # Порождаем дополнительное событие — количество непрочитанных сообщений для каждого диалога
-                    messages_count = self.events.notifications.get_dialog_messages_count(user, content)
+                    messages_count = self.events.notifications.get_dialog_messages_count(user, **content)
                     async_to_sync(self.channel_layer.group_send)(user.ws_key, {'type': 'ws_send', **messages_count})
 
     def ws_send(self, event: dict) -> None:
