@@ -132,13 +132,18 @@ export default {
     color: rgba(#171818, 0.5);
   }
   &__description {
-    display: flex;
     font-size: 14px;
     color: rgba($fontColor, 0.7);
     @include text-overflow;
-    ::v-deep * {
-      margin: 0 6px 0 0;
-      @include text-overflow;
+    ::v-deep > * {
+      display: none;
+      &:first-child {
+        display: block;
+        font-size: 15px !important;
+        margin: 0 !important;
+        font-weight: 400 !important;
+        @include text-overflow;
+      }
     }
   }
 }
