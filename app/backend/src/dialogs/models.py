@@ -1,11 +1,11 @@
-from bs4 import BeautifulSoup
 from django.db import models
 from markdownx.models import MarkdownxField
+from markdownx.utils import markdownify
 
 from courses.models import CourseLesson
+from courses.utils import html_to_text
 from files.models import File
 from users.models import User
-from markdownx.utils import markdownify
 
 
 class Dialog(models.Model):
@@ -18,10 +18,6 @@ class Dialog(models.Model):
         related_name="dialog_users_set",
         related_query_name="dialog_users",
     )
-
-    @property
-    def ws_key(self) -> str:
-        return 'dialog__%s' % self.id
 
 
 class DialogMessage(models.Model):
@@ -37,8 +33,8 @@ class DialogMessage(models.Model):
     class Meta:
         ordering = ('date_created', )
 
-    def get_body(self):
+    def get_body(self) -> str:
         return markdownify(self.body)
 
-    def get_text_body(self):
-        return ''.join(BeautifulSoup(self.get_body(), features='html.parser').findAll(text=True))
+    def get_text_body(self) -> str:
+        return html_to_text(self.get_body())

@@ -1,7 +1,8 @@
-from bs4 import BeautifulSoup
 from django.db import models
 from markdownx.models import MarkdownxField
 from markdownx.utils import markdownify
+
+from courses.utils import html_to_text
 
 
 class CourseBase(models.Model):
@@ -74,8 +75,8 @@ class LessonFragment(models.Model):
         return '%s' % self.title[:30]
 
     def get_content(self) -> str:
-        return markdownify(self.content)  # TODO: Проверить наличие ошибки при пустом описании
+        return markdownify(self.content)
 
-    def get_text_content(self):
-        return ''.join(BeautifulSoup(self.content(), features='html.parser').findAll(text=True))
+    def get_text_content(self) -> str:
+        return html_to_text(self.content())
 
