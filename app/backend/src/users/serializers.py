@@ -199,7 +199,7 @@ class PasswordChangeSerializer(rest_auth_serializers.PasswordChangeSerializer):
 
 
 class RegisterSerializer(rest_auth_registration_serializers.RegisterSerializer):
-    first_name = serializers.CharField(required=False)
+    first_name = serializers.CharField(required=True)
     last_name = serializers.CharField(required=False)
 
     def get_cleaned_data(self):
