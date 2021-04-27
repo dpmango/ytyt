@@ -41,7 +41,7 @@ export default {
         .then((res) => {
           this.error = null;
           this.verified = true;
-          this.$toast.global.success({ message: res.detail });
+          this.$toast.global.default({ message: res.detail });
           this.$router.push('/');
         })
         .catch((err) => {

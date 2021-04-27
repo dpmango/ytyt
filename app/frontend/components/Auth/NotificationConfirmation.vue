@@ -1,12 +1,10 @@
 <template>
   <div v-if="!user.email_confirmed" class="notification">
-    <div class="container">
-      <div class="notification__wrapper">
-        <span class="notification__message">Пожалуйста подтвердите адрес почты</span>
-        <div class="notification__cta">
-          <UiButton theme="success" size="small">Отправить снова</UiButton>
-        </div>
-      </div>
+    <div class="notification__wrapper">
+      <span class="notification__message">
+        Пожалуйста подтвердите адрес электронной почты,
+        <a class="notification__cta" @click="handleClick"> отправить ссылку еще раз </a>
+      </span>
     </div>
   </div>
 </template>
@@ -18,7 +16,11 @@ export default {
   computed: {
     ...mapGetters('auth', ['user']),
   },
-  methods: {},
+  methods: {
+    handleClick() {
+      alert('Нужен метод на API');
+    },
+  },
 };
 </script>
 
@@ -29,21 +31,30 @@ export default {
   &__wrapper {
     display: flex;
     align-items: center;
-    border-radius: 8px;
-    margin: 16px 0 8px;
-    border: 1px solid $colorRed;
-    background: rgba($colorRed, 0.05);
-    text-align: center;
-    padding: 7px 15px;
+    border-radius: 0;
+    margin: 0;
+    background: rgba($colorRed, 0.1);
+    padding: 10px 32px;
   }
   &__message {
-    font-size: 14px;
-    font-weight: 500;
-    padding-right: 20px;
+    font-size: 15px;
   }
   &__cta {
-    flex: 0 0 auto;
-    margin-left: auto;
+    color: $colorPrimary;
+    transition: color 0.25s $ease;
+    cursor: pointer;
+    &:hover {
+      color: $fontColor;
+    }
+  }
+}
+
+@include r($sm) {
+  .notification {
+    &__wrapper {
+      padding-left: 16px;
+      padding-right: 16px;
+    }
   }
 }
 </style>

@@ -80,6 +80,6 @@ export default {
   },
 
   toast: {
-    position: 'top-right',
+    position: 'bottom-right',
   },
 };

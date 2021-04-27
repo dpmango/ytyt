@@ -134,7 +134,7 @@ export default {
     }
   }
   &.outline {
-    color: $fontColor;
+    color: $colorPrimary;
     background: transparent;
     border-color: $colorPrimary;
     &:hover,

@@ -2,16 +2,22 @@
   &.toast{
     &.top-right{
       top: 0;
-      right: 20px;
+      right: 16px;
+    }
+    &.bottom-right{
+      bottom: 16px;
+      right: 16px;
     }
 
     .toasted{
-      border-radius: 6px;
+      background-color: #171818;
+      box-shadow: 0 6px 24px -4px rgba(23, 24, 24, 0.1);
+      border-radius: 8px;
       min-height: 1px;
       line-height: 1.5;
-      padding: 8px 20px;
+      padding: 14px 16px;
       margin-top: 8px;
-      font-size: 14px;
+      font-size: 15px;
       font-weight: 400;
 
       &.success{
