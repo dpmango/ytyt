@@ -9,6 +9,10 @@
       </div>
 
       <div class="chat__content">
+        <div v-if="socket.error || socket.reconnectError" class="chat__error">
+          <p>{{ socket.error || 'Возникала ошибка. Попробуйте обновить' }}</p>
+          <UiButton size="small" theme="success" @click="rebuildSocket">Обновить</UiButton>
+        </div>
         <div class="chat__head">
           <ChatHead v-if="head" :click-back="handleClickBack" :head="head" />
         </div>
@@ -19,7 +23,7 @@
           <ChatMessages :messages="messages" />
         </div>
         <div class="chat__submit">
-          <ChatSubmit v-if="head" />
+          <ChatSubmit v-if="head" @onSubmit="scrollDialogsToBottom" />
         </div>
       </div>
     </div>
@@ -33,6 +37,7 @@
 import throttle from 'lodash/throttle';
 import { mapActions, mapGetters, mapMutations } from 'vuex';
 import { scrollToEnd } from '~/helpers/Scroll';
+import { rebuildSocket } from '~/helpers/RebuildSocket';
 
 export default {
   props: {},
@@ -64,19 +69,18 @@ export default {
   },
   watch: {
     messages() {
-      const { scrollHeight, offsetHeight } = this.$refs.sidebar;
+      const { scrollTop, scrollHeight, offsetHeight } = this.$refs.dialogs;
+      const scrollBottom = scrollHeight - scrollTop - offsetHeight;
 
-      scrollToEnd(500, this.$refs.dialogs);
+      // prevent scrolling if user reading prev. messages or new messages loaded on 'up' scroll
+      if (scrollBottom <= 50) {
+        scrollToEnd(500, this.$refs.dialogs);
+      }
 
-      // check read if no scroll height (scroll event wont be triggered)
+      // check read status if no scroll height (scroll event wont be triggered)
       if (scrollHeight <= offsetHeight) {
         this.readMessages();
       }
-    },
-    activeDialog() {
-      setTimeout(() => {
-        scrollToEnd(0, this.$refs.dialogs);
-      }, 200);
     },
   },
   created() {
@@ -95,10 +99,6 @@ export default {
     if (this.$route.query && this.$route.query.id && this.isConnected) {
       this.setDialog(parseInt(this.$route.query.id));
     }
-
-    // if (!this.isConnected) {
-    //   this.connect();
-    // }
   },
   beforeDestroy() {
     if (this.$refs.sidebar) {
@@ -108,15 +108,14 @@ export default {
     if (this.$refs.dialogs) {
       this.$refs.dialogs.removeEventListener('scroll', this.scrollDialogsWithThrottle, false);
     }
-
-    // if (this.isConnected) {
-    //   this.disconnect();
-    // }
   },
   methods: {
-    setDialog(id) {
-      this.getMessages({ id });
+    async setDialog(id) {
+      await this.getMessages({ id });
       this.setActiveDialog(id);
+      setTimeout(() => {
+        scrollToEnd(0, this.$refs.dialogs);
+      }, 200);
     },
     handleClickBack() {
       this.resetMessages();
@@ -177,6 +176,12 @@ export default {
           });
         }
       });
+    },
+    rebuildSocket() {
+      rebuildSocket(this);
+    },
+    scrollDialogsToBottom() {
+      scrollToEnd(500, this.$refs.dialogs);
     },
     ...mapActions('chat', ['connect', 'disconnect', 'getDialogs', 'getMessages', 'readMessage']),
     ...mapMutations('chat', ['setActiveDialog', 'resetMessages']),
@@ -261,6 +266,27 @@ export default {
     bottom: 0;
     left: 50%;
     transform: translateX(-50%);
+  }
+  &__error {
+    position: absolute;
+    z-index: 6;
+    top: 84px;
+    left: 24px;
+    right: 24px;
+    padding: 7px 15px;
+    display: flex;
+    align-items: center;
+    border: 2px solid $colorRed;
+    background: white;
+    border-radius: 8px;
+    p {
+      font-size: 15px;
+      font-weight: 500;
+      margin: 0 10px 0 0;
+    }
+    .button {
+      margin-left: auto;
+    }
   }
 }
 

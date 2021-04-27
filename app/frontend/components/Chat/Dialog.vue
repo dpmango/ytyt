@@ -13,8 +13,8 @@
     <div class="dialog__content">
       <div class="dialog__title">
         <span class="dialog__title-name">{{ title }}</span>
-        <div class="dialog__indicator">
-          <span>{{ 'tbd' }}</span>
+        <div v-if="dialog.unread_messages_count" class="dialog__indicator">
+          <span>{{ dialog.unread_messages_count }}</span>
         </div>
         <div class="dialog__time">{{ timestamp }}</div>
       </div>
@@ -135,8 +135,15 @@ export default {
     font-size: 14px;
     color: rgba($fontColor, 0.7);
     @include text-overflow;
-    ::v-deep p {
-      margin: 0;
+    ::v-deep > * {
+      display: none;
+      &:first-child {
+        display: block;
+        font-size: 15px !important;
+        margin: 0 !important;
+        font-weight: 400 !important;
+        @include text-overflow;
+      }
     }
   }
 }

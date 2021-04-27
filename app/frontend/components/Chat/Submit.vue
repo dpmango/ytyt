@@ -59,6 +59,7 @@ export default {
 
         this.text = '';
         this.simplemde.value('');
+        this.$emit('onSubmit');
         // this.simplemde.codemirror.refresh();
       }
     },

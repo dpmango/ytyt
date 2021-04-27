@@ -12,7 +12,6 @@ export const mutations = {
 
 // https://github.com/nathantsoi/vue-native-websocket
 export default function ({ store, $config }, inject) {
-  // TODO - will not handle refresh updates?
   if (store.state.auth.token) {
     const socketWithToken = `${$config.socketURL}?token=${store.state.auth.token}`;
     Vue.use(VueNativeSock, socketWithToken, {
