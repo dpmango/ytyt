@@ -14,6 +14,8 @@ export const rebuildSocket = ({ $config, $store }) => {
 
   const socketWithToken = `${$config.socketURL}?token=${$store.state.auth.token}`;
 
+  console.log('rebuilding socket - new URL', socketWithToken);
+
   Vue.use(VueNativeSock, socketWithToken, {
     store: $store,
     mutations,

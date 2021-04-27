@@ -66,9 +66,13 @@ export default {
     padding-right: 12px;
     padding-top: 7px;
     margin-right: 24px;
+    color: $colorGray;
+    transition: color 0.25s $ease;
     .svg-icon {
       font-size: 18px;
-      color: $colorGray;
+    }
+    &:hover {
+      color: $fontColor;
     }
   }
   &__messages-count {

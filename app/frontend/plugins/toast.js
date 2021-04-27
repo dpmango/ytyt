@@ -1,5 +1,3 @@
-/* eslint-disable no-console */
-
 export default function ({ $toast }, inject) {
   // options to the toast
   const options = {
