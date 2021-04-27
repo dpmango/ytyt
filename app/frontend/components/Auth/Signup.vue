@@ -10,6 +10,25 @@
       <ValidationObserver ref="form" v-slot="{ invalid }" tag="form" class="login__form" @submit.prevent="handleSubmit">
         <UiError :error="error" />
 
+        <ValidationProvider v-slot="{ errors }" rules="required">
+          <UiInput
+            :value="firstName"
+            theme="dynamic"
+            name="firstName"
+            label="Имя"
+            type="text"
+            :error="errors[0]"
+            @onChange="(v) => (firstName = v)"
+          />
+        </ValidationProvider>
+        <UiInput
+          :value="lastName"
+          theme="dynamic"
+          name="lastName"
+          label="Фамилия"
+          type="text"
+          @onChange="(v) => (lastName = v)"
+        />
         <ValidationProvider v-slot="{ errors }" rules="email|required">
           <UiInput
             :value="email"
@@ -51,10 +70,13 @@
 
 <script>
 import { mapActions } from 'vuex';
+import { rebuildSocket } from '~/helpers/RebuildSocket';
 
 export default {
   data() {
     return {
+      firstName: null,
+      lastName: null,
       email: null,
       password: null,
       passwordConfirm: null,
@@ -68,11 +90,18 @@ export default {
       if (!isValid) {
         return;
       }
-      const { email, password, passwordConfirm } = this;
-      await this.signup({ email, password1: password, password2: passwordConfirm })
+      const { firstName, lastName, email, password, passwordConfirm } = this;
+      await this.signup({
+        first_name: firstName,
+        last_name: lastName,
+        email,
+        password1: password,
+        password2: passwordConfirm,
+      })
         .then((_res) => {
           this.verifyPost();
           this.error = null;
+          rebuildSocket(this);
           this.$router.push('/');
         })
         .catch((err) => {
