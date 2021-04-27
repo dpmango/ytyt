@@ -40,3 +40,5 @@ services:
       bash -c "
       dockerize -wait tcp://redis:6379
       celery -A crm worker --loglevel=DEBUG"
+    depends_on:
+      - backend
