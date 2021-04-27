@@ -129,8 +129,24 @@ export const mutations = {
         state.notificationCount = data;
         break;
 
-      case EVENTS.MESSAGES_COUNT:
+      case EVENTS.MESSAGES_COUNT: {
+        const { count, dialog_id } = data;
+
+        state.dialogs = [
+          ...state.dialogs.map((x) =>
+            x.id !== dialog_id
+              ? x
+              : {
+                  ...x,
+                  ...{
+                    unread_messages_count: count,
+                  },
+                }
+          ),
+        ];
+
         break;
+      }
 
       case EVENTS.ONLINE: {
         const { user_id, status_online } = data;
