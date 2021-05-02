@@ -42,13 +42,19 @@ export default {
           this.error = null;
           this.verified = true;
           this.$toast.global.default({ message: res.detail });
-          this.$router.push('/');
+          setTimeout(() => {
+            this.$router.push('/');
+          }, 500);
         })
         .catch((err) => {
           const { data, code } = err;
 
-          this.error = data;
-          this.$toast.global.error({ message: data });
+          if (data && code === 400) {
+            Object.keys(data).forEach((key) => {
+              this.error = data[key][0];
+              this.$toast.global.error({ message: data[key][0] });
+            });
+          }
         });
     },
     ...mapActions('auth', ['verifyGet']),

@@ -1,24 +1,27 @@
+const auth = '/rest-auth';
+const api = '/api';
+
 export default {
   auth: {
-    user: '/rest-auth/user/',
-    login: '/rest-auth/login/',
-    logout: '/rest-auth/logout/',
-    registration: '/rest-auth/registration/',
-    refreshToken: '/rest-auth/token-refresh/',
-    verifyEmail: '/rest-auth/registration/verify-email/',
-    passwordChange: '/rest-auth/password/change/',
-    passwordReset: '/rest-auth/password/reset/',
-    passwordResetConfirm: '/rest-auth/password/reset/confirm/',
+    user: `${auth}/user/`,
+    login: `${auth}/login/`,
+    logout: `${auth}/logout/`,
+    registration: `${auth}/registration/`,
+    verifyEmail: `${auth}/registration/verify/`,
+    refreshToken: `${auth}/token-refresh/`,
+    passwordChange: `${auth}/password/change/`,
+    passwordReset: `${auth}/password/reset/`,
+    passwordResetConfirm: `${auth}/password/reset/confirm/`,
   },
   course: {
-    courses: '/api/courses/',
-    themes: '/api/courses/:id/themes/',
-    lessons: '/api/courses/:course_id/themes/:theme_id/lessons/',
-    lesson: '/api/courses/:course_id/themes/:theme_id/lessons/:fragment_id/',
-    complete: '/api/lessons-fragments/:id/completed/',
-    search: '/api/search/',
+    courses: `${api}/courses/`,
+    themes: `${api}/courses/:id/themes/`,
+    lessons: `${api}/courses/:course_id/themes/:theme_id/lessons/`,
+    lesson: `${api}/courses/:course_id/themes/:theme_id/lessons/:fragment_id/`,
+    complete: `${api}/lessons-fragments/:id/completed/`,
+    search: `${api}/search/`,
   },
   chat: {
-    files: '/api/files/',
+    files: `${api}/files/`,
   },
 };

@@ -10,7 +10,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
+import { mapActions, mapGetters } from 'vuex';
 
 export default {
   computed: {
@@ -18,8 +18,15 @@ export default {
   },
   methods: {
     handleClick() {
-      alert('Нужен метод на API');
+      this.verifyPost()
+        .then((res) => {
+          this.$toast.global.default({ message: res.detail });
+        })
+        .catch((err) => {
+          this.$toast.global.error({ message: err.data });
+        });
     },
+    ...mapActions('auth', ['verifyPost']),
   },
 };
 </script>
