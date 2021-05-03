@@ -13,7 +13,7 @@ from rest_framework.exceptions import ValidationError
 from sorl.thumbnail import get_thumbnail
 
 from courses.models import Course
-from courses_access.models.course import CourseAccess
+from courses_access.models import Access
 from dialogs.models import Dialog
 from users.models import User
 
@@ -222,7 +222,10 @@ class RegisterSerializer(rest_auth_registration_serializers.RegisterSerializer):
 
         course = Course.objects.order_by('id').first()
         if course:
-            CourseAccess.objects.set_trial(course, user)
+
+            access, created = Access.objects.get_or_create(user=user, course=course)
+            if created:
+                access.set_trial()
 
         educator = User.reviewers.get_less_busy_educator()
         user.reviewer = educator

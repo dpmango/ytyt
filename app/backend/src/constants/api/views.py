@@ -2,7 +2,7 @@ from rest_framework import viewsets
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
-from courses_access.common.models import AccessStatuses
+from courses_access.models import Access
 from users.models import User
 from users.websockets.events import DialogEvent, InsidePlatformNotificationEvent, UserEvent
 
@@ -67,8 +67,8 @@ class ConstantsViewSet(viewsets.ViewSet):
         ```
         """
         return Response(self.export_constants([
-            [AccessStatuses, 'COURSES_STATUS_', 'COURSES_STATUSES'],
-            [AccessStatuses, 'COURSE_ACCESS_TYPE_', 'COURSE_ACCESS_TYPES'],
+            [Access, 'STATUS_', 'STATUSES'],
+            [Access, 'COURSE_ACCESS_TYPE_', 'COURSE_ACCESS_TYPES'],
             [User, 'GENDER_', 'GENDERS'],
             [UserEvent, 'EVENT_', 'EVENTS'],
             [DialogEvent, 'EVENT_', 'EVENTS'],

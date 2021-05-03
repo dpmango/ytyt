@@ -1,8 +1,8 @@
-from rest_framework import serializers
-from courses_access.models import CourseAccess, CourseThemeAccess, CourseLessonAccess, LessonFragmentAccess
-from courses_access.common.models import AccessBase
-from courses.models import Course, CourseTheme, CourseLesson
 from django.contrib.auth.models import AnonymousUser
+from rest_framework import serializers
+
+from courses_access.models import Access
+from courses_access.utils import get_course_from_struct
 
 
 class AccessBaseSerializers(serializers.ModelSerializer):
@@ -11,13 +11,6 @@ class AccessBaseSerializers(serializers.ModelSerializer):
     """
     status = serializers.SerializerMethodField()
 
-    MAPPING_ACCESS = {
-        'CourseAccess': CourseAccess,
-        'CourseThemeAccess': CourseThemeAccess,
-        'CourseLessonAccess': CourseLessonAccess,
-        'LessonFragmentAccess': LessonFragmentAccess,
-    }
-
     def get_status(self, obj) -> int:
         """
         Метод вернет информацию о доустпе к курсу
@@ -25,13 +18,14 @@ class AccessBaseSerializers(serializers.ModelSerializer):
         :param obj: Объект из courses-app
         """
         user = self.context.get('user')
-        if not user or isinstance(user, AnonymousUser):
-            return AccessBase.COURSES_STATUS_BLOCK
-        return self.get_model_access(obj).objects.get_status(obj, user=user)
+        course_id = get_course_from_struct(obj)
 
-    @classmethod
-    def get_model_access(cls, obj):
-        return cls.MAPPING_ACCESS.get(obj.__class__.__name__ + 'Access')
+        access = Access.objects.filter(course_id=course_id, user=user).first()
+
+        if not user or isinstance(user, AnonymousUser) or not access:
+            return Access.STATUS_BLOCK
+
+        return access.get_status(obj.__class__.__name__, obj.pk)
 
 
 class AccessSerializers(AccessBaseSerializers):
@@ -44,20 +38,11 @@ class AccessSerializers(AccessBaseSerializers):
         """
         user = self.context.get('user')
         if not user or isinstance(user, AnonymousUser):
-            return AccessBase.COURSE_ACCESS_TYPE_NONE
+            return Access.COURSE_ACCESS_TYPE_NONE
 
-        course_id = None
-        if isinstance(obj, Course):
-            course_id = obj.id
+        course_id = get_course_from_struct(obj)
+        access = Access.objects.filter(user=user, course_id=course_id).first()
 
-        elif isinstance(obj, CourseTheme):
-            course_id = obj.course_id
-
-        elif isinstance(obj, CourseLesson):
-            course_id = obj.course_theme.course_id
-
-        course_access = CourseAccess.objects.filter(user=user, course_id=course_id).first()
-
-        if course_access is None:
-            return AccessBase.COURSE_ACCESS_TYPE_NONE
-        return course_access.access_type
+        if access is None:
+            return Access.COURSE_ACCESS_TYPE_NONE
+        return access.access_type

@@ -8,5 +8,3 @@ def html_to_text(content: str) -> str:
     :return: Очищенный текст
     """
     return ''.join(BeautifulSoup(content, features='html.parser').findAll(text=True))
-
-

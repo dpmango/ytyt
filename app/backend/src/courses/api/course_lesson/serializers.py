@@ -4,9 +4,10 @@ from courses.api.lesson_fragment.serializers import (
     DetailLessonFragmentSerializers, DefaultLessonFragmentSerializers
 )
 from courses.models import CourseLesson
-from courses_access.common.models import AccessBase
+from courses.models import LessonFragment
 from courses_access.common.serializers import AccessSerializers
-from courses_access.models import LessonFragmentAccess, CourseLessonAccess, CourseThemeAccess
+from courses_access.models import Access
+from courses_access.utils import get_course_from_struct
 
 
 class DefaultCourseLessonSerializers(AccessSerializers):
@@ -25,13 +26,17 @@ class DetailCourseLessonSerializers(DefaultCourseLessonSerializers):
         Метод вернет все доступные фрагменты курса для пользователя
         :param obj: CourseLesson
         """
-        access_fragments = LessonFragmentAccess.objects.filter(
-            lesson_fragment__course_lesson=obj, user=self.context.get('user')
-        )
-        access_fragments = access_fragments.distinct('lesson_fragment__id').order_by('lesson_fragment__id')
-        access_fragments = access_fragments.select_related('lesson_fragment')
-        access_fragments = [f.lesson_fragment for f in access_fragments]
+        course_id = get_course_from_struct(obj)
+        user = self.context.get('user')
 
+        access = Access.objects.filter(course_id=course_id, user=user).first()
+        if not access:
+            return []
+
+        accessible_objects = access.get_accessible_objects(to_struct=obj.__class__.__name__)
+        accessible_objects = [item.pk for item in accessible_objects]
+
+        access_fragments = LessonFragment.objects.filter(pk__in=accessible_objects, course_lesson=obj)
         return DetailLessonFragmentSerializers(access_fragments, many=True, context=self.context).data
 
     def get_progress(self, obj: CourseLesson) -> float:
@@ -40,11 +45,12 @@ class DetailCourseLessonSerializers(DefaultCourseLessonSerializers):
         :param obj: CourseLesson
         """
         user = self.context.get('user')
+        course_id = get_course_from_struct(obj)
 
         fragments = obj.lessonfragment_set.count()
-        completed_fragments = LessonFragmentAccess.objects.filter(
-            status=AccessBase.COURSES_STATUS_COMPLETED, lesson_fragment__course_lesson=obj, user=user,
-        ).count()
+        completed_fragments = Access.objects.count_by_status(
+            to_struct=obj.__class__.__name__, course_id=course_id, user_id=user.id
+        )
 
         return completed_fragments / fragments * 100
 
@@ -55,16 +61,19 @@ class DetailCourseLessonSerializers(DefaultCourseLessonSerializers):
         :param instance: CourseLesson
         """
         user = self.context.get('user')
-        course_access = CourseLessonAccess.objects.filter(user=user, course_lesson=instance).first()
+        course_id = get_course_from_struct(instance)
+        access = Access.objects.filter(course_id=course_id, user=user).first()
 
-        if course_access and course_access.status == AccessBase.COURSES_STATUS_AVAILABLE:
-            course_access.status = AccessBase.COURSES_STATUS_IN_PROGRESS
-            course_access.save(update_fields=['status'])
+        if access is not None:
+            access.change_status(to_struct='course_lesson',
+                                 pk=instance.pk,
+                                 from_status=Access.STATUS_AVAILABLE,
+                                 to_status=Access.STATUS_IN_PROGRESS)
 
-        theme_access = CourseThemeAccess.objects.filter(user=user, course_theme=instance.course_theme).first()
-        if theme_access and theme_access.status == AccessBase.COURSES_STATUS_AVAILABLE:
-            theme_access.status = AccessBase.COURSES_STATUS_IN_PROGRESS
-            theme_access.save(update_fields=['status'])
+            access.change_status(to_struct='course_theme',
+                                 pk=instance.pk,
+                                 from_status=Access.STATUS_AVAILABLE,
+                                 to_status=Access.STATUS_IN_PROGRESS)
 
         return super().to_representation(instance)
 

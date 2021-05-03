@@ -1,9 +1,9 @@
 from rest_framework import serializers
 
 from courses.models import LessonFragment
-from courses_access.common.models import AccessBase
 from courses_access.common.serializers import AccessBaseSerializers
-from courses_access.models import LessonFragmentAccess
+from courses_access.models import Access
+from courses_access.utils import get_course_from_struct
 
 
 class DefaultLessonFragmentSerializers(AccessBaseSerializers):
@@ -28,9 +28,11 @@ class DetailLessonFragmentSerializers(AccessBaseSerializers):
         user = self.context.get('user')
 
         fragments = obj.course_lesson.lessonfragment_set.count()
-        completed_fragments = LessonFragmentAccess.objects.filter(
-            status=AccessBase.COURSES_STATUS_COMPLETED, lesson_fragment__course_lesson=obj.course_lesson, user=user,
-        ).count()
+        course_id = get_course_from_struct(obj)
+
+        completed_fragments = Access.objects.count_by_status(
+            to_struct=obj.__class__.__name__, user_id=user.id, course_id=course_id
+        )
 
         return completed_fragments / fragments * 100
 
@@ -41,11 +43,14 @@ class DetailLessonFragmentSerializers(AccessBaseSerializers):
         :param instance: LessonFragment
         """
         user = self.context.get('user')
-        access_fragment = LessonFragmentAccess.objects.filter(lesson_fragment=instance, user=user).first()
+        course_id = get_course_from_struct(instance)
+        access = Access.objects.filter(user=user, course_id=course_id).first()
 
-        if access_fragment and access_fragment.status == AccessBase.COURSES_STATUS_AVAILABLE:
-            access_fragment.status = AccessBase.COURSES_STATUS_IN_PROGRESS
-            access_fragment.save(update_fields=['status'])
+        if access is not None:
+            access.change_status(to_struct=instance.__class__.__name__,
+                                 pk=instance.pk,
+                                 from_status=Access.STATUS_AVAILABLE,
+                                 to_status=Access.STATUS_IN_PROGRESS)
 
         return super().to_representation(instance)
 

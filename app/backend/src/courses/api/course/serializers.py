@@ -3,9 +3,8 @@ from django.db.models import Count
 from rest_framework import serializers
 
 from courses.models import Course
-from courses_access.common.models import AccessBase
 from courses_access.common.serializers import AccessSerializers
-from courses_access.models import CourseThemeAccess, CourseLessonAccess
+from courses_access.models import Access
 
 
 class DefaultCourseSerializers(AccessSerializers):
@@ -33,9 +32,10 @@ class DefaultCourseSerializers(AccessSerializers):
         user = self.context.get('user')
         if not user or isinstance(user, AnonymousUser):
             return 0
-        return CourseLessonAccess.objects.filter(
-            user=user, course_lesson__course_theme__course=obj, status=AccessBase.COURSES_STATUS_COMPLETED
-        ).count()
+
+        return Access.objects.count_by_status(
+            to_struct=obj.__class__.__name__, user_id=user.id, course_id=obj.id
+        )
 
     @staticmethod
     def get_count_themes(obj: Course) -> int:
@@ -53,9 +53,10 @@ class DefaultCourseSerializers(AccessSerializers):
         user = self.context.get('user')
         if not user or isinstance(user, AnonymousUser):
             return 0
-        return CourseThemeAccess.objects.filter(
-            user=user, course_theme__course=obj, status=AccessBase.COURSES_STATUS_COMPLETED
-        ).count()
+
+        return Access.objects.count_by_status(
+            to_struct=obj.__class__.__name__, user_id=user.id, course_id=obj.id
+        )
 
     class Meta:
         model = Course

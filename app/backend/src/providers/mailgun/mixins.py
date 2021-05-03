@@ -37,3 +37,19 @@ class EmailNotificationMixin:
             body = self.email_template_raw.format(**context)
 
         send_mail.delay(to, subject, body)
+
+
+class EmailNotification(EmailNotificationMixin):
+    """
+    Класс для простой отправки писем, не используя миксин модели
+    """
+
+    def __init__(self,
+                 subject_template_raw: str = None,
+                 email_template_raw: str = None,
+                 subject_template_name: str = None,
+                 email_template_name: str = None):
+        self.subject_template_raw = subject_template_raw
+        self.email_template_raw = email_template_raw
+        self.subject_template_name = subject_template_name
+        self.email_template_name = email_template_name

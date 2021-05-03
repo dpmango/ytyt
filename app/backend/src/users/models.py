@@ -177,10 +177,6 @@ class User(AbstractBaseUser, PermissionsMixin, ReviewersMixins):
             return [permissions.GROUP_ADMINISTRATOR]
         return [group.id for group in self.groups.all()]
 
-    @property
-    def ws_key(self) -> str:
-        return 'users__%s' % self.id
-
     def remove_reviewer(self) -> 'User':
         """
         Метод удаляет ревьюера у пользователя
@@ -188,3 +184,19 @@ class User(AbstractBaseUser, PermissionsMixin, ReviewersMixins):
         self.reviewer = None
         self.save()
         return self
+
+    @property
+    def ws_key(self) -> str:
+        return 'users__%s' % self.id
+
+    @property
+    def fio(self) -> str:
+        fio = [self.first_name]
+
+        if self.last_name:
+            fio.append(self.last_name)
+
+        if self.middle_name:
+            fio.append(self.middle_name)
+
+        return ' '.join(fio)
