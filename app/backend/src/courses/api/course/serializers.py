@@ -64,6 +64,17 @@ class DefaultCourseSerializers(AccessSerializers):
 
 
 class DetailCourseSerializers(AccessSerializers):
+
+    def to_representation(self, instance: Course):
+        user = self.context.get('user')
+        access = Access.objects.filter(user=user, course_id=instance.id).first()
+
+        if access and access.access_type == Access.STATUS_AVAILABLE:
+            access.status = Access.STATUS_IN_PROGRESS
+            access.save(update_fields=['status', 'date_updated'])
+
+        return super().to_representation(instance)
+
     class Meta:
         model = Course
         exclude = ('order', 'date_created', 'date_updated')

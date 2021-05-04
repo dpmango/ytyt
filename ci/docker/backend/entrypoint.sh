@@ -11,6 +11,7 @@ dockerize -wait tcp://${DB_HOST}:${DB_PORT}
 ./manage.py collectstatic --noinput
 ./manage.py sync_permissions
 ./manage.py loaddata crm/fixtures/dev.json
+./manage.py loaddata crm/fixtures/courses.json
 #./manage.py sync_db
 
 # Запуск

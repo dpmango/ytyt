@@ -65,8 +65,10 @@ class LessonFragmentViewSet(FlexibleSerializerModelViewSetMixin,
             course = course_theme.course
 
             access = Access.objects.filter(user=request.user, course=course).first()
-            access.set_empty_accesses()  # TODO: remove
-            access.set_trial()
+
+            if access.get_status('lesson_fragment', pk=pk) == Access.STATUS_COMPLETED:
+                msg = 'Фрагмент `%s` уже завершен' % lesson_fragment.title
+                return Response({'detail': msg}, status=status.HTTP_403_FORBIDDEN)
 
             # Закрываем текущий фрагмент урока
             access.set_completed_lesson_fragment(pk=pk)
@@ -76,7 +78,7 @@ class LessonFragmentViewSet(FlexibleSerializerModelViewSetMixin,
 
             # Если существует следующий фрагмент, то предоставляем доступ к нему
             if next_lesson_fragment is not None:
-                access.set_status_lesson_fragment(pk=pk, status=Access.STATUS_AVAILABLE)
+                access.set_status_lesson_fragment(pk=next_lesson_fragment.pk, status=Access.STATUS_AVAILABLE)
 
                 next_lesson_fragment = LessonFragment.objects.get(pk=next_lesson_fragment.pk)
                 return Response(serializer(next_lesson_fragment, context=context).data, status=status.HTTP_202_ACCEPTED)
@@ -90,7 +92,7 @@ class LessonFragmentViewSet(FlexibleSerializerModelViewSetMixin,
 
             # Если следующий урок существует, то к нему и первому фрагменту необходимо предоставить доступы
             if next_course_lesson is not None:
-                access.set__course_lesson__lesson_fragment(next_course_lesson.pk)
+                access.set__course_lesson__lesson_fragment(pk=next_course_lesson.pk)
 
                 data = {'course_id': course.id, 'course_theme_id': course_theme.id}
                 return Response(data, status=status.HTTP_202_ACCEPTED)

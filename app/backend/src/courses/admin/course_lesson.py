@@ -26,7 +26,23 @@ class CourseLessonAdmin(admin.ModelAdmin):
         """
         Переопределенный метод дополнительно обновляет доступы к структурам данных для пользователя
         """
+        if obj.order in (None, 0):
+            max_order = CourseLesson.objects.order_by('-order').first()
+            obj.order = max_order.order + 1 if max_order else 0
+
+        model = super().save_model(request, obj, form, change)
+
         course_id = get_course_from_struct(obj)
         update_user_access(course_id=course_id)
 
-        return super().save_model(request, obj, form, change)
+        return model
+
+    def delete_model(self, request, obj):
+        """
+        Переопределенный метод дополнительно обновляет доступы к структурам данных для пользователя
+        """
+
+        course_id = get_course_from_struct(obj)
+        update_user_access(course_id=course_id)
+
+        return super().delete_model(request, obj)

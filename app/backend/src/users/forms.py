@@ -32,7 +32,7 @@ class UserCreationForm(forms.ModelForm):
 
         # При регистрации юзера даем ему триал-доступ к курсу
         course = Course.objects.first()
-        access, created = Access.objects.get_or_create(user=user, course=course)
+        access, created = Access.objects.get_or_create(user=user, course=course, status=Access.COURSE_ACCESS_TYPE_TRIAL)
 
         if created:
             access.set_trial()

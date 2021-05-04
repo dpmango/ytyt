@@ -33,6 +33,7 @@ class AccessManager(models.Manager):
             JOIN LATERAL jsonb_array_elements(acc.{to_struct}) obj(val) ON (obj.val ->> 'status')::INTEGER = {status}
             WHERE course_id = {course_id}
             """
-
             cursor.execute(sql)
-            return cursor.fetchone() or 0
+            count = cursor.fetchone()
+
+            return count[0] if count else 0

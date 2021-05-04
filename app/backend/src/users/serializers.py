@@ -222,8 +222,9 @@ class RegisterSerializer(rest_auth_registration_serializers.RegisterSerializer):
 
         course = Course.objects.order_by('id').first()
         if course:
-
-            access, created = Access.objects.get_or_create(user=user, course=course)
+            access, created = Access.objects.get_or_create(
+                user=user, course=course, status=Access.COURSE_ACCESS_TYPE_TRIAL
+            )
             if created:
                 access.set_trial()
 

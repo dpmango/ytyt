@@ -12,7 +12,6 @@ from courses_access.managers import AccessManager
 from courses_access.utils import force_int_pk, to_snake_case
 from providers.mailgun.mixins import EmailNotification
 from users.models import User
-from loguru import logger
 
 
 class Access(models.Model):
@@ -130,6 +129,7 @@ class Access(models.Model):
         """
         Метод, который предоставляет доступ к бесплатной теме, которая обязательно является первой в курсе
         """
+        self.set_empty_accesses()
 
         if len(self.course_theme) == 0:
             return None
@@ -159,17 +159,15 @@ class Access(models.Model):
         themes = themes.prefetch_related('courselesson_set', 'courselesson_set__lessonfragment_set')
         return themes.order_by('order')
 
+    @force_int_pk
     def set_completed_course_theme(self, pk: int = None) -> None:
         """
         Метод закрывает выбранную тему
         :param pk: Уникальный id темы
         """
-        for idx, _course_theme in enumerate(self.course_theme):
-            if _course_theme['pk'] == pk:
-                self.course_theme[idx].update({'status': self.STATUS_COMPLETED, 'date_completed': timezone.now()})
+        self.set_status_course_theme(pk=pk, status=self.STATUS_COMPLETED, date_completed=timezone.now())
 
-        self.save(update_fields=['course_theme', 'date_updated'])
-
+    @force_int_pk
     def get_next_course_theme(self, pk: int = None) -> typing.Optional[object]:
         """
         Метод получает следующую тему курса, если она существует
@@ -183,17 +181,15 @@ class Access(models.Model):
                     return None
         return None
 
+    @force_int_pk
     def set_completed_course_lesson(self, pk: int = None) -> None:
         """
         Метод закрывает выбранный урок
         :param pk: Уникальный ID урока
         """
-        for idx, _course_lesson in enumerate(self.course_lesson):
-            if _course_lesson['pk'] == pk:
-                self.course_lesson[idx].update({'status': self.STATUS_COMPLETED, 'date_completed': timezone.now()})
+        self.set_status_course_lesson(pk=pk, status=self.STATUS_COMPLETED, date_completed=timezone.now())
 
-        self.save(update_fields=['course_lesson', 'date_updated'])
-
+    @force_int_pk
     def get_next_course_lesson(self, pk: int = None) -> typing.Optional[object]:
         """
         Метод возвращает информацию по доступу к следующему уроку, если он существует
@@ -206,7 +202,7 @@ class Access(models.Model):
                     _next_course_lesson = self.lesson_fragment[idx+1]
 
                     if _course_lesson['course_theme_id'] == _next_course_lesson['course_theme_id']:
-                        return self._struct_to_object(**_course_lesson)
+                        return self._struct_to_object(**_next_course_lesson)
                     return None
 
                 except IndexError:
@@ -219,11 +215,7 @@ class Access(models.Model):
         Метод завершает фрагемент урока для пользователя
         :param pk: Уникальный id фрагмента урока
         """
-        for idx, _lesson_fragment in enumerate(self.lesson_fragment):
-            if _lesson_fragment['pk'] == pk:
-                self.lesson_fragment[idx].update({'status': self.STATUS_COMPLETED, 'date_completed': timezone.now()})
-
-        self.save(update_fields=['lesson_fragment', 'date_updated'])
+        self.set_status_lesson_fragment(pk=pk, status=self.STATUS_COMPLETED, date_completed=timezone.now())
 
     @force_int_pk
     def get_next_lesson_fragment(self, pk: int = None) -> typing.Optional[object]:
@@ -247,7 +239,8 @@ class Access(models.Model):
                     return None
         return None
 
-    def set_status_lesson_fragment(self, pk: int, status: int) -> None:
+    @force_int_pk
+    def set_status_lesson_fragment(self, pk: int = None, status: int = None, **kwargs) -> None:
         """
         Метод устанавливает нужный стутус для фрагмента
         :param pk: Уникальный ID фрагмента
@@ -255,11 +248,12 @@ class Access(models.Model):
         """
         for idx, _lesson_fragment in enumerate(self.lesson_fragment):
             if _lesson_fragment['pk'] == pk:
-                self.lesson_fragment[idx].update({'status': status, 'date_updated': timezone.now()})
+                self.lesson_fragment[idx].update({'status': status, 'date_updated': timezone.now(), **kwargs})
 
         self.save(update_fields=['lesson_fragment', 'date_updated'])
 
-    def set_status_course_lesson(self, pk: int, status: int) -> None:
+    @force_int_pk
+    def set_status_course_lesson(self, pk: int = None, status: int = None, **kwargs) -> None:
         """
         Метод устанавливает нужный стутус для урока
         :param pk: Уникальный ID фрагмента
@@ -267,11 +261,12 @@ class Access(models.Model):
         """
         for idx, _course_lesson in enumerate(self.course_lesson):
             if _course_lesson['pk'] == pk:
-                self.course_lesson[idx].update({'status': status, 'date_updated': timezone.now()})
+                self.course_lesson[idx].update({'status': status, 'date_updated': timezone.now(), **kwargs})
 
         self.save(update_fields=['course_lesson', 'date_updated'])
 
-    def set_status_course_theme(self, pk: int, status: int) -> None:
+    @force_int_pk
+    def set_status_course_theme(self, pk: int = None, status: int = None, **kwargs) -> None:
         """
         Метод устанавливает нужный статус у темы
         :param pk: Уникальный id темы
@@ -279,10 +274,11 @@ class Access(models.Model):
         """
         for idx, _course_theme in enumerate(self.course_theme):
             if _course_theme['pk'] == pk:
-                self.course_theme[idx].update({'status': status, 'date_updated': timezone.now()})
+                self.course_theme[idx].update({'status': status, 'date_updated': timezone.now(), **kwargs})
 
         self.save(update_fields=['course_theme', 'date_updated'])
 
+    @force_int_pk
     def set__course_lesson__lesson_fragment(self, pk: int = None) -> None:
         """
         Метод устаналивает доступ к уроку и первому фрагменту урока при наличии
@@ -297,6 +293,7 @@ class Access(models.Model):
 
         self.save(update_fields=['lesson_fragment', 'date_updated'])
 
+    @force_int_pk
     def set__course_theme__course_lesson__lesson_fragment(self, pk: int = None) -> None:
         """
         Метод устанавливает доступ к теме курса, к первому уроку и первому фрагменту урока
@@ -313,33 +310,31 @@ class Access(models.Model):
         """
         Метод обновляет все структуры курса для пользователя
         """
-
         queryset_course_themes = self.queryset_themes()
 
         course_lessons = []
         lesson_fragments = []
+
         course_themes = self._merge(
-            to_struct='course_theme',
-            new_struct_data=queryset_course_themes,
+            to_struct='course_theme', new_struct_data=queryset_course_themes
         )
 
-        for _theme in queryset_course_themes:
+        for _theme in queryset_course_themes.order_by('order'):
             _course_lessons = _theme.courselesson_set.all().order_by('order')
             course_lessons.extend(
                 self._merge(
                     to_struct='course_lesson',
                     new_struct_data=_course_lessons,
-                    old_struct_filter=lambda old_item: old_item.course_theme_id == _theme.pk,
                 )
             )
 
             for _course_lesson in _course_lessons:
                 _lesson_fragments = _course_lesson.lessonfragment_set.all().order_by('id')
+
                 lesson_fragments.extend(
                     self._merge(
                         to_struct='lesson_fragment',
                         new_struct_data=_lesson_fragments,
-                        old_struct_filter=lambda old_item: old_item.course_lesson_id == _course_lesson.pk,
                     )
                 )
 
@@ -354,24 +349,46 @@ class Access(models.Model):
         Метод обновляет статусы для новых, ранее неизвестных, элементов структуры
         :param new_struct_data: Данные для обновления
         """
+        if self.status == self.STATUS_COMPLETED:
+            return [{**item, 'status': self.STATUS_COMPLETED} for item in new_struct_data]
 
-        try:
-            item_in_progress_idx = [item['status'] for item in new_struct_data].index(self.STATUS_IN_PROGRESS)
-        except (ValueError, IndexError):
-            item_in_progress_idx = None
+        # Отдаем приоритет первому уроку в прогрессе
+        control_index = None
+        for idx, item in enumerate(new_struct_data):
+            if item['status'] == self.STATUS_IN_PROGRESS:
+                control_index = idx
 
-        if item_in_progress_idx is None:
-            return [{**item, 'status': self.STATUS_BLOCK} for item in new_struct_data]
+        # Если уроков в прогрессе нет, то ищем последний доступный
+        if control_index is None:
+            for idx, item in enumerate(new_struct_data):
+                if item['status'] == self.STATUS_AVAILABLE:
+                    control_index = idx
+
+        # Если последнего доступного нет, то ищем последний завершенный (Такого случить не должно, но все-таки)
+        if control_index is None:
+            for idx, item in enumerate(new_struct_data):
+                if item['status'] == self.STATUS_COMPLETED:
+                    control_index = idx
+
+        result = []
+        nasty_status = self.STATUS_COMPLETED
+
+        if control_index == 0:
+            status = new_struct_data[control_index]['status']
+            nasty_status = self.STATUS_AVAILABLE if status is None else status
 
         for idx, item in enumerate(new_struct_data):
-            if item.get('status') is None:
-                status = self.STATUS_BLOCK if item_in_progress_idx > idx else self.STATUS_COMPLETED
-                new_struct_data[idx].update({'status': status, 'date_updated': timezone.now()})
 
-        return new_struct_data
+            if idx == control_index:
+                status = new_struct_data[control_index]['status']
+            else:
+                status = self.STATUS_BLOCK if idx > control_index else nasty_status
 
-    def _merge(self,
-               to_struct: str, new_struct_data: typing.List[dict], old_struct_filter: typing.Callable = None) -> list:
+            result.append({**item, 'status': status, 'date_updated': timezone.now()})
+
+        return result
+
+    def _merge(self, to_struct: str, new_struct_data: typing.List[dict]) -> list:
         """
         Метод мерджит новые данные в старые данные структры, перенося новые данные на старые статусы
         Если структура новая, то ей проставляется статус None, который в дальнейшем доолжен быть доопределен
@@ -381,10 +398,7 @@ class Access(models.Model):
             - LessonFragment
         :param to_struct: Название структуры
         :param new_struct_data: Новые данные для структуруы
-        :param old_struct_filter: Фильтр для выборки старых данных
         """
-        old_struct_data = [self._struct_to_object(**item) for item in getattr(self, to_struct, [])]
-        old_struct_data = list(filter(old_struct_filter, old_struct_data))
 
         addition_kwargs_mapping = {
             'course_theme': lambda theme: dict(
@@ -401,23 +415,14 @@ class Access(models.Model):
         }
 
         get_addition_kwargs = addition_kwargs_mapping.get(to_struct)
-        if len(old_struct_data) == 0:
-            return [
-                self._simple_struct(**get_addition_kwargs(item), status=None) for item in new_struct_data
-            ]
 
         # Если старый объект структуры не равен объекту новой структуры и количество объектов не менялось,
         # то мы можем просто перезаписать новую структуру со старым статусом
         result = []
-        for i in range(len(new_struct_data)):
-            object_new_struct = new_struct_data[i]
-            status = None
+        for object_new_struct in new_struct_data:
+            object_old_struct = self.get_object(to_struct, pk=object_new_struct.pk)
 
-            try:
-                status = old_struct_data[i].status
-            except IndexError:
-                pass
-
+            status = object_old_struct.status if object_old_struct else None
             result.append(self._simple_struct(**get_addition_kwargs(object_new_struct), status=status))
 
         return result
@@ -442,6 +447,7 @@ class Access(models.Model):
             self._struct_to_object(**item) for item in to_struct if item['status'] in self.AVAILABLE_STATUSES
         ]
 
+    @force_int_pk
     def get_status(self, to_struct: str, pk: int) -> int:
         """
         Метод возвращает статус доступа для одной стуркутуры данных:
@@ -464,6 +470,7 @@ class Access(models.Model):
 
         return self.STATUS_BLOCK
 
+    @force_int_pk
     def get_object(self, to_struct: str, pk: int):
         """
         Метод возвращает объект одной стуркутуры данных:
@@ -485,6 +492,7 @@ class Access(models.Model):
                 return self._struct_to_object(**item)
         return None
 
+    @force_int_pk
     def change_status(self, to_struct: str, pk: int, from_status: int = None, to_status: int = None) -> None:
         """
         Метод меняет статус доступа для одной стуркутуры данных:
@@ -511,6 +519,7 @@ class Access(models.Model):
                 pk=pk, status=to_status
             )
 
+    @force_int_pk
     def check_course_permission(self) -> bool:
         """
         Метод проверяет наличие любого доступа к курсу
@@ -581,6 +590,7 @@ class Access(models.Model):
             self.access_type in self.AVAILABLE_ACCESS_TYPES_FULL
         )
 
+    @force_int_pk
     def check_lesson_fragment_permission(self, pk: int = None) -> bool:
         """
         Проверка доступа к фрагменту урока.
@@ -653,7 +663,6 @@ class Access(models.Model):
             'detail': 'Доступ к курсу временно ограничен. Пожалуйста, свяжитесь с администрацией',
             'block_reason': dict(self.BLOCK_REASONS).get(self.block_reason)
         })
-
 
     @staticmethod
     def _struct_to_object(**kwargs) -> object:
