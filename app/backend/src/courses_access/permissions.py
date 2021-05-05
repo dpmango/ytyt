@@ -36,23 +36,23 @@ class CourseLessonAccessPermissions(perm.BasePermission):
         access = Access.objects.filter(course_id=course_id, user=user).first()
 
         if not access or not access.check_course_permission():
-            raise exceptions.PermissionDenied(
-                'У вас нет доступа к курсу `%s`' % Course.objects.get(pk=course_id).title
-            )
+
+            detail = 'У вас нет доступа к курсу `%s`' % Course.objects.get(pk=course_id).title
+            raise exceptions.PermissionDenied({'detail': detail, **access.get_block_reason()})
 
         course_theme_id = view.kwargs.get('course_theme_id')
         course_theme_permission = access.check_course_theme_permission(pk=course_theme_id)
         if not course_theme_permission:
-            raise exceptions.PermissionDenied(
-                'У вас нет доступа к теме `%s`' % CourseTheme.objects.get(pk=course_theme_id).title
-            )
+
+            detail = 'У вас нет доступа к теме `%s`' % CourseTheme.objects.get(pk=course_theme_id).title
+            raise exceptions.PermissionDenied({'detail': detail, **access.get_block_reason()})
 
         course_lesson_id = view.kwargs.get('pk')
         course_lesson_permission = access.check_course_lesson_permission(pk=course_lesson_id)
         if not course_lesson_permission:
-            raise exceptions.PermissionDenied(
-                'У вас нет доступа к уроку `%s`' % CourseLesson.objects.get(pk=course_lesson_id).title
-            )
+
+            detail = 'У вас нет доступа к уроку `%s`' % CourseLesson.objects.get(pk=course_lesson_id).title
+            raise exceptions.PermissionDenied({'detail': detail, **access.get_block_reason()})
 
         return True
 
@@ -93,5 +93,6 @@ class LessonFragmentAccessPermissions(CourseLessonAccessPermissions):
 
         access = Access.objects.filter(course=course, user=user).first()
         if not access or not access.check_lesson_fragment_permission(pk=lesson_fragment_id):
-            raise exceptions.PermissionDenied('У вас нет доступа к фрагменту `%s`' % lesson_fragment.title)
+            detail = 'У вас нет доступа к фрагменту `%s`' % lesson_fragment.title
+            raise exceptions.PermissionDenied({'detail': detail, **access.get_block_reason()})
         return True

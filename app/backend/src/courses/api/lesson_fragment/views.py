@@ -1,12 +1,12 @@
 from django.db import transaction
-from rest_framework import viewsets, status, exceptions
+from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from api.mixins import FlexibleSerializerModelViewSetMixin
 from courses.api.lesson_fragment.serializers import DetailLessonFragmentSerializers
-from courses.models import LessonFragment
-from courses_access.models import Access, AccessDenied
+from courses.models import CourseTheme, LessonFragment
+from courses_access.models import Access
 from courses_access.permissions import LessonFragmentAccessPermissions
 
 
@@ -68,7 +68,7 @@ class LessonFragmentViewSet(FlexibleSerializerModelViewSetMixin,
 
             if access.get_status('lesson_fragment', pk=pk) == Access.STATUS_COMPLETED:
                 msg = 'Фрагмент `%s` уже завершен' % lesson_fragment.title
-                return Response({'detail': msg}, status=status.HTTP_403_FORBIDDEN)
+                return Response({'detail': msg}, status=status.HTTP_400_BAD_REQUEST)
 
             # Закрываем текущий фрагмент урока
             access.set_completed_lesson_fragment(pk=pk)
@@ -81,7 +81,11 @@ class LessonFragmentViewSet(FlexibleSerializerModelViewSetMixin,
                 access.set_status_lesson_fragment(pk=next_lesson_fragment.pk, status=Access.STATUS_AVAILABLE)
 
                 next_lesson_fragment = LessonFragment.objects.get(pk=next_lesson_fragment.pk)
-                return Response(serializer(next_lesson_fragment, context=context).data, status=status.HTTP_202_ACCEPTED)
+                context = {**context, 'set_progress': True}
+
+                return Response(
+                    serializer(next_lesson_fragment, context=context).data, status=status.HTTP_202_ACCEPTED
+                )
 
             # Если следующего фрагмента урока не существует
             # Закрываем текущий урок
@@ -110,16 +114,20 @@ class LessonFragmentViewSet(FlexibleSerializerModelViewSetMixin,
                 # В противном случае — даем доступ к следующей теме
                 if not next_course_theme.free_access and \
                         access.access_type not in Access.AVAILABLE_ACCESS_TYPES_FULL:
+
+                    next_course_theme = CourseTheme.objects.get(pk=next_course_theme.pk)
                     msg = 'Для доступа к теме `%s` вам необходимо произвести оплату' % next_course_theme.title
+
                     return Response({'detail': msg}, status=status.HTTP_403_FORBIDDEN)
 
-                try:
-                    # Проверка на скорость прохождения курса
-                    access.check_learning_speed()
-                except AccessDenied as e:
-                    raise exceptions.PermissionDenied(e)
-
                 access.set__course_theme__course_lesson__lesson_fragment(pk=next_course_theme.pk)
+
+                # Проверка на скорость прохождения курса
+                # Делаем ее сразу после того, как предоставили доступы
+                check_result = access.check_learning_speed()
+                if isinstance(check_result, dict):
+                    return Response(check_result, status=status.HTTP_400_BAD_REQUEST)
+
                 return Response({'course_id': course.id}, status=status.HTTP_202_ACCEPTED)
 
             # Если доступной темы нет, то курс закончен.

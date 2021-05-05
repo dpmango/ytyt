@@ -7,7 +7,6 @@ from django.forms import model_to_dict
 from django.utils import timezone
 
 from courses.models import Course, CourseTheme, CourseLesson, LessonFragment
-from courses_access.exceptions import AccessDenied
 from courses_access.managers import AccessManager
 from courses_access.utils import force_int_pk, to_snake_case
 from providers.mailgun.mixins import EmailNotification
@@ -159,13 +158,23 @@ class Access(models.Model):
         themes = themes.prefetch_related('courselesson_set', 'courselesson_set__lessonfragment_set')
         return themes.order_by('order')
 
+    def set_completed_course(self) -> None:
+        """
+        Завершение курса пользователем
+        """
+        self.status = self.STATUS_COMPLETED
+        self.date_completed = timezone.now()
+        self.save()
+
     @force_int_pk
-    def set_completed_course_theme(self, pk: int = None) -> None:
+    def set_completed_course_theme(self, pk: int = None, **kwargs) -> None:
         """
         Метод закрывает выбранную тему
         :param pk: Уникальный id темы
         """
-        self.set_status_course_theme(pk=pk, status=self.STATUS_COMPLETED, date_completed=timezone.now())
+        self.set_status_course_theme(
+            pk=pk, status=self.STATUS_COMPLETED, **{'date_completed': timezone.now(), **kwargs}
+        )
 
     @force_int_pk
     def get_next_course_theme(self, pk: int = None) -> typing.Optional[object]:
@@ -199,7 +208,7 @@ class Access(models.Model):
             if _course_lesson['pk'] == pk:
 
                 try:
-                    _next_course_lesson = self.lesson_fragment[idx+1]
+                    _next_course_lesson = self.course_lesson[idx+1]
 
                     if _course_lesson['course_theme_id'] == _next_course_lesson['course_theme_id']:
                         return self._struct_to_object(**_next_course_lesson)
@@ -622,7 +631,7 @@ class Access(models.Model):
             self.access_type in self.AVAILABLE_ACCESS_TYPES_FULL
         )
 
-    def check_learning_speed(self):
+    def check_learning_speed(self) -> typing.Optional[dict]:
         """
         Проверка скорости прохождения тем курса:
         Условия пропуска проверки:
@@ -645,13 +654,25 @@ class Access(models.Model):
 
         course_theme_access_last, course_theme_access_prev = course_theme_completed[-2:]
 
-        delta = course_theme_access_last.date_completed - course_theme_access_prev.date_completed
+        now = timezone.now()
+        date_completed_last = course_theme_access_last.date_completed
+        date_completed_prev = course_theme_access_prev.date_completed
+
+        if date_completed_last is None:
+            date_completed_last = now
+            self.set_completed_course_theme(pk=course_theme_access_last.pk, date_completed=date_completed_last)
+
+        if date_completed_prev is None:
+            date_completed_prev = now - timedelta(days=1, hours=1)
+            self.set_completed_course_theme(pk=date_completed_prev.pk, date_completed=date_completed_prev)
+
+        delta = date_completed_last - date_completed_prev
         if delta > timedelta(days=1):
             return None
 
         self.status = self.STATUS_BLOCK
         self.block_reason = self.BLOCK_REASON_FAST_PASSAGE
-        self.save(update_fields=['status', 'block_reason', 'date_updated'])
+        self.save()
 
         mailgun = EmailNotification(
             subject_template_raw='У {email} был ограничен доступ к курсу',
@@ -659,10 +680,13 @@ class Access(models.Model):
         )
 
         mailgun.send_mail({**model_to_dict(self), **model_to_dict(self.user)})
-        raise AccessDenied({
+        return {
             'detail': 'Доступ к курсу временно ограничен. Пожалуйста, свяжитесь с администрацией',
-            'block_reason': dict(self.BLOCK_REASONS).get(self.block_reason)
-        })
+            **self.get_block_reason(),
+        }
+
+    def get_block_reason(self) -> dict:
+        return {'block_reason': dict(self.BLOCK_REASONS).get(self.block_reason, {})}
 
     @staticmethod
     def _struct_to_object(**kwargs) -> object:
