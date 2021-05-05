@@ -7,7 +7,7 @@ def update_user_access(course_id: int) -> None:
     Функция-оберетка для вызова асинхронной функции обновления
     :param course_id: ID курса
     """
-    task_update_user_access(course_id=course_id)
+    task_update_user_access.delay(course_id=course_id)
 
 
 @app.task(bind=True)
