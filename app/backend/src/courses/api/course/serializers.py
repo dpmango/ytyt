@@ -33,9 +33,7 @@ class DefaultCourseSerializers(AccessSerializers):
         if not user or isinstance(user, AnonymousUser):
             return 0
 
-        return Access.objects.count_by_status(
-            to_struct=obj.__class__.__name__, user_id=user.id, course_id=obj.id
-        )
+        return Access.objects.count_by_status(to_struct='course_lesson', user_id=user.id)
 
     @staticmethod
     def get_count_themes(obj: Course) -> int:
@@ -55,7 +53,7 @@ class DefaultCourseSerializers(AccessSerializers):
             return 0
 
         return Access.objects.count_by_status(
-            to_struct=obj.__class__.__name__, user_id=user.id, course_id=obj.id
+            to_struct='course_theme', user_id=user.id, course_id=obj.id
         )
 
     class Meta:

@@ -28,10 +28,8 @@ class DetailLessonFragmentSerializers(AccessBaseSerializers):
         user = self.context.get('user')
 
         fragments = obj.course_lesson.lessonfragment_set.count()
-        course_id = get_course_from_struct(obj)
-
         completed_fragments = Access.objects.count_by_status(
-            to_struct=obj.__class__.__name__, user_id=user.id, course_id=course_id
+            to_struct='lesson_fragment', user_id=user.id, course_lesson_id=obj.pk
         )
 
         return completed_fragments / fragments * 100

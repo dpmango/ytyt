@@ -4,7 +4,6 @@ from rest_framework import serializers
 from courses.models import CourseTheme
 from courses_access.common.serializers import AccessSerializers
 from courses_access.models import Access
-from courses_access.utils import get_course_from_struct
 
 
 class DefaultCourseThemeSerializers(AccessSerializers):
@@ -34,7 +33,6 @@ class CourseThemeWithStatsSerializers(DefaultCourseThemeSerializers):
         if not user or isinstance(user, AnonymousUser):
             return 0
 
-        course_id = get_course_from_struct(obj)
         return Access.objects.count_by_status(
-            to_struct=obj.__class__.__name__, user_id=user.id, course_id=course_id
+            to_struct='course_lesson', user_id=user.id, course_theme_id=obj.pk
         )

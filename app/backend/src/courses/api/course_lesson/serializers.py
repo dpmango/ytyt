@@ -45,11 +45,10 @@ class DetailCourseLessonSerializers(DefaultCourseLessonSerializers):
         :param obj: CourseLesson
         """
         user = self.context.get('user')
-        course_id = get_course_from_struct(obj)
 
         fragments = obj.lessonfragment_set.count()
         completed_fragments = Access.objects.count_by_status(
-            to_struct=obj.__class__.__name__, course_id=course_id, user_id=user.id
+            to_struct='lesson_fragment', user_id=user.id, course_lesson_id=obj.pk
         )
 
         return completed_fragments / fragments * 100
