@@ -48,7 +48,7 @@ export default {
       await this.recover({ email: this.email })
         .then((res) => {
           this.error = null;
-          this.$toast.global.success({ message: res.detail });
+          this.$toast.global.default({ message: res.detail });
           this.$router.push('/auth/login');
         })
         .catch((err) => {

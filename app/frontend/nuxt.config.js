@@ -24,6 +24,7 @@ export default {
     '~/plugins/filters',
     '~/plugins/event-bus',
     '~/plugins/global-mixins',
+    '~plugins/modal.js',
     { src: '~/plugins/markdown', mode: 'client' },
     { src: '~/plugins/toast', mode: 'client' },
     { src: '~/plugins/socket', mode: 'client' },
@@ -58,7 +59,9 @@ export default {
   axios: {},
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
-  build: {},
+  build: {
+    transpile: ['vue-final-modal'],
+  },
 
   // https://github.com/nuxt-community/style-resources-module/
   styleResources: {
@@ -80,6 +83,6 @@ export default {
   },
 
   toast: {
-    position: 'top-right',
+    position: 'bottom-right',
   },
 };

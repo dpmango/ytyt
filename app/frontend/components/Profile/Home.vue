@@ -1,103 +1,109 @@
 <template>
   <div class="profile">
     <div class="container">
-      <div class="profile__box">
-        <div class="row profile__box-wrapper">
-          <div class="profile__avatar">
-            <div class="profile__avatar-image">
-              <img :src="avatarBlob || avatar" />
-              <div class="profile__avatar-uploader">
-                <UiUploader
-                  :file="avatarFile"
-                  :allowed-mime="['image']"
-                  :max-size="5"
-                  :include-reader="true"
-                  @onReader="(img) => (avatarBlob = img)"
-                  @onChange="(f) => (avatarFile = f)"
-                  @handleError="(err) => (avatarError = err)"
-                >
-                  <template #info="slotProps">
-                    <span v-if="slotProps.file">{{ slotProps.file.name }}</span>
-                  </template>
-                  <template #error="slotProps">
-                    <span v-if="slotProps.error">{{ slotProps.error }}</span>
-                  </template>
-                  <template #button="slotProps">
-                    <div class="profile__avatar-uploader-trigger" @click="slotProps.trigger">
-                      <UiSvgIcon name="camera" />
-                    </div>
-                  </template>
-                </UiUploader>
+      <div class="profile__wrapper">
+        <div class="profile__box">
+          <div class="row profile__box-wrapper">
+            <div class="profile__avatar">
+              <div class="profile__avatar-image">
+                <img :src="avatarBlob || avatar" />
+                <div class="profile__avatar-uploader">
+                  <UiUploader
+                    :file="avatarFile"
+                    :allowed-mime="['image']"
+                    :max-size="5"
+                    :include-reader="true"
+                    @onReader="(img) => (avatarBlob = img)"
+                    @onChange="(f) => (avatarFile = f)"
+                    @handleError="(err) => (avatarError = err)"
+                  >
+                    <template #info="slotProps">
+                      <span v-if="slotProps.file">{{ slotProps.file.name }}</span>
+                    </template>
+                    <template #error="slotProps">
+                      <span v-if="slotProps.error">{{ slotProps.error }}</span>
+                    </template>
+                    <template #button="slotProps">
+                      <div class="profile__avatar-uploader-trigger" @click="slotProps.trigger">
+                        <UiSvgIcon name="camera" />
+                      </div>
+                    </template>
+                  </UiUploader>
+                </div>
+              </div>
+
+              <div v-if="avatarError" class="profile__avatar-error">
+                <div class="profile__avatar-error-icon">
+                  <UiSvgIcon name="paper-clip" />
+                </div>
+                <span class="profile__avatar-error-name">{{ avatarError }}</span>
               </div>
             </div>
+            <div class="profile__content">
+              <ValidationObserver
+                ref="form"
+                v-slot="{ invalid }"
+                tag="form"
+                class="profile__form"
+                @submit.prevent="handleSubmit"
+              >
+                <ValidationProvider v-slot="{ errors }" rules="required">
+                  <UiInput
+                    :value="name"
+                    type="text"
+                    placeholder="Имя"
+                    :error="errors[0]"
+                    icon="name"
+                    icon-position="left"
+                    @onChange="(v) => (name = v)"
+                  />
+                </ValidationProvider>
 
-            <div v-if="avatarError" class="profile__avatar-error">
-              <div class="profile__avatar-error-icon">
-                <UiSvgIcon name="paper-clip" />
-              </div>
-              <span class="profile__avatar-error-name">{{ avatarError }}</span>
+                <ValidationProvider v-slot="{ errors }" rules="required">
+                  <UiInput
+                    disabled
+                    :value="email"
+                    type="email"
+                    placeholder="Email"
+                    :error="errors[0]"
+                    icon="email"
+                    icon-position="left"
+                    @onChange="(v) => null"
+                  />
+                </ValidationProvider>
+
+                <ValidationProvider v-slot="{ errors }">
+                  <UiInput
+                    :value="github"
+                    type="text"
+                    placeholder="Github"
+                    icon="github"
+                    icon-position="left"
+                    @onChange="(v) => (github = v)"
+                  />
+                </ValidationProvider>
+
+                <UiToggle
+                  label="Отправлять уведомления о новых сообщениях на email"
+                  :value="notifications"
+                  @onChange="(val) => (notifications = val)"
+                />
+
+                <UiButton :is-loading="isLoading" type="submit" block>Сохранить изменения</UiButton>
+              </ValidationObserver>
             </div>
-          </div>
-          <div class="profile__content">
-            <ValidationObserver
-              ref="form"
-              v-slot="{ invalid }"
-              tag="form"
-              class="profile__form"
-              @submit.prevent="handleSubmit"
-            >
-              <ValidationProvider v-slot="{ errors }" rules="required">
-                <UiInput
-                  :value="name"
-                  type="text"
-                  placeholder="Имя"
-                  :error="errors[0]"
-                  icon="name"
-                  icon-position="left"
-                  @onChange="(v) => (name = v)"
-                />
-              </ValidationProvider>
-
-              <ValidationProvider v-slot="{ errors }" rules="required">
-                <UiInput
-                  disabled
-                  :value="email"
-                  type="email"
-                  placeholder="Email"
-                  :error="errors[0]"
-                  icon="email"
-                  icon-position="left"
-                  @onChange="(v) => null"
-                />
-              </ValidationProvider>
-
-              <ValidationProvider v-slot="{ errors }">
-                <UiInput
-                  :value="github"
-                  type="text"
-                  placeholder="Github"
-                  icon="github"
-                  icon-position="left"
-                  @onChange="(v) => (github = v)"
-                />
-              </ValidationProvider>
-
-              <UiToggle
-                label="Отправлять уведомления о новых сообщениях на email"
-                :value="notifications"
-                @onChange="(val) => (notifications = val)"
-              />
-
-              <UiButton :is-loading="isLoading" type="submit" block>Сохранить изменения</UiButton>
-            </ValidationObserver>
           </div>
         </div>
-      </div>
-      <div class="mt-1">
-        <UiButton theme="danger" @click="handleLogout">Выйти</UiButton>
-        <NuxtLink to="/profile/password">
-          <UiButton theme="primary">Сменить пароль</UiButton>
-        </NuxtLink>
+        <div class="profile__actions">
+          <div class="profile__action">
+            <NuxtLink to="/profile/password">
+              <UiButton theme="outline">Сменить пароль</UiButton>
+            </NuxtLink>
+          </div>
+          <div class="profile__action">
+            <UiButton theme="outline" @click="handleLogout">Выйти</UiButton>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -203,7 +209,7 @@ export default {
         .then((_res) => {
           this.error = null;
           // this.avatarBlob = null;
-          this.$toast.global.success({ message: 'Пользователь обновлен' });
+          this.$toast.global.default({ message: 'Пользователь обновлен' });
         })
         .catch((err) => {
           const { data, code } = err;
@@ -218,7 +224,7 @@ export default {
     async handleLogout() {
       await this.logout()
         .then((res) => {
-          this.$toast.global.success({ message: res.detail });
+          this.$toast.global.default({ message: res.detail });
         })
         .catch((_err) => {});
     },
@@ -231,7 +237,15 @@ export default {
 .profile {
   padding-top: 24px;
   padding-bottom: 24px;
+  &__wrapper {
+    display: flex;
+  }
+  &__box,
+  &__actions {
+    min-width: 1px;
+  }
   &__box {
+    flex: 0 1 654px;
     background: #fff;
     border-radius: 8px;
     padding: 32px 24px;
@@ -353,6 +367,31 @@ export default {
     }
     .button {
       margin-top: 24px;
+    }
+  }
+  &__actions {
+    flex: 0 0 auto;
+    padding-left: 20px;
+    display: flex;
+    margin-left: auto;
+  }
+  &__action {
+    margin-right: 12px;
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+}
+
+@include r($lg) {
+  .profile {
+    &__wrapper {
+      flex-wrap: wrap;
+    }
+    &__actions {
+      margin-top: 16px;
+      margin-left: 0;
+      padding-left: 0;
     }
   }
 }

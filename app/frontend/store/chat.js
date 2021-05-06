@@ -64,6 +64,8 @@ export const mutations = {
     console.log('SOCKET_ONOPEN', event);
     this.$socket = event.currentTarget;
     state.socket.isConnected = true;
+    state.socket.error = null;
+    state.socket.reconnectError = false;
   },
   SOCKET_ONCLOSE(state, event) {
     console.log('SOCKET_ONCLOSE', event);

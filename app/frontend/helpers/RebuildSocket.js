@@ -14,6 +14,8 @@ export const rebuildSocket = ({ $config, $store }) => {
 
   const socketWithToken = `${$config.socketURL}?token=${$store.state.auth.token}`;
 
+  console.log('rebuilding socket - new URL', socketWithToken);
+
   Vue.use(VueNativeSock, socketWithToken, {
     store: $store,
     mutations,
@@ -25,4 +27,11 @@ export const rebuildSocket = ({ $config, $store }) => {
   });
 
   $store.dispatch('chat/connect');
+
+  setTimeout(() => {
+    // just in case
+    // TODO - should wather on layout default be working when redirecting from auth ?
+    $store.dispatch('chat/getDialogs');
+    $store.dispatch('chat/getNotificationCount');
+  }, 500);
 };

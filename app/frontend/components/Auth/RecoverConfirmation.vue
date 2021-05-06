@@ -69,7 +69,7 @@ export default {
       })
         .then((res) => {
           this.error = null;
-          this.$toast.global.success({ message: res.detail });
+          this.$toast.global.default({ message: res.detail });
           this.$router.push('/profile');
         })
         .catch((err) => {
