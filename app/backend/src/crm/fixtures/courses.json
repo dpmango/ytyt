@@ -8,69 +8,81 @@
       "description": "Описание курса 1",
       "cost": "100000.00",
       "date_created": "2021-05-03T10:09:46.934Z",
-      "date_updated": "2021-05-03T10:09:46.934Z"
+      "date_updated": "2021-05-06T16:56:08.654Z"
     }
   },
   {
     "model": "courses.coursetheme",
     "pk": 1,
     "fields": {
-      "order": 0,
+      "order": 1,
       "course": 1,
       "title": "Тема 1",
       "free_access": true,
       "date_created": "2021-05-03T10:10:21.903Z",
-      "date_updated": "2021-05-03T10:14:01.379Z"
+      "date_updated": "2021-05-06T16:55:51.387Z"
     }
   },
   {
     "model": "courses.coursetheme",
     "pk": 2,
     "fields": {
-      "order": 0,
+      "order": 2,
       "course": 1,
       "title": "Тема 2",
-      "free_access": false,
+      "free_access": true,
       "date_created": "2021-05-03T10:10:34.630Z",
-      "date_updated": "2021-05-03T10:10:34.630Z"
+      "date_updated": "2021-05-06T16:55:54.453Z"
     }
   },
   {
     "model": "courses.coursetheme",
     "pk": 3,
     "fields": {
-      "order": 0,
+      "order": 3,
       "course": 1,
       "title": "Тема 3",
       "free_access": false,
       "date_created": "2021-05-03T10:10:45.749Z",
-      "date_updated": "2021-05-03T10:10:45.749Z"
+      "date_updated": "2021-05-06T16:55:56.926Z"
+    }
+  },
+  {
+    "model": "courses.coursetheme",
+    "pk": 5,
+    "fields": {
+      "order": 4,
+      "course": 1,
+      "title": "Тема 4",
+      "free_access": false,
+      "date_created": "2021-05-03T16:19:24.050Z",
+      "date_updated": "2021-05-06T16:55:59.145Z"
     }
   },
   {
     "model": "courses.courselesson",
     "pk": 1,
     "fields": {
-      "order": 0,
+      "order": 1,
       "course_theme": 1,
       "title": "Урок 1 Тема 1",
       "description": "Описание урока 1",
       "content": "# Заголовок фрагмента 1.1.1\r\nКонтент фрагмента 1.1.1\r\n\r\n# Заголовок фрагмента 1.1.2\r\nКонтент фрагмента 1.1.2\r\n\r\n# Заголовок фрагмента 1.1.3\r\nКонтент фрагмента 1.1.3\r\n\r\n# Заголовок фрагмента 1.1.4\r\nКонтент фрагмента 1.1.4",
       "date_created": "2021-05-03T10:11:52.233Z",
-      "date_updated": "2021-05-03T10:15:23.951Z"
+      "date_updated": "2021-05-05T18:59:17.117Z"
     }
   },
   {
     "model": "courses.courselesson",
     "pk": 2,
     "fields": {
-      "order": 0,
+      "order": 2,
       "course_theme": 1,
       "title": "Урок 2 Тема 1",
       "description": "Описание урока 2",
       "content": "# Заголовок фрагмента 1.2.1\r\nКонтент фрагмента 1.2.1\r\n\r\n# Заголовок фрагмента 1.2.2\r\nКонтент фрагмента 1.2.2\r\n\r\n# Заголовок фрагмента 1.2.3\r\nКонтент фрагмента 1.2.3",
       "date_created": "2021-05-03T10:15:56.789Z",
-      "date_updated": "2021-05-03T10:15:56.802Z"
+      "date_updated": "2021-05-06T16:53:10.444Z"
     }
   },
   {
@@ -83,7 +95,7 @@
       "description": "Описание урока 2.1",
       "content": "# Заголовок фрагмента 2.1.1\r\nКонтент фрагмента 2.1.1\r\n\r\n# Заголовок фрагмента 2.1.2\r\nКонтент фрагмента 2.1.2",
       "date_created": "2021-05-03T10:16:38.249Z",
-      "date_updated": "2021-05-03T10:16:38.267Z"
+      "date_updated": "2021-05-05T18:59:17.122Z"
     }
   },
   {
@@ -96,7 +108,46 @@
       "description": "Описание урока 3.1",
       "content": "# Заголовок фрагмента 3.1.1\r\nКонтент фрагмента 3.1.1",
       "date_created": "2021-05-03T10:17:34.344Z",
-      "date_updated": "2021-05-03T10:17:34.354Z"
+      "date_updated": "2021-05-05T18:59:17.127Z"
+    }
+  },
+  {
+    "model": "courses.courselesson",
+    "pk": 8,
+    "fields": {
+      "order": 3,
+      "course_theme": 1,
+      "title": "Урок 3 Тема 1",
+      "description": "Описание Урока 3 Темы 1",
+      "content": "# Заголовок Урока 3 Темы 1\r\nКонтент Урока 3 Темы 1",
+      "date_created": "2021-05-03T14:05:12.780Z",
+      "date_updated": "2021-05-05T18:59:17.119Z"
+    }
+  },
+  {
+    "model": "courses.courselesson",
+    "pk": 24,
+    "fields": {
+      "order": 4,
+      "course_theme": 1,
+      "title": "Урок 4 Тема 1",
+      "description": "Урок 4 Тема 1",
+      "content": "# Урок 4 Тема 1\r\nУрок 4 Тема 1",
+      "date_created": "2021-05-04T19:02:39.746Z",
+      "date_updated": "2021-05-06T16:53:10.443Z"
+    }
+  },
+  {
+    "model": "courses.courselesson",
+    "pk": 25,
+    "fields": {
+      "order": 5,
+      "course_theme": 5,
+      "title": "Урок 1 Тема 4",
+      "description": "Урок 1 Тема 4",
+      "content": "# Урок 1 Тема 4\r\nУрок 1 Тема 4",
+      "date_created": "2021-05-05T17:54:56.669Z",
+      "date_updated": "2021-05-05T18:59:17.124Z"
     }
   },
   {
@@ -207,6 +258,39 @@
       "content": "<h1 id=\"311\">Заголовок фрагмента 3.1.1</h1>\n<p>Контент фрагмента 3.1.1</p>",
       "date_created": "2021-05-03T10:17:34.349Z",
       "date_updated": "2021-05-03T10:17:34.351Z"
+    }
+  },
+  {
+    "model": "courses.lessonfragment",
+    "pk": 14,
+    "fields": {
+      "course_lesson": 8,
+      "title": "Заголовок Урока 3 Темы 1",
+      "content": "<h1 id=\"3-1\">Заголовок Урока 3 Темы 1</h1>\n<p>Контент Урока 3 Темы 1</p>",
+      "date_created": "2021-05-03T14:05:12.790Z",
+      "date_updated": "2021-05-03T14:05:12.790Z"
+    }
+  },
+  {
+    "model": "courses.lessonfragment",
+    "pk": 30,
+    "fields": {
+      "course_lesson": 24,
+      "title": "Урок 4 Тема 1",
+      "content": "<h1 id=\"4-1\">Урок 4 Тема 1</h1>\n<p>Урок 4 Тема 1</p>",
+      "date_created": "2021-05-04T19:02:39.753Z",
+      "date_updated": "2021-05-04T19:02:39.754Z"
+    }
+  },
+  {
+    "model": "courses.lessonfragment",
+    "pk": 31,
+    "fields": {
+      "course_lesson": 25,
+      "title": "Урок 1 Тема 4",
+      "content": "<h1 id=\"1-4\">Урок 1 Тема 4</h1>\n<p>Урок 1 Тема 4</p>",
+      "date_created": "2021-05-05T17:54:56.680Z",
+      "date_updated": "2021-05-05T17:54:56.682Z"
     }
   }
 ]
