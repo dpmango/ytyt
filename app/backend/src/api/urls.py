@@ -11,9 +11,12 @@ from files.api.views import FileUploadView
 from search.api.views import SearchViewSet
 from users.api.auth.views import PasswordResetView, UserDetailsView
 from users.api.registration.views import RegisterView, VerifyEmailView
+from payment.api.views import PaymentViewSet
+
 
 router = routers.DefaultRouter()
 router.register(r'files', FileUploadView, basename='files')
+router.register(r'payment', PaymentViewSet, basename='payment')
 router.register(r'constants', ConstantsViewSet, basename='constants')
 router.register(r'search', SearchViewSet, basename='search')
 router.register(r'courses', CourseViewSet, basename='courses')

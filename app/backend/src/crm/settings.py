@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'files',
+    'payment',
 
     'rest_framework',
     'rest_framework.authtoken',
@@ -176,6 +177,22 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 MARKDOWNX_MEDIA_PATH = 'uploads/lessons/{}'.format(datetime.datetime.now().strftime('%Y/%m/'))
 MARKDOWNX_SERVER_CALL_LATENCY = 120000  # 2min
+MARKDOWNX_MARKDOWN_EXTENSIONS = [
+    'pymdownx.magiclink',
+    'pymdownx.highlight',
+    'pymdownx.extra',
+    'fenced_code',
+    'md_in_html',
+    'admonition',
+    'legacy_attrs',
+    'legacy_em',
+    'meta',
+    'nl2br',
+    'sane_lists',
+    'smarty',
+    'toc',
+    'wikilinks',
+]
 
 
 AUTHENTICATION_BACKENDS = (
@@ -261,3 +278,7 @@ if SENTRY_DSN:
         integrations=[DjangoIntegration()],
         send_default_pii=True
     )
+
+
+TINKOFF_URL = env('TINKOFF_URL')
+TINKOFF_TERMINAL_KEY = env('TINKOFF_TERMINAL_KEY')

@@ -40,6 +40,7 @@ class VerifyEmailView(CreateAPIView, UpdateAPIView, EmailNotificationMixin):
     """
     Класс для подтверждения email авторизованного пользователя
     """
+    http_method_names = ['get', 'post', 'patch', 'delete', 'head', 'options', 'trace']
 
     serializer_class = VerifyEmailSerializer
     permission_classes = (IsAuthenticated, )
@@ -58,13 +59,11 @@ class VerifyEmailView(CreateAPIView, UpdateAPIView, EmailNotificationMixin):
         data = {'detail': 'Письмо для подтверждения email выслано'}
         return Response(data, status=status.HTTP_200_OK)
 
-    @swagger_auto_schema(manual_parameters=[
-        Parameter('uid', IN_QUERY, type=TYPE_STRING), Parameter('token', IN_QUERY, type=TYPE_STRING)])
     def patch(self, request, *args, **kwargs):
         """
         Метод подтверждает email пользователя, если токен и uid корректные
         """
-        serializer = self.get_serializer(data=request.query_params)
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
 

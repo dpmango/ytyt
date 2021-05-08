@@ -1,6 +1,8 @@
 from django import forms
 from markdownx.utils import markdownify
+
 from courses.models import CourseLesson, LessonFragment
+from courses.utils import html_to_text
 
 
 class CourseLessonCreationForm(forms.ModelForm):
@@ -30,7 +32,7 @@ class CourseLessonCreationForm(forms.ModelForm):
             start_tag_idx = split_tag_start_ids[i]
             end_tag_idx = split_tag_end_ids[i]
 
-            title = content[start_tag_idx + len(self.Meta.split_tag_start):end_tag_idx]
+            title = html_to_text(content[start_tag_idx:end_tag_idx + len(self.Meta.split_tag_end)])
 
             try:
                 fragment_content = content[start_tag_idx: split_tag_start_ids[i+1]]
@@ -81,5 +83,5 @@ class CourseLessonCreationForm(forms.ModelForm):
     class Meta:
         model = CourseLesson
         fields = '__all__'
-        split_tag_start = '<h1>'
-        split_tag_end = '</h1>'
+        split_tag_start = '<h1'
+        split_tag_end = '/h1>'

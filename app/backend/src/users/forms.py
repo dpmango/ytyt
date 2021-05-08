@@ -2,7 +2,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 
 from courses.models import Course
-from courses_access.models.course import CourseAccess
+from courses_access.models import Access
 from users.models import User
 
 
@@ -32,6 +32,13 @@ class UserCreationForm(forms.ModelForm):
 
         # При регистрации юзера даем ему триал-доступ к курсу
         course = Course.objects.first()
-        CourseAccess.objects.set_trial(course, user)
+        access, created = Access.objects.get_or_create(user=user, course=course, status=Access.COURSE_ACCESS_TYPE_TRIAL)
+
+        if created:
+            access.set_trial()
+
+        educator = User.reviewers.get_less_busy_educator()
+        user.reviewer = educator
+        user.save()
 
         return user

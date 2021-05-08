@@ -13,7 +13,7 @@ from rest_framework.exceptions import ValidationError
 from sorl.thumbnail import get_thumbnail
 
 from courses.models import Course
-from courses_access.models.course import CourseAccess
+from courses_access.models import Access
 from dialogs.models import Dialog
 from users.models import User
 
@@ -199,6 +199,15 @@ class PasswordChangeSerializer(rest_auth_serializers.PasswordChangeSerializer):
 
 
 class RegisterSerializer(rest_auth_registration_serializers.RegisterSerializer):
+    first_name = serializers.CharField(required=True)
+    last_name = serializers.CharField(required=False)
+
+    def get_cleaned_data(self):
+        return {
+            **super().get_cleaned_data(),
+            'first_name': self.validated_data.get('first_name') or '',
+            'last_name': self.validated_data.get('last_name') or '',
+        }
 
     def save(self, request) -> User:
         """
@@ -213,7 +222,11 @@ class RegisterSerializer(rest_auth_registration_serializers.RegisterSerializer):
 
         course = Course.objects.order_by('id').first()
         if course:
-            CourseAccess.objects.set_trial(course, user)
+            access, created = Access.objects.get_or_create(
+                user=user, course=course, status=Access.COURSE_ACCESS_TYPE_TRIAL
+            )
+            if created:
+                access.set_trial()
 
         educator = User.reviewers.get_less_busy_educator()
         user.reviewer = educator

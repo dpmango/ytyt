@@ -25,7 +25,7 @@ services:
       POSTGRES_DB: ${PSQL_DB}
 
   redis:
-    image: redis:alpine
+    image: redis:6.2.2-alpine
     restart: on-failure
     expose:
       - 6379

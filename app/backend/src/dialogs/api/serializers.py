@@ -1,3 +1,4 @@
+from django.db.models import Q
 from rest_framework import serializers, exceptions
 
 from dialogs.models import Dialog, DialogMessage
@@ -76,8 +77,16 @@ class DefaultDialogMessageSerializers(serializers.ModelSerializer):
 
 
 class DialogWithLastMessageSerializers(serializers.ModelSerializer):
+    unread_messages_count = serializers.SerializerMethodField()
     last_message = serializers.SerializerMethodField()
     user = serializers.SerializerMethodField()
+
+    def get_unread_messages_count(self, obj: Dialog) -> int:
+        """
+        Метод вернет количество непрочитанных сообщений в диалоге
+        :param obj: Объект диалога
+        """
+        return obj.dialogmessage_set.filter(~Q(user=self.context.get('user')), date_read__isnull=True).count()
 
     def get_user(self, obj: Dialog) -> dict:
         """
@@ -90,9 +99,9 @@ class DialogWithLastMessageSerializers(serializers.ModelSerializer):
         return {}
 
     def get_last_message(self, obj: Dialog):
-        message = obj.dialogmessage_set.all().first()
+        message = obj.dialogmessage_set.last()
         return DefaultDialogMessageSerializers(message, context=self.context).data
 
     class Meta:
         model = Dialog
-        fields = ('id', 'last_message', 'user')
+        fields = ('id', 'unread_messages_count', 'last_message', 'user')

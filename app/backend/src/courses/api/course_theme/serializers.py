@@ -2,12 +2,11 @@ from django.contrib.auth.models import AnonymousUser
 from rest_framework import serializers
 
 from courses.models import CourseTheme
-from courses_access.common.models import AccessBase
-from courses_access.common.serializers import AccessSerializers
-from courses_access.models import CourseLessonAccess
+from courses_access.common.serializers import AccessBaseSerializers
+from courses_access.models import Access
 
 
-class DefaultCourseThemeSerializers(AccessSerializers):
+class DefaultCourseThemeSerializers(AccessBaseSerializers):
     class Meta:
         model = CourseTheme
         exclude = ('course', 'free_access', 'order', 'date_updated', 'date_created')
@@ -33,6 +32,8 @@ class CourseThemeWithStatsSerializers(DefaultCourseThemeSerializers):
         user = self.context.get('user')
         if not user or isinstance(user, AnonymousUser):
             return 0
-        return CourseLessonAccess.objects.filter(
-            user=user, course_lesson__course_theme=obj, status=AccessBase.COURSES_STATUS_COMPLETED
-        ).count()
+
+        access = Access.objects.filter(course=obj.course_id, user=user).first()
+        if not access:
+            return 0
+        return access.count_by_status('course_lesson', _where=lambda item: item.course_theme_id == obj.pk)

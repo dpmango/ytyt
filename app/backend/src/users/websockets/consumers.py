@@ -85,6 +85,8 @@ class UserConsumer(JsonWebsocketConsumer, ConsumerEvents):
         :param to: Набор пользователей, которым нужно разослать в сокет данные
         :param data: Данные для отправки
         """
+        content = kwargs.pop('content', None) or {}
+
         if to == data is None:
             self.close(1000)
             return
@@ -107,9 +109,7 @@ class UserConsumer(JsonWebsocketConsumer, ConsumerEvents):
                     )
 
                     # Порождаем дополнительное событие — количество непрочитанных сообщений для каждого диалога
-                    messages_count = self.events.notifications.get_dialog_messages_count(
-                        user, **kwargs.get('content') or {}
-                    )
+                    messages_count = self.events.notifications.get_dialog_messages_count(user, **content)
                     async_to_sync(self.channel_layer.group_send)(user.ws_key, {'type': 'ws_send', **messages_count})
 
     def ws_send(self, event: dict) -> None:

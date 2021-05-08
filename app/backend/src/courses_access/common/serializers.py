@@ -1,8 +1,9 @@
-from rest_framework import serializers
-from courses_access.models import CourseAccess, CourseThemeAccess, CourseLessonAccess, LessonFragmentAccess
-from courses_access.common.models import AccessBase
-from courses.models import Course, CourseTheme, CourseLesson
 from django.contrib.auth.models import AnonymousUser
+from rest_framework import serializers
+
+from courses.models import *
+from courses_access.models import Access
+from courses_access.utils import get_course_from_struct
 
 
 class AccessBaseSerializers(serializers.ModelSerializer):
@@ -11,13 +12,6 @@ class AccessBaseSerializers(serializers.ModelSerializer):
     """
     status = serializers.SerializerMethodField()
 
-    MAPPING_ACCESS = {
-        'CourseAccess': CourseAccess,
-        'CourseThemeAccess': CourseThemeAccess,
-        'CourseLessonAccess': CourseLessonAccess,
-        'LessonFragmentAccess': LessonFragmentAccess,
-    }
-
     def get_status(self, obj) -> int:
         """
         Метод вернет информацию о доустпе к курсу
@@ -25,39 +19,35 @@ class AccessBaseSerializers(serializers.ModelSerializer):
         :param obj: Объект из courses-app
         """
         user = self.context.get('user')
-        if not user or isinstance(user, AnonymousUser):
-            return AccessBase.COURSES_STATUS_BLOCK
-        return self.get_model_access(obj).objects.get_status(obj, user=user)
+        course_id = get_course_from_struct(obj)
 
-    @classmethod
-    def get_model_access(cls, obj):
-        return cls.MAPPING_ACCESS.get(obj.__class__.__name__ + 'Access')
+        access = Access.objects.filter(course_id=course_id, user=user).first()
 
+        if not user or isinstance(user, AnonymousUser) or not access:
+            return Access.STATUS_BLOCK
 
-class AccessSerializers(AccessBaseSerializers):
-    course_access_type = serializers.SerializerMethodField()
-
-    def get_course_access_type(self, obj) -> int:
-        """
-        Получение типа доступа к курсу при наличии пользователя
-        :param obj: Объект Курса/Темы/Урока
-        """
-        user = self.context.get('user')
-        if not user or isinstance(user, AnonymousUser):
-            return AccessBase.COURSE_ACCESS_TYPE_NONE
-
-        course_id = None
         if isinstance(obj, Course):
-            course_id = obj.id
+            return access.status
 
-        elif isinstance(obj, CourseTheme):
-            course_id = obj.course_id
+        target = access.get_object(obj.__class__.__name__, obj.pk)
+        if target.status in Access.AVAILABLE_STATUSES:
+            return target.status
 
-        elif isinstance(obj, CourseLesson):
-            course_id = obj.course_theme.course_id
+        theme = obj
+        if isinstance(obj, CourseLesson):
+            theme = obj.course_theme
 
-        course_access = CourseAccess.objects.filter(user=user, course_id=course_id).first()
+        elif isinstance(obj, LessonFragment):
+            theme = obj.course_lesson.course_theme
 
-        if course_access is None:
-            return AccessBase.COURSE_ACCESS_TYPE_NONE
-        return course_access.access_type
+        if theme.free_access or access.access_type in Access.AVAILABLE_ACCESS_TYPES_FULL:
+
+            if isinstance(obj, CourseTheme):
+                return Access.WAITING_STATUS_COMPLETED_THEME
+
+            elif isinstance(obj, CourseLesson):
+                return Access.WAITING_STATUS_COMPLETED_LESSON
+
+            return Access.WAITING_STATUS_COMPLETED_FRAGMENT
+
+        return Access.WAITING_STATUS_PAID

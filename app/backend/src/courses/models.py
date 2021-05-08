@@ -1,7 +1,10 @@
-from bs4 import BeautifulSoup
+from decimal import Decimal
+
 from django.db import models
 from markdownx.models import MarkdownxField
 from markdownx.utils import markdownify
+
+from courses.utils import html_to_text
 
 
 class CourseBase(models.Model):
@@ -25,6 +28,10 @@ class Course(CourseBase):
 
     def __str__(self):
         return '%s' % self.title
+
+    @property
+    def cost_penny(self) -> Decimal:
+        return self.cost * 100
 
 
 class CourseTheme(CourseBase):
@@ -74,8 +81,8 @@ class LessonFragment(models.Model):
         return '%s' % self.title[:30]
 
     def get_content(self) -> str:
-        return markdownify(self.content)  # TODO: Проверить наличие ошибки при пустом описании
+        return markdownify(self.content)
 
-    def get_text_content(self):
-        return ''.join(BeautifulSoup(self.content(), features='html.parser').findAll(text=True))
+    def get_text_content(self) -> str:
+        return html_to_text(self.content())
 

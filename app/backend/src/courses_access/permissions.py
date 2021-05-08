@@ -1,10 +1,8 @@
+import rest_framework.permissions as perm
 from rest_framework import exceptions
 
-import rest_framework.permissions as perm
-
-
-from courses_access.models import CourseAccess, CourseThemeAccess, CourseLessonAccess, LessonFragmentAccess
 from courses.models import Course, CourseTheme, CourseLesson, LessonFragment
+from courses_access.models import Access
 
 
 class CourseLessonAccessPermissions(perm.BasePermission):
@@ -35,25 +33,26 @@ class CourseLessonAccessPermissions(perm.BasePermission):
             raise exceptions.PermissionDenied('Для доступа необходимо быть авторизованным')
 
         course_id = view.kwargs.get('course_id')
-        course_permission = CourseAccess.objects.check_permission(course_id, user)
-        if not course_permission:
-            raise exceptions.PermissionDenied(
-                'У вас нет доступа к курсу `%s`' % Course.objects.get(pk=course_id).title
-            )
+        access = Access.objects.filter(course_id=course_id, user=user).first()
+
+        if not access or not access.check_course_permission():
+
+            detail = 'У вас нет доступа к курсу `%s`' % Course.objects.get(pk=course_id).title
+            raise exceptions.PermissionDenied({'detail': detail, **access.get_block_reason()})
 
         course_theme_id = view.kwargs.get('course_theme_id')
-        course_theme_permission = CourseThemeAccess.objects.check_permission(course_theme_id, user)
+        course_theme_permission = access.check_course_theme_permission(pk=course_theme_id)
         if not course_theme_permission:
-            raise exceptions.PermissionDenied(
-                'У вас нет доступа к теме `%s`' % CourseTheme.objects.get(pk=course_theme_id).title
-            )
+
+            detail = 'У вас нет доступа к теме `%s`' % CourseTheme.objects.get(pk=course_theme_id).title
+            raise exceptions.PermissionDenied({'detail': detail, **access.get_block_reason()})
 
         course_lesson_id = view.kwargs.get('pk')
-        course_lesson_permission = CourseLessonAccess.objects.check_permission(course_lesson_id, user)
+        course_lesson_permission = access.check_course_lesson_permission(pk=course_lesson_id)
         if not course_lesson_permission:
-            raise exceptions.PermissionDenied(
-                'У вас нет доступа к уроку `%s`' % CourseLesson.objects.get(pk=course_lesson_id).title
-            )
+
+            detail = 'У вас нет доступа к уроку `%s`' % CourseLesson.objects.get(pk=course_lesson_id).title
+            raise exceptions.PermissionDenied({'detail': detail, **access.get_block_reason()})
 
         return True
 
@@ -92,9 +91,8 @@ class LessonFragmentAccessPermissions(CourseLessonAccessPermissions):
         super().has_permission(request, view)
         view.kwargs = ini_kwargs
 
-        lesson_fragment_permission = LessonFragmentAccess.objects.check_permission(
-            lesson_fragment_id, request.user, course=course, course_theme=course_theme
-        )
-        if not lesson_fragment_permission:
-            raise exceptions.PermissionDenied('У вас нет доступа к фрагменту `%s`' % lesson_fragment.title)
+        access = Access.objects.filter(course=course, user=user).first()
+        if not access or not access.check_lesson_fragment_permission(pk=lesson_fragment_id):
+            detail = 'У вас нет доступа к фрагменту `%s`' % lesson_fragment.title
+            raise exceptions.PermissionDenied({'detail': detail, **access.get_block_reason()})
         return True

@@ -13,6 +13,9 @@ x-backend-env:
     DEFAULT_FROM_EMAIL: ${DEFAULT_FROM_EMAIL}
     DEFAULT_ADMIN_EMAIL: ${DEFAULT_ADMIN_EMAIL}
 
+    TINKOFF_URL: 'https://securepay.tinkoff.ru/v2/'
+    TINKOFF_TERMINAL_KEY: ${TINKOFF_TERMINAL_KEY}
+
 x-backend:
   &backend
   build:
@@ -40,3 +43,5 @@ services:
       bash -c "
       dockerize -wait tcp://redis:6379
       celery -A crm worker --loglevel=DEBUG"
+    depends_on:
+      - backend

@@ -1,8 +1,9 @@
 import json
+from typing import List, Tuple
 
-from requests import request, Response
 from django.conf import settings
 from loguru import logger
+from requests import request, Response
 
 
 class Mailgun:
@@ -16,13 +17,25 @@ class Mailgun:
     def _auth(self):
         return 'api', self.token
 
+    def send_file(self, to: str, subject: str, body: str, files: List[Tuple[str, bytes]]):
+        """
+        Метод отправляет сообщение пользователю на email
+        :param to: Email пользователя
+        :param subject: Тема сообщения
+        :param body: Тело сообщения
+        :param files: Список файлов
+        """
+        data = {
+            'from': self.from_email, 'to': [to], 'subject': subject, 'text': body,
+        }
+        return self._call('POST', url='messages', data=data, files=files)
+
     def send_email(self, to: str, subject: str, body: str) -> dict:
         """
         Метод отправляет сообщение пользователю на email
         :param to: Email пользователя
         :param subject: Тема сообщения
         :param body: Тело сообщения
-        :return:
         """
         data = {
             'from': self.from_email, 'to': [to], 'subject': subject, 'text': body,
