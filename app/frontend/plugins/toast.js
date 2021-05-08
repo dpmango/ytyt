@@ -1,5 +1,3 @@
-/* eslint-disable no-console */
-
 export default function ({ $toast }, inject) {
   // options to the toast
   const options = {
@@ -8,6 +6,23 @@ export default function ({ $toast }, inject) {
   };
 
   // register the toast with the custom message
+  $toast.register(
+    'default',
+    (payload) => {
+      if (!payload.message) {
+        return 'Успешно';
+      }
+
+      return payload.message;
+    },
+    {
+      ...options,
+      ...{
+        type: 'default',
+      },
+    }
+  );
+
   $toast.register(
     'success',
     (payload) => {

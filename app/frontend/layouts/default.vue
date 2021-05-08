@@ -15,7 +15,7 @@ export default {
   middleware: ['auth'],
   computed: {
     showConfirmationNotification() {
-      if (['Messages'].includes(this.$route.name)) {
+      if (!this.$route.name || ['Messages'].includes(this.$route.name)) {
         return false;
       }
 
