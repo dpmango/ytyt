@@ -8,7 +8,6 @@
       [4, 5, 6, 7, 8].includes(status) && 'is-locked',
     ]"
   >
-    {{ constants }}
     <template v-if="status === 1">
       <UiSvgIcon name="radio" />
     </template>
@@ -21,7 +20,7 @@
     <template v-if="[4, 5, 6, 7, 8].includes(status)">
       <UiSvgIcon name="lock" />
     </template>
-    <span>{{ constant }}</span>
+    <span>{{ constant && constant.title }}</span>
   </div>
 </template>
 
@@ -36,7 +35,7 @@ export default {
     constant() {
       return this.getConstantById(this.status);
     },
-    ...mapGetters('constants', ['getConstantById', 'constants']),
+    ...mapGetters('constants', ['getConstantById']),
   },
 };
 </script>
