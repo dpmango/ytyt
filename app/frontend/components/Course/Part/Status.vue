@@ -5,32 +5,38 @@
       status === 1 && 'is-available',
       status === 2 && 'is-current',
       status === 3 && 'is-compleated',
-      status === 4 && 'is-locked',
+      [4, 5, 6, 7, 8].includes(status) && 'is-locked',
     ]"
   >
+    {{ constants }}
     <template v-if="status === 1">
       <UiSvgIcon name="radio" />
-      <span>Доступен</span>
     </template>
     <template v-if="status === 2">
       <UiSvgIcon name="time" />
-      <span>В процессе</span>
     </template>
     <template v-if="status === 3">
       <UiSvgIcon name="checkmark" />
-      <span>Завершен</span>
     </template>
-    <template v-if="status === 4">
+    <template v-if="[4, 5, 6, 7, 8].includes(status)">
       <UiSvgIcon name="lock" />
-      <span>Не оплачен</span>
     </template>
+    <span>{{ constant }}</span>
   </div>
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
+
 export default {
   props: {
     status: Number,
+  },
+  computed: {
+    constant() {
+      return this.getConstantById(this.status);
+    },
+    ...mapGetters('constants', ['getConstantById', 'constants']),
   },
 };
 </script>
