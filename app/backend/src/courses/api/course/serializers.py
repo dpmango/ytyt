@@ -3,11 +3,11 @@ from django.db.models import Count
 from rest_framework import serializers
 
 from courses.models import Course
-from courses_access.common.serializers import AccessSerializers
+from courses_access.common.serializers import AccessBaseSerializers
 from courses_access.models import Access
 
 
-class DefaultCourseSerializers(AccessSerializers):
+class DefaultCourseSerializers(AccessBaseSerializers):
     count_lessons = serializers.SerializerMethodField()
     completed_count_lessons = serializers.SerializerMethodField()
 
@@ -33,7 +33,10 @@ class DefaultCourseSerializers(AccessSerializers):
         if not user or isinstance(user, AnonymousUser):
             return 0
 
-        return Access.objects.count_by_status(to_struct='course_lesson', user_id=user.id)
+        access = Access.objects.filter(course=obj, user=user).first()
+        if not access:
+            return 0
+        return access.count_by_status('course_lesson')
 
     @staticmethod
     def get_count_themes(obj: Course) -> int:
@@ -52,16 +55,17 @@ class DefaultCourseSerializers(AccessSerializers):
         if not user or isinstance(user, AnonymousUser):
             return 0
 
-        return Access.objects.count_by_status(
-            to_struct='course_theme', user_id=user.id, course_id=obj.id
-        )
+        access = Access.objects.filter(course=obj, user=user).first()
+        if not access:
+            return 0
+        return access.count_by_status('course_theme')
 
     class Meta:
         model = Course
         exclude = ('order', 'date_created', 'date_updated')
 
 
-class DetailCourseSerializers(AccessSerializers):
+class DetailCourseSerializers(AccessBaseSerializers):
 
     def to_representation(self, instance: Course):
         user = self.context.get('user')

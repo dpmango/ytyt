@@ -1,10 +1,58 @@
 import json
 
+from django.conf import settings
 from loguru import logger
 from requests import request, Response
 
 
 class Tinkoff:
+    PAYMENT_METHOD_FULL_PAYMENT = 'full_payment'
+    PAYMENT_METHOD_FULL_PREPAYMENT = 'full_prepayment'
+    PAYMENT_METHOD_PREPAYMENT = 'prepayment'
+    PAYMENT_METHOD_ADVANCE = 'advance'
+    PAYMENT_METHOD_PARTIAL_PAYMENT = 'partial_payment'
+    PAYMENT_METHOD_CREDIT = 'credit'
+    PAYMENT_METHOD_CREDIT_PAYMENT = 'credit_payment'
+    PAYMENT_METHODS = (
+        (PAYMENT_METHOD_FULL_PAYMENT, 'Полный расчет'),
+        (PAYMENT_METHOD_FULL_PREPAYMENT, 'Предоплата 100%'),
+        (PAYMENT_METHOD_PREPAYMENT, 'Предоплата'),
+        (PAYMENT_METHOD_ADVANCE, 'Аванс'),
+        (PAYMENT_METHOD_PARTIAL_PAYMENT, 'Частичный расчет и кредит'),
+        (PAYMENT_METHOD_CREDIT, 'Передача в кредит'),
+        (PAYMENT_METHOD_CREDIT_PAYMENT, 'Оплата кредита'),
+
+    )
+
+    TAX_NONE = 'none'
+    TAX_VAT0 = 'vat0'
+    TAX_VAT10 = 'vat10'
+    TAX_VAT20 = 'vat20'
+    TAX_VAT110 = 'vat110'
+    TAX_VAT120 = 'vat120'
+    TAXES = (
+        (TAX_NONE, 'Без НДС'),
+        (TAX_VAT0, '0%'),
+        (TAX_VAT10, '10%'),
+        (TAX_VAT20, '20%'),
+        (TAX_VAT110, '10/110'),
+        (TAX_VAT120, '20/120'),
+    )
+
+    TAXATION_OSN = 'osn'
+    TAXATION_USN_INCOME = 'usn_income'
+    TAXATION_USN_INCOME_OUTCOME = 'usn_income_outcome'
+    TAXATION_PATENT = 'patent'
+    TAXATION_ENVD = 'envd'
+    TAXATION_ESN = 'esn'
+    TAXATIONS = (
+        (TAXATION_OSN, 'Общая'),
+        (TAXATION_USN_INCOME, 'Упрощенная (доходы)'),
+        (TAXATION_USN_INCOME_OUTCOME, 'Упрощенная (доходы минус расходы)'),
+        (TAXATION_PATENT, 'Патентная'),
+        (TAXATION_ENVD, 'Единый налог на вмененный доход'),
+        (TAXATION_ESN, 'Единый сельскохозяйственный налог'),
+    )
 
     STATUS_NEW = 'NEW'
     STATUS_FORM_SHOWED = 'FORM_SHOWED'
@@ -25,7 +73,6 @@ class Tinkoff:
     STATUS_REFUNDING = 'REFUNDING'
     STATUS_PARTIAL_REFUNDED = 'PARTIAL_REFUNDED'
     STATUS_REFUNDED = 'REFUNDED'
-
     STATUSES = (
         (STATUS_NEW, 'Создан'),
         (STATUS_FORM_SHOWED, 'Платежная форма открыта покупателем'),
@@ -48,9 +95,17 @@ class Tinkoff:
         (STATUS_REFUNDED, 'Возвращен полностью'),
     )
 
-    def __init__(self):
-        self.base_url = None
-        self._auth = None
+    def __init__(self, base_url: str, terminal_key: str, admin_email: str):
+        self.base_url = base_url
+        self.terminal_key = terminal_key
+        self.admin_email = admin_email
+
+    def init(self, **kwargs):
+        """
+        Метод создает платеж: продавец получает ссылку на платежную форму и должен перенаправить по ней покупателя
+        """
+        data = {'TerminalKey': self.terminal_key, **kwargs}
+        return self._call('post', url='Init', data=data)
 
     def _call(self, method: str, url: str, **kwargs):
         """
@@ -63,7 +118,7 @@ class Tinkoff:
         url = '%s/%s' % (base_url, url)
 
         logger.debug('[tinkoff][request][method=%s] url=%s, kwargs=%s' % (method, url, str(kwargs)))
-        response = request(method=method, url=url, auth=self._auth, **kwargs)
+        response = request(method=method, url=url, **kwargs)
 
         if response.status_code in (200, 201, 202):
             return self._force_json(response)
@@ -77,3 +132,10 @@ class Tinkoff:
             return response.json()
         except json.JSONDecodeError:
             return {}
+
+
+tinkoff_client = Tinkoff(
+    base_url=settings.TINKOFF_URL,
+    terminal_key=settings.TINKOFF_TERMINAL_KEY,
+    admin_email=settings.DEFAULT_ADMIN_EMAIL,
+)

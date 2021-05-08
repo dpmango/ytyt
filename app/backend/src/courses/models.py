@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.db import models
 from markdownx.models import MarkdownxField
 from markdownx.utils import markdownify
@@ -26,6 +28,10 @@ class Course(CourseBase):
 
     def __str__(self):
         return '%s' % self.title
+
+    @property
+    def cost_penny(self) -> Decimal:
+        return self.cost * 100
 
 
 class CourseTheme(CourseBase):

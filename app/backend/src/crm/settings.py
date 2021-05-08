@@ -278,3 +278,7 @@ if SENTRY_DSN:
         integrations=[DjangoIntegration()],
         send_default_pii=True
     )
+
+
+TINKOFF_URL = env('TINKOFF_URL')
+TINKOFF_TERMINAL_KEY = env('TINKOFF_TERMINAL_KEY')

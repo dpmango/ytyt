@@ -5,12 +5,12 @@ from courses.api.lesson_fragment.serializers import (
 )
 from courses.models import CourseLesson
 from courses.models import LessonFragment
-from courses_access.common.serializers import AccessSerializers
+from courses_access.common.serializers import AccessBaseSerializers
 from courses_access.models import Access
 from courses_access.utils import get_course_from_struct
 
 
-class DefaultCourseLessonSerializers(AccessSerializers):
+class DefaultCourseLessonSerializers(AccessBaseSerializers):
     class Meta:
         model = CourseLesson
         exclude = ('content', 'order', 'course_theme', 'date_updated', 'date_created')
@@ -45,11 +45,16 @@ class DetailCourseLessonSerializers(DefaultCourseLessonSerializers):
         :param obj: CourseLesson
         """
         user = self.context.get('user')
-
         fragments = obj.lessonfragment_set.count()
-        completed_fragments = Access.objects.count_by_status(
-            to_struct='lesson_fragment', user_id=user.id, course_lesson_id=obj.pk
-        )
+
+        course_id = get_course_from_struct(obj)
+        access = Access.objects.filter(course=course_id, user=user).first()
+
+        completed_fragments = 0
+        if access:
+            completed_fragments = access.count_by_status(
+                'lesson_fragment', _where=lambda item: item.course_lesson_id == obj.pk
+            )
 
         return completed_fragments / fragments * 100
 

@@ -7,7 +7,6 @@ from django.forms import model_to_dict
 from django.utils import timezone
 
 from courses.models import Course, CourseTheme, CourseLesson, LessonFragment
-from courses_access.managers import AccessManager
 from courses_access.utils import force_int_pk, to_snake_case
 from providers.mailgun.mixins import EmailNotification
 from users.models import User
@@ -24,6 +23,17 @@ class Access(models.Model):
         (STATUS_IN_PROGRESS, 'В процессе'),
         (STATUS_COMPLETED, 'Завершен'),
         (STATUS_BLOCK, 'Заблокирован'),
+    )
+
+    WAITING_STATUS_COMPLETED_FRAGMENT = 5
+    WAITING_STATUS_COMPLETED_LESSON = 6
+    WAITING_STATUS_COMPLETED_THEME = 7
+    WAITING_STATUS_PAID = 8
+    WAITING_STATUSES = (
+        (WAITING_STATUS_COMPLETED_FRAGMENT, 'Ожидание завершения предыдущего фрагмента'),
+        (WAITING_STATUS_COMPLETED_LESSON, 'Ожидание завершения предыдущего урока'),
+        (WAITING_STATUS_COMPLETED_THEME, 'Ожидание завершения предыдущей темы'),
+        (WAITING_STATUS_PAID, 'Ожидание статуса оплачено'),
     )
 
     AVAILABLE_STATUSES = (
@@ -84,7 +94,9 @@ class Access(models.Model):
     lesson_fragment = models.JSONField('Доступы к фрагментам',
                                        default=list, null=True, blank=True, encoder=DjangoJSONEncoder)
 
-    objects = AccessManager()
+    class Meta:
+        verbose_name = 'Доступ к учебным материалам'
+        verbose_name_plural = 'Доступы к учебным материалам'
 
     def set_empty_accesses(self) -> None:
         """
@@ -435,6 +447,30 @@ class Access(models.Model):
             result.append(self._simple_struct(**get_addition_kwargs(object_new_struct), status=status))
 
         return result
+
+    def count_by_status(self, to_struct: str, status: int = None, _where: typing.Callable = None) -> int:
+        """
+        Метод возвращает количество элементов структуры, которые удовлетворяют статусу
+        Доступыне стурктуры:
+            - Course
+            - CourseTheme
+            - CourseLesson
+            - LessonFragment
+        :param to_struct: Название структуры
+        :param status: Статус для поиска
+        """
+        status = self.STATUS_COMPLETED if not status else status
+        to_struct = to_snake_case(to_struct)
+
+        if to_struct == 'course':
+            return 1 if self.status == status else 0
+
+        to_struct = [self._struct_to_object(**item) for item in getattr(self, to_struct, [])]
+
+        items = [item for item in to_struct if item.status == status]
+        items = list(filter(_where, items))
+
+        return len(items)
 
     def get_accessible_objects(self, to_struct: str) -> list:
         """

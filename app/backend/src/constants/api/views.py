@@ -69,6 +69,7 @@ class ConstantsViewSet(viewsets.ViewSet):
         return Response(self.export_constants([
             [Access, 'STATUS_', 'STATUSES'],
             [Access, 'COURSE_ACCESS_TYPE_', 'COURSE_ACCESS_TYPES'],
+            [Access, 'WAITING_STATUS_', 'WAITING_STATUSES'],
             [User, 'GENDER_', 'GENDERS'],
             [UserEvent, 'EVENT_', 'EVENTS'],
             [DialogEvent, 'EVENT_', 'EVENTS'],
