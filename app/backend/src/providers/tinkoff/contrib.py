@@ -120,7 +120,7 @@ class Tinkoff:
         будет выполнено частичное подтверждение.
         """
         data = {'TerminalKey': self.terminal_key, **kwargs}
-        data.update({'Token': self._create_signature(**data)})
+        # data.update({'Token': self._create_signature(**data)})
 
         return self._call('post', url='Confirm', json=data)
 

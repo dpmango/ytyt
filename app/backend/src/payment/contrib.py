@@ -35,6 +35,7 @@ class PaymentLayout:
         logger.info('[receive-raw] raw:\n%s' % json.dumps(raw_payment, indent=4, ensure_ascii=False))
 
         order_id = raw_payment.get('OrderId')
+        token = raw_payment.get('Token')
         payment_id = raw_payment.get('PaymentId')
         status = raw_payment.get('Status')
 
@@ -44,14 +45,18 @@ class PaymentLayout:
             logger.info('[payment-layout][receive] err=%s' % (e, ))
             return
 
+        # Если платеж был подтвержден ранее, то пропускаем
+        if payment.status == Tinkoff.STATUS_CONFIRMED:
+            return None
+
         with transaction.atomic():
             payment.status = status
             payment.save(update_fields=['status', 'date_updated'])
 
             # Если используется двухстайдийная оплата, то придет статус `STATUS_AUTHORIZED`, который нужно будет
             # подтвердить
-            # if status == Tinkoff.STATUS_AUTHORIZED:
-            #     self.confirm(payment, payment_id=payment_id)
+            if status == Tinkoff.STATUS_AUTHORIZED:
+                self.confirm(payment, payment_id=payment_id, token=token)
 
             # Если двухстадийная оплата не использовалась, то придет уже подтвержденный статус оплаты
             if status == Tinkoff.STATUS_CONFIRMED:
@@ -107,22 +112,19 @@ class PaymentLayout:
             }
         })
 
-    def confirm(self, payment: Payment, payment_id: str = None, **kwargs) -> None:
+    def confirm(self, payment: Payment, payment_id: str = None, token:str = None, **kwargs) -> None:
         """
         Метод предоставляет доступ к курсу после оплаты
         :param payment: Объект платежки
         :param payment_id: ID в системе банка
         """
 
-        # Если платеж был пожтвержден ранее, то пропускаем
-        if payment.status == Tinkoff.STATUS_CONFIRMED:
-            return None
-
         confirm_data = self.c.confirm(
             Amount=payment.amount,
             OrderId=str(payment.id),
             Description=payment.course.description,
             PaymentId=payment_id,
+            Token=token,
         )
 
         status = confirm_data.get('Status')
