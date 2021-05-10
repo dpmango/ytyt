@@ -32,7 +32,7 @@ class PaymentLayout:
         return False
 
     def receive(self, raw_payment: dict):
-        logger.info('[receive-raw] raw:\n%s', json.dumps(raw_payment, indent=4, ensure_ascii=False))
+        logger.info('[receive-raw] raw:\n%s' % json.dumps(raw_payment, indent=4, ensure_ascii=False))
 
         order_id = raw_payment.get('OrderId')
         payment_id = raw_payment.get('PaymentId')
