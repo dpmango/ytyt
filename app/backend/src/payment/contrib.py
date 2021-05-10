@@ -32,7 +32,6 @@ class PaymentLayout:
         return False
 
     def receive(self, raw_payment: dict):
-
         order_id = raw_payment.get('OrderId')
         payment_id = raw_payment.get('PaymentId')
         status = raw_payment.get('Status')
@@ -47,14 +46,14 @@ class PaymentLayout:
             payment.status = status
             payment.save(update_fields=['status', 'date_updated'])
 
+            # Если используется двухстайдийная оплата, то придет статус `STATUS_AUTHORIZED`, который нужно будет
+            # подтвердить
             if status == Tinkoff.STATUS_AUTHORIZED:
-                self.receive_authorized(payment, payment_id=payment_id)
+                self.confirm(payment, payment_id=payment_id)
 
+            # Если двухстадийная оплата не использовалась, то придет уже подтвержденный статус оплаты
             elif status == Tinkoff.STATUS_CONFIRMED:
                 self.receive_confirmed(payment, payment_id=payment_id)
-
-    def receive_authorized(self, payment: Payment, **kwargs):
-        self.confirm(payment, **kwargs)
 
     def init(self, payment: Payment) -> typing.Optional[str]:
         """
@@ -106,32 +105,16 @@ class PaymentLayout:
             }
         })
 
-    @staticmethod
-    def receive_confirmed(payment: Payment, **kwargs) -> None:
-        """
-        Метод для подтверждения оплаты
-        :param payment: Объект платежки
-        """
-        with transaction.atomic():
-            # Меняем статус оплаты
-            payment.status = Tinkoff.STATUS_CONFIRMED
-            payment.date_payment = timezone.now()
-            payment.save(update_fields=['status', 'date_updated', 'date_payment'])
-
-            # Переназначаем ревьюера
-            payment.user.re_elect_reviewer()
-
-            # Предоставляем доступ к курсу
-            access = payment.user.access_set.filter(course=payment.course).first()
-            access.access_type = Access.COURSE_ACCESS_TYPE_FULL_PAID
-            access.save()
-
     def confirm(self, payment: Payment, payment_id: str = None, **kwargs) -> None:
         """
         Метод предоставляет доступ к курсу после оплаты
         :param payment: Объект платежки
         :param payment_id: ID в системе банка
         """
+
+        # Если платеж был пожтвержден ранее, то пропускаем
+        if payment.status == Tinkoff.STATUS_CONFIRMED:
+            return
 
         confirm_data = self.c.confirm(
             Amount=payment.amount,
@@ -161,6 +144,26 @@ class PaymentLayout:
                 'confirm_data': confirm_data, 'payment': model_to_dict(payment),
             }
         })
+
+    @staticmethod
+    def receive_confirmed(payment: Payment, **kwargs) -> None:
+        """
+        Метод для подтверждения оплаты
+        :param payment: Объект платежки
+        """
+        with transaction.atomic():
+            # Меняем статус оплаты
+            payment.status = Tinkoff.STATUS_CONFIRMED
+            payment.date_payment = timezone.now()
+            payment.save(update_fields=['status', 'date_updated', 'date_payment'])
+
+            # Переназначаем ревьюера
+            payment.user.re_elect_reviewer()
+
+            # Предоставляем доступ к курсу
+            access = payment.user.access_set.filter(course=payment.course).first()
+            access.access_type = Access.COURSE_ACCESS_TYPE_FULL_PAID
+            access.save()
 
 
 payment_layout = PaymentLayout(
