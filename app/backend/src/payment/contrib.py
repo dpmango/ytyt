@@ -1,5 +1,5 @@
 import typing
-
+import json
 from django.conf import settings
 from django.db import transaction
 from django.forms.models import model_to_dict
@@ -32,6 +32,8 @@ class PaymentLayout:
         return False
 
     def receive(self, raw_payment: dict):
+        logger.info('[receive-raw] raw:\n%s', json.dumps(raw_payment, indent=4, ensure_ascii=False))
+
         order_id = raw_payment.get('OrderId')
         payment_id = raw_payment.get('PaymentId')
         status = raw_payment.get('Status')
@@ -114,7 +116,7 @@ class PaymentLayout:
 
         # Если платеж был пожтвержден ранее, то пропускаем
         if payment.status == Tinkoff.STATUS_CONFIRMED:
-            return
+            return None
 
         confirm_data = self.c.confirm(
             Amount=payment.amount,
