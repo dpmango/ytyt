@@ -94,6 +94,14 @@ class Access(models.Model):
     lesson_fragment = models.JSONField('Доступы к фрагментам',
                                        default=list, null=True, blank=True, encoder=DjangoJSONEncoder)
 
+    manual_access = models.ManyToManyField(
+        CourseLesson,
+        verbose_name='Ручной доступ к уроку',
+        blank=True,
+        help_text='Укажите уроки, у которые будут доступны пользователю вместе с темой',
+        related_name="manual_access_set",
+    )
+
     class Meta:
         verbose_name = 'Доступ к учебным материалам'
         verbose_name_plural = 'Доступы к учебным материалам'
@@ -447,6 +455,41 @@ class Access(models.Model):
             result.append(self._simple_struct(**get_addition_kwargs(object_new_struct), status=status))
 
         return result
+
+    def check_manual_access(self, to_struct: str, pk: int) -> typing.Optional[bool]:
+        """
+        Метод проверяет ручной доступ к темам/урокам/фрагментам
+        Доступыне стурктуры:
+            - Course
+            - CourseTheme
+            - CourseLesson
+            - LessonFragment
+        :param to_struct: Название структуры
+        :param pk: ID элемента
+        """
+        to_struct = to_snake_case(to_struct)
+
+        if to_struct == 'course':
+            return self.status in self.AVAILABLE_STATUSES
+
+        if to_struct == 'course_theme':
+
+            # Если есть доступ к уроку, то к теме тоже должен быть
+            return self.manual_access.all().filter(course_theme_id=pk).exists()
+
+        if to_struct == 'course_lesson':
+
+            # Если на вход получили структуру уроков, то напрямую проверяем ее
+            return self.manual_access.all().filter(id=pk).exists()
+
+        if to_struct == 'lesson_fragment':
+
+            # Если получили фрагмент урока, то проверяем доступ к уроку через два вызова
+            try:
+                lesson_fragment = LessonFragment.objects.get(pk=pk)
+            except LessonFragment.DoesNotExist:
+                return None
+            return self.manual_access.all().filter(id=lesson_fragment.course_lesson_id).exists()
 
     def count_by_status(self, to_struct: str, status: int = None, _where: typing.Callable = None) -> int:
         """

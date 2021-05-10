@@ -35,7 +35,6 @@ class PaymentLayout:
         logger.info('[receive-raw] raw:\n%s' % json.dumps(raw_payment, indent=4, ensure_ascii=False))
 
         order_id = raw_payment.get('OrderId')
-        token = raw_payment.get('Token')
         payment_id = raw_payment.get('PaymentId')
         status = raw_payment.get('Status')
 
@@ -56,7 +55,7 @@ class PaymentLayout:
             # Если используется двухстайдийная оплата, то придет статус `STATUS_AUTHORIZED`, который нужно будет
             # подтвердить
             if status == Tinkoff.STATUS_AUTHORIZED:
-                self.confirm(payment, payment_id=payment_id, token=token)
+                self.confirm(payment, payment_id=payment_id)
 
             # Если двухстадийная оплата не использовалась, то придет уже подтвержденный статус оплаты
             if status == Tinkoff.STATUS_CONFIRMED:
@@ -112,19 +111,17 @@ class PaymentLayout:
             }
         })
 
-    def confirm(self, payment: Payment, payment_id: str = None, token:str = None, **kwargs) -> None:
+    def confirm(self, payment: Payment, payment_id: str = None, **kwargs) -> None:
         """
         Метод предоставляет доступ к курсу после оплаты
         :param payment: Объект платежки
         :param payment_id: ID в системе банка
         """
-
         confirm_data = self.c.confirm(
             Amount=payment.amount,
             OrderId=str(payment.id),
             Description=payment.course.description,
             PaymentId=payment_id,
-            Token=token,
         )
 
         status = confirm_data.get('Status')

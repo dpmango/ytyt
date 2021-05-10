@@ -62,7 +62,11 @@ class CourseLesson(CourseBase):
         verbose_name_plural = 'Уроки'
 
     def __str__(self):
-        return '%s' % self.title
+        return '%s | %s | %s' % (
+            self.course_theme.course.title,
+            self.course_theme.title,
+            self.title
+        )
 
 
 class LessonFragment(models.Model):

@@ -33,8 +33,12 @@ class DetailCourseLessonSerializers(DefaultCourseLessonSerializers):
         if not access:
             return []
 
-        accessible_objects = access.get_accessible_objects(to_struct='lesson_fragment')
-        accessible_objects = [item.pk for item in accessible_objects]
+        # Если сущетсвует доступ к курсу, то вернем все фрагменты
+        if access.check_manual_access(obj.__class__.__name__, obj.pk):
+            accessible_objects = obj.lessonfragment_set.values_list('pk', flat=True)
+        else:
+            accessible_objects = access.get_accessible_objects(to_struct='lesson_fragment')
+            accessible_objects = [item.pk for item in accessible_objects]
 
         access_fragments = LessonFragment.objects.filter(pk__in=accessible_objects, course_lesson=obj)
         return DetailLessonFragmentSerializers(access_fragments, many=True, context=self.context).data
