@@ -52,7 +52,11 @@ class Mailgun:
         base_url = self.base_url.rstrip('/')
         url = '%s/%s' % (base_url, url)
 
-        logger.debug('[mailgun][request][method=%s] url=%s, kwargs=%s' % (method, url, str(kwargs)))
+        log_kwargs = kwargs
+        if 'files' in log_kwargs:
+            log_kwargs = {**log_kwargs, 'files': len(log_kwargs.get('files'))}
+
+        logger.debug('[mailgun][request][method=%s] url=%s, kwargs=%s' % (method, url, str(log_kwargs)))
         response = request(method=method, url=url, auth=self._auth, **kwargs)
 
         response = {

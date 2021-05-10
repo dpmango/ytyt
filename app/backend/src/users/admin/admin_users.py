@@ -9,7 +9,6 @@ from users.models import User
 
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
-
     add_form = UserCreationForm
 
     list_display = ('email', 'is_staff', 'is_active',)
@@ -49,14 +48,14 @@ class UserAdmin(BaseUserAdmin):
 
     add_fieldsets = (
         (None, {
-            'classes': ('wide', ),
+            'classes': ('wide',),
             'fields': ('email', 'password1', 'password2', 'is_staff', 'is_active',)}
          ),
     )
 
     search_fields = ('email',)
     ordering = ('email',)
-    readonly_fields = ('get_avatar', )
+    readonly_fields = ('get_avatar',)
     filter_horizontal = (
         'groups',
         'user_permissions',

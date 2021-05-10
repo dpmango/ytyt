@@ -75,7 +75,7 @@ class DetailCourseLessonSerializers(DefaultCourseLessonSerializers):
                                  to_status=Access.STATUS_IN_PROGRESS)
 
             access.change_status(to_struct='course_theme',
-                                 pk=instance.pk,
+                                 pk=instance.course_theme_id,
                                  from_status=Access.STATUS_AVAILABLE,
                                  to_status=Access.STATUS_IN_PROGRESS)
 

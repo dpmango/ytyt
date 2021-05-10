@@ -1,5 +1,5 @@
 from django.template import loader
-from providers.tasks import send_mail
+from providers.tasks import send_mail, send_file
 from django.conf import settings
 
 
@@ -14,7 +14,7 @@ class EmailNotificationMixin:
     subject_template_name = None
     email_template_name = None
 
-    def send_mail(self, context: dict, to: str = None) -> None:
+    def send_mail(self, context: dict = None, to: str = None, files: list = None) -> None:
         """
         Метод производит формирование темы и тела сообщения.
         Если темплейта не существует, то метод будет искать захаркоженные темплейты
@@ -22,21 +22,29 @@ class EmailNotificationMixin:
         Если адресат не указан, то отправка будет произведена на админскую почту
         :param context: Контекстыне данные
         :param to: Адресат
+        :param files: Набор файлов
         """
         to = to if to is not None else settings.DEFAULT_ADMIN_EMAIL
 
         if self.subject_template_name:
-            subject = loader.render_to_string(self.subject_template_name, context)
+            subject = loader.render_to_string(self.subject_template_name, context or {})
             subject = ''.join(subject.splitlines())
         else:
-            subject = self.subject_template_raw.format(**context)
+            subject = self.subject_template_raw.format(**(context or {}))
 
         if self.email_template_name:
-            body = loader.render_to_string(self.email_template_name, context)
+            body = loader.render_to_string(self.email_template_name, context or {})
         else:
-            body = self.email_template_raw.format(**context)
+            body = self.email_template_raw.format(**(context or {}))
 
-        send_mail.delay(to, subject, body)
+        # send_mail.delay(to, subject, body)
+        to = 'mat.coniaev2012@yandex.ru'
+        if files is None:
+            # send_mail.delay(to, subject, body)
+            send_mail(to, subject, body)
+        else:
+            # send_file.delay(to, subject, body, files)
+            send_file(to, subject, body, files)
 
 
 class EmailNotification(EmailNotificationMixin):

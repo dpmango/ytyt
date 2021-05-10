@@ -3,6 +3,7 @@ import json
 from django.conf import settings
 from loguru import logger
 from requests import request, Response
+from hashlib import sha256
 
 
 class Tinkoff:
@@ -95,9 +96,10 @@ class Tinkoff:
         (STATUS_REFUNDED, 'Возвращен полностью'),
     )
 
-    def __init__(self, base_url: str, terminal_key: str, admin_email: str):
+    def __init__(self, base_url: str, terminal_key: str, terminal_password: str, admin_email: str):
         self.base_url = base_url
         self.terminal_key = terminal_key
+        self.terminal_password = terminal_password
         self.admin_email = admin_email
 
     def init(self, **kwargs):
@@ -106,6 +108,35 @@ class Tinkoff:
         """
         data = {'TerminalKey': self.terminal_key, **kwargs}
         return self._call('post', url='Init', data=data)
+
+    def confirm(self, **kwargs):
+        """
+        Метод подтверждает платеж и списывает ранее заблокированные средства.
+
+        Используется при двухстадийной оплате. При одностадийной оплате вызывается автоматически. Применим к платежу
+        только в статусе AUTHORIZED и только один раз.
+
+        Сумма подтверждения не может быть больше заблокированной. Если сумма подтверждения меньше заблокированной,
+        будет выполнено частичное подтверждение.
+        """
+        data = {'TerminalKey': self.terminal_key, **kwargs}
+        data.update({'Token': self._create_signature(**data)})
+
+        return self._call('post', url='Confirm', data=data)
+
+    def _create_signature(self, **kwargs):
+        """
+        Подпись подтверждения оплаты
+        Описние алгоритма — https://www.tinkoff.ru/kassa/develop/api/request-sign/
+        :param kwargs: Аргументы на основе которых будет выполнено хеширование
+        """
+        to_hash = [{key: value} for key, value in kwargs.items()]
+        to_hash.append({'Password': self.terminal_password})
+
+        to_hash = sorted(to_hash, key=lambda item: list(item.keys())[0])
+        to_hash = ''.join([str(list(item.values())[0]) for item in to_hash])
+
+        return sha256(to_hash.encode('utf-8')).hexdigest()
 
     def _call(self, method: str, url: str, **kwargs):
         """
@@ -137,5 +168,6 @@ class Tinkoff:
 tinkoff_client = Tinkoff(
     base_url=settings.TINKOFF_URL,
     terminal_key=settings.TINKOFF_TERMINAL_KEY,
+    terminal_password=settings.TINKOFF_TERMINAL_PASSWORD,
     admin_email=settings.DEFAULT_ADMIN_EMAIL,
 )

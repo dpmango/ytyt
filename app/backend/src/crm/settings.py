@@ -71,6 +71,7 @@ INSTALLED_APPS = [
     'providers',
 
     'dialogs',
+    'reports',
 ]
 
 
@@ -282,3 +283,4 @@ if SENTRY_DSN:
 
 TINKOFF_URL = env('TINKOFF_URL')
 TINKOFF_TERMINAL_KEY = env('TINKOFF_TERMINAL_KEY')
+TINKOFF_TERMINAL_PASSWORD = env('TINKOFF_TERMINAL_PASSWORD')

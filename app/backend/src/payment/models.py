@@ -16,4 +16,3 @@ class Payment(models.Model):
     date_payment = models.DateTimeField('Дата оплаты', null=True, blank=True)
 
     status = models.CharField('Статус платежки', choices=Tinkoff.STATUSES, max_length=21, null=True, blank=True)
-

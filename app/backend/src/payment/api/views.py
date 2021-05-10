@@ -3,7 +3,6 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework.decorators import api_view, permission_classes
 
 from api.mixins import FlexibleSerializerModelViewSetMixin
 from payment.models import Payment
@@ -15,7 +14,7 @@ class PaymentViewSet(FlexibleSerializerModelViewSetMixin, viewsets.GenericViewSe
 
     queryset = Payment.objects.all()
 
-    permission_classes = (AllowAny, )
+    permission_classes = (IsAuthenticated, )
     permission_classes_by_action = {
         'statuses': (AllowAny, )
     }
@@ -29,26 +28,26 @@ class PaymentViewSet(FlexibleSerializerModelViewSetMixin, viewsets.GenericViewSe
         """
         Метод получает статусы по оплате в банке
         """
-        print(request.data)
+        payment_layout.receive(request.data)
         return Response({'status': 'ok'}, status=status.HTTP_200_OK)
 
     @action(methods=['POST'], detail=False)
     def init(self, request, *args, **kwargs):
-
+        """
+        Метод инициализирует оплату и возвращает ссылку на кассу
+        Пример ответа:
+            {
+                'payment_url': 'https://securepay.tinkoff.ru/rest/Authorize/1B63Y1'
+            }
+        """
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         payment = serializer.save()
 
-        payment_layout.init(payment)
+        url = payment_layout.init(payment)
+        payment_layout.is_valid(raise_exception=True)
 
-
-
-        return Response({})
-
-
-
-
-
+        return Response({'payment_url': url}, status=status.HTTP_200_OK)
 
     def get_serializer_context(self):
         return {

@@ -15,6 +15,7 @@ x-backend-env:
 
     TINKOFF_URL: 'https://securepay.tinkoff.ru/v2/'
     TINKOFF_TERMINAL_KEY: ${TINKOFF_TERMINAL_KEY}
+    TINKOFF_TERMINAL_PASSWORD: ${TINKOFF_TERMINAL_PASSWORD}
 
 x-backend:
   &backend

@@ -1,17 +1,17 @@
+import io
 import typing
 
-from django.db.models import Q
+import xlsxwriter
 from xlsxwriter import Workbook
-import io
-
 from xlsxwriter.worksheet import Worksheet
 
-from users.models import User
 from courses_access.models import Access
-import xlsxwriter
+from providers.mailgun.mixins import EmailNotification
+from reports.configs import CONFIG
+from users.models import User
 
 
-class GenerateUsersReport:
+class GenerateReport:
 
     HEADERS_HEIGHT = 30
     HEADERS_FORMAT = {
@@ -25,63 +25,21 @@ class GenerateUsersReport:
         'border': 4,
     }
     MIN_COLUMN_WIDTH = 5
-    MAPPING = [
-        {
-            'title': 'ФИО',
-            'value': lambda user: user.fio,
-            'set_column_auto_width': True,
-        },
-        {
-            'title': 'Email',
-            'value': lambda user: user.email,
-            'set_column_auto_width': True,
-        },
-        {
-            'title': 'Оплатил/не оплатил',
-            'value': 'fact_of_payment',
-            'set_column_auto_width': True,
-        },
-        {
-            'title': 'Дата регистрации',
-            'value': lambda user: user.date_joined.strftime('%d-%m-%Y'),
-            'set_column_auto_width': True,
-        },
-        {
-            'title': 'Дата оплаты',
-            'value': lambda user: user,
-            'set_column_auto_width': True,
-        },
-        {
-            'title': 'Последний пройденный урок',
-            'value': lambda user: user,
-            'set_column_auto_width': True,
-        },
-        {
-            'title': 'Назначенный ментор',
-            'value': lambda user: user.reviewer.email,
-            'set_column_auto_width': True,
-        },
-        {
-            'title': 'Количество сообщений ревьюеру',
-            'value': lambda user: user.dialogmessage_set.count(),
-            'set_column_auto_width': True,
-        },
-    ]
 
-    def __init__(self, users: typing.Optional[typing.List[int]] = None):
+    def __init__(self, report_name: str, **kwargs):
         self.workbook: typing.Optional[Workbook] = None
         self.worksheet: typing.Optional[Worksheet] = None
         self.column_auto_width = {}
         self.row_count = 0
         self.col_count = 0
-        self.users = users
+        self.config = CONFIG[report_name]
+        self.meta = self.config['meta']
+        self.mapping = self.config['mapping']
 
     def process(self):
-
         output = io.BytesIO()
-        # https://stackoverflow.com/questions/16393242/xlsxwriter-object-save-as-http-response-to-create-download-in-django
-        self.workbook = xlsxwriter.Workbook(output, {'in_memory': True})
 
+        self.workbook = xlsxwriter.Workbook(output, {'in_memory': True})
         self.worksheet = self.workbook.add_worksheet()
 
         self.write_headers()
@@ -91,6 +49,16 @@ class GenerateUsersReport:
         self.workbook.close()
         output.seek(0)
 
+        mailgun = EmailNotification(
+            subject_template_raw='Отчет о пользователях',
+            email_template_raw='Сгеенирован отчет о пользователях. Файл во вложении',
+        )
+        mailgun.send_mail(
+            files=[
+                ('attachment', ('%s.xlsx' % self.meta['ru'], output.read())),
+            ]
+        )
+
         return True
 
     def write_headers(self):
@@ -99,7 +67,7 @@ class GenerateUsersReport:
         """
         row_index = 0
         column_index = 0
-        for field in self.MAPPING:
+        for field in self.mapping:
             self.worksheet.write(row_index, column_index, field['title'])
             self.set_column_auto_width(column_index, field['title'])
             column_index += 1
@@ -117,30 +85,29 @@ class GenerateUsersReport:
 
         row_index = 1
         while True:
-
-            users = queryset[offset:limit]
-            if len(users) == 0:
+            rows = queryset[offset:limit]
+            if len(rows) == 0:
                 break
 
-            for user in users:
-                self.write_data_row(user, row_index)
+            for row in rows:
+                self.write_data_row(row, row_index)
                 row_index += 1
 
             offset += limit
         self.row_count = row_index
 
-    def write_data_row(self, user: User, row_index):
+    def write_data_row(self, row, row_index):
         """
         Запись отдельного значения строки
-        :param user: Пользователь для записи
+        :param row: Одна строка для записи
         :param row_index: Индекс строки для записи
         :return:
         """
         col_index = 0
-        for column in self.MAPPING:
+        for column in self.mapping:
 
             value_func = column.get('value')
-            value = self.get_value(value_func, user)
+            value = self.get_value(value_func, row)
 
             self.worksheet.write(row_index, col_index, value)
 
@@ -175,13 +142,10 @@ class GenerateUsersReport:
         """
         Получение пользователей, которые не являются ревьюерами, а так же связанные с ними данными
         """
-        query = Q(is_staff=False)
-        related_args = ('courselessonaccess_set', 'courseaccess_set', 'dialogmessage_set')
+        query = self.meta['query']
+        related_args = ('access_set', 'payment_set', 'dialogmessage_set')
 
-        if isinstance(self.users, list) and len(self.users) > 0:
-            query &= Q(id__in=self.users)
-
-        return User.objects.get_queryset().filter(query).select_related(*related_args)
+        return User.objects.get_queryset().filter(query).prefetch_related(*related_args)
 
     def get_value(self, value_func: typing.Union[str, typing.Callable], user: User):
         """
@@ -204,8 +168,36 @@ class GenerateUsersReport:
         Метод проверяет факт оплаты доступа к курсу
         :param user: Пользователь
         """
-        fact = user.courseaccess_set.filter(access_type=AccessStatuses.COURSE_ACCESS_TYPE_FULL_PAID).exists()
+        fact = user.access_set.filter(access_type=Access.COURSE_ACCESS_TYPE_FULL_PAID).exists()
         if fact:
             return 'Да'
         return 'Нет'
 
+    @staticmethod
+    def get_value__date_payment(user: User) -> typing.Optional[str]:
+        """
+        Метод возвращает дату оплаты курса
+        :param user: Пользователь
+        """
+        payment = user.payment_set.first()
+        if not payment or not payment.date_payment:
+            return None
+        return payment.date_payment.strftime('%d-%m-%Y')
+
+    @staticmethod
+    def get_value__last_lesson_completed(user: User) -> typing.Optional[int]:
+        access = user.access_set.first()
+        if not access:
+            return None
+
+        course_lessons = [item for item in access.course_lesson]
+        last_course_lesson = None
+
+        for course_lesson in course_lessons:
+            if course_lesson['status'] == Access.STATUS_COMPLETED:
+                last_course_lesson = course_lesson['pk']
+        return last_course_lesson
+
+    @staticmethod
+    def get_value__average_time_answer(reviewer: User) -> int:
+        return 10

@@ -23,6 +23,4 @@ def send_file(_, *args, **kwargs) -> None:
     :param kwargs: Ключевые аргументы запроса
     :return: None
     """
-
-    # https://documentation.mailgun.com/en/latest/user_manual.html#sending-via-api
     mailgun.send_file(*args)
