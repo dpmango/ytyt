@@ -34,6 +34,7 @@ class PaymentLayout:
     def receive(self, raw_payment: dict):
 
         order_id = raw_payment.get('OrderId')
+        payment_id = raw_payment.get('PaymentId')
         status = raw_payment.get('Status')
 
         try:
@@ -42,17 +43,18 @@ class PaymentLayout:
             logger.info('[payment-layout][receive] err=%s' % (e, ))
             return
 
-        payment.status = status
-        payment.save(update_fields=['status', 'date_updated'])
+        with transaction.atomic():
+            payment.status = status
+            payment.save(update_fields=['status', 'date_updated'])
 
-        if status == Tinkoff.STATUS_AUTHORIZED:
-            self.receive_authorized(payment)
+            if status == Tinkoff.STATUS_AUTHORIZED:
+                self.receive_authorized(payment, payment_id=payment_id)
 
-        elif status == Tinkoff.STATUS_CONFIRMED:
-            self.receive_confirmed(payment)
+            elif status == Tinkoff.STATUS_CONFIRMED:
+                self.receive_confirmed(payment, payment_id=payment_id)
 
-    def receive_authorized(self, payment: Payment):
-        self.confirm(payment)
+    def receive_authorized(self, payment: Payment, **kwargs):
+        self.confirm(payment, **kwargs)
 
     def init(self, payment: Payment) -> typing.Optional[str]:
         """
@@ -105,7 +107,7 @@ class PaymentLayout:
         })
 
     @staticmethod
-    def receive_confirmed(payment: Payment) -> None:
+    def receive_confirmed(payment: Payment, **kwargs) -> None:
         """
         Метод для подтверждения оплаты
         :param payment: Объект платежки
@@ -124,16 +126,18 @@ class PaymentLayout:
             access.access_type = Access.COURSE_ACCESS_TYPE_FULL_PAID
             access.save()
 
-    def confirm(self, payment: Payment) -> None:
+    def confirm(self, payment: Payment, payment_id: str = None, **kwargs) -> None:
         """
         Метод предоставляет доступ к курсу после оплаты
         :param payment: Объект платежки
+        :param payment_id: ID в системе банка
         """
 
         confirm_data = self.c.confirm(
             Amount=payment.amount,
             OrderId=str(payment.id),
             Description=payment.course.description,
+            PaymentId=payment_id,
         )
 
         status = confirm_data.get('Status')
@@ -154,7 +158,7 @@ class PaymentLayout:
         raise Exception({
             'detail': 'У подтверждения пришел странный статус — %s' % (status,),
             'context': {
-                'init_data': confirm_data, 'payment': model_to_dict(payment),
+                'confirm_data': confirm_data, 'payment': model_to_dict(payment),
             }
         })
 
