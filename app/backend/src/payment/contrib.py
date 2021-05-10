@@ -71,16 +71,16 @@ class PaymentLayout:
                 Email=payment.user.email,
                 EmailCompany=settings.DEFAULT_ADMIN_EMAIL,
                 Taxation=Tinkoff.TAXATION_USN_INCOME,
-                Items=list(
+                Items=[
                     dict(
                         Name=payment.course.title,
                         Price=payment.amount,
                         Quantity=1.00,
                         Amount=payment.amount,
-                        PaymentMethod=Tinkoff.PAYMENT_METHOD_FULL_PAYMENT,  # TODO: Уточнить
+                        PaymentMethod=Tinkoff.PAYMENT_METHOD_FULL_PAYMENT,
                         Tax=Tinkoff.TAX_NONE,
                     ),
-                ),
+                ],
             ),
         )
 

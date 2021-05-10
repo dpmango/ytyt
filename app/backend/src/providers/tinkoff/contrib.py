@@ -107,7 +107,7 @@ class Tinkoff:
         Метод создает платеж: продавец получает ссылку на платежную форму и должен перенаправить по ней покупателя
         """
         data = {'TerminalKey': self.terminal_key, **kwargs}
-        return self._call('post', url='Init', data=data)
+        return self._call('post', url='Init', json=data)
 
     def confirm(self, **kwargs):
         """
@@ -122,7 +122,7 @@ class Tinkoff:
         data = {'TerminalKey': self.terminal_key, **kwargs}
         data.update({'Token': self._create_signature(**data)})
 
-        return self._call('post', url='Confirm', data=data)
+        return self._call('post', url='Confirm', json=data)
 
     def _create_signature(self, **kwargs):
         """
@@ -149,12 +149,14 @@ class Tinkoff:
         url = '%s/%s' % (base_url, url)
 
         logger.debug('[tinkoff][request][method=%s] url=%s, kwargs=%s' % (method, url, str(kwargs)))
-        response = request(method=method, url=url, **kwargs)
+        response = request(method=method, url=url, **kwargs, headers={'content-type': 'application/json'})
 
         if response.status_code in (200, 201, 202):
             return self._force_json(response)
 
-        logger.info('[tinkoff][response][method=%s] url=%s, response=%s' % (method, url, str(response)))
+        logger.info('[tinkoff][response][method=%s] status_code=%s, url=%s, response=%s' % (
+            method, response.status_code, url, str(response.text)
+        ))
         return {}
 
     @staticmethod
