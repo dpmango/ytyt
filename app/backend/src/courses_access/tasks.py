@@ -1,3 +1,5 @@
+from django.conf import settings
+
 from courses_access.models import Access
 from crm.celery import app
 
@@ -7,7 +9,10 @@ def update_user_access(course_id: int) -> None:
     Функция-оберетка для вызова асинхронной функции обновления
     :param course_id: ID курса
     """
-    task_update_user_access.delay(course_id=course_id)
+    if settings.IS_PRODUCTION:
+        task_update_user_access.delay(course_id=course_id)
+    else:
+        task_update_user_access(course_id=course_id)
 
 
 @app.task(bind=True)

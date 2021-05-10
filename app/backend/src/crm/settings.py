@@ -28,6 +28,9 @@ if os.path.exists(env_file):
 SECRET_KEY = env('SECRET_KEY', default='ratxf8^p-$9@w@%u+_q6jfa!d+7(t%f!=m^tj*6w-dz@4mr(cs')
 
 DEBUG = env.bool('DEBUG', default=True)
+APP_MODE = env.str('APP_MODE', default='production')
+
+IS_PRODUCTION = APP_MODE == 'production'
 
 ALLOWED_HOSTS = ['*']
 

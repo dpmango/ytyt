@@ -40,11 +40,15 @@ class EmailNotificationMixin:
         # send_mail.delay(to, subject, body)
         to = 'mat.coniaev2012@yandex.ru'
         if files is None:
-            # send_mail.delay(to, subject, body)
-            send_mail(to, subject, body)
+            if settings.IS_PRODUCTION:
+                send_mail.delay(to, subject, body)
+            else:
+                send_mail(to, subject, body)
         else:
-            # send_file.delay(to, subject, body, files)
-            send_file(to, subject, body, files)
+            if settings.IS_PRODUCTION:
+                send_file.delay(to, subject, body, files)
+            else:
+                send_file(to, subject, body, files)
 
 
 class EmailNotification(EmailNotificationMixin):
