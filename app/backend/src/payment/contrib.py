@@ -48,11 +48,11 @@ class PaymentLayout:
 
             # Если используется двухстайдийная оплата, то придет статус `STATUS_AUTHORIZED`, который нужно будет
             # подтвердить
-            if status == Tinkoff.STATUS_AUTHORIZED:
-                self.confirm(payment, payment_id=payment_id)
+            # if status == Tinkoff.STATUS_AUTHORIZED:
+            #     self.confirm(payment, payment_id=payment_id)
 
             # Если двухстадийная оплата не использовалась, то придет уже подтвержденный статус оплаты
-            elif status == Tinkoff.STATUS_CONFIRMED:
+            if status == Tinkoff.STATUS_CONFIRMED:
                 self.receive_confirmed(payment, payment_id=payment_id)
 
     def init(self, payment: Payment) -> typing.Optional[str]:
