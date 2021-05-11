@@ -32,7 +32,6 @@ export default {
   computed: {},
   methods: {
     setValue(e) {
-      console.log('onchange', this.value);
       this.$emit('onChange', !this.value);
     },
     clearInput() {
@@ -49,11 +48,19 @@ export default {
 
 <style lang="scss" scoped>
 .toggle {
+  position: relative;
   display: flex;
   align-items: center;
   &__label {
+    position: relative;
+    z-index: 2;
     font-size: 15px;
-    padding-right: 16px;
+    padding-right: 76px;
+    cursor: pointer;
+    transition: opacity 0.25s $ease;
+    &:hover {
+      opacity: 0.8;
+    }
   }
   &__input {
     position: relative;
@@ -74,7 +81,11 @@ export default {
     }
   }
   &__input-box {
-    position: relative;
+    position: absolute;
+    z-index: 1;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
     width: 60px;
     height: 36px;
     background: $colorGray;

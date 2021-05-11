@@ -39,7 +39,7 @@ export default {
             if (res.course_theme_id) {
               this.$router.push(`/theme/${res.course_theme_id}`);
             } else {
-              this.$router.push('/');
+              this.$router.push('/course');
             }
           } else {
             // State updater

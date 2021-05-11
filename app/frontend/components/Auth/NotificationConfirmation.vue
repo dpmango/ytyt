@@ -40,7 +40,7 @@ export default {
     align-items: center;
     border-radius: 0;
     margin: 0;
-    background: rgba($colorRed, 0.1);
+    background: rgba(#38bff2, 0.1);
     padding: 10px 32px;
   }
   &__message {

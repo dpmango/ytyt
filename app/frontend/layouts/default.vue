@@ -12,7 +12,7 @@
 import { mapGetters, mapActions } from 'vuex';
 
 export default {
-  middleware: ['auth'],
+  middleware: ['default'],
   computed: {
     showConfirmationNotification() {
       if (!this.$route.name || ['Messages'].includes(this.$route.name)) {

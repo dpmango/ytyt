@@ -24,4 +24,7 @@ export default {
   chat: {
     files: `${api}/files/`,
   },
+  constants: {
+    get: `${api}/constants/`,
+  },
 };

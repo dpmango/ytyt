@@ -90,18 +90,11 @@
                 />
 
                 <UiButton :is-loading="isLoading" type="submit" block>Сохранить изменения</UiButton>
+                <NuxtLink to="/profile/password">
+                  <UiButton theme="outline" block>Сменить пароль</UiButton>
+                </NuxtLink>
               </ValidationObserver>
             </div>
-          </div>
-        </div>
-        <div class="profile__actions">
-          <div class="profile__action">
-            <NuxtLink to="/profile/password">
-              <UiButton theme="outline">Сменить пароль</UiButton>
-            </NuxtLink>
-          </div>
-          <div class="profile__action">
-            <UiButton theme="outline" @click="handleLogout">Выйти</UiButton>
           </div>
         </div>
       </div>
@@ -221,14 +214,7 @@ export default {
           }
         });
     },
-    async handleLogout() {
-      await this.logout()
-        .then((res) => {
-          this.$toast.global.default({ message: res.detail });
-        })
-        .catch((_err) => {});
-    },
-    ...mapActions('auth', ['logout', 'getUserInfo', 'update']),
+    ...mapActions('auth', ['getUserInfo', 'update']),
   },
 };
 </script>
@@ -239,10 +225,6 @@ export default {
   padding-bottom: 24px;
   &__wrapper {
     display: flex;
-  }
-  &__box,
-  &__actions {
-    min-width: 1px;
   }
   &__box {
     flex: 0 1 654px;
@@ -367,18 +349,9 @@ export default {
     }
     .button {
       margin-top: 24px;
-    }
-  }
-  &__actions {
-    flex: 0 0 auto;
-    padding-left: 20px;
-    display: flex;
-    margin-left: auto;
-  }
-  &__action {
-    margin-right: 12px;
-    &:last-child {
-      margin-right: 0;
+      &.outline {
+        margin-top: 10px;
+      }
     }
   }
 }
@@ -387,11 +360,6 @@ export default {
   .profile {
     &__wrapper {
       flex-wrap: wrap;
-    }
-    &__actions {
-      margin-top: 16px;
-      margin-left: 0;
-      padding-left: 0;
     }
   }
 }

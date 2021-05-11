@@ -102,7 +102,7 @@ export default {
           this.verifyPost();
           this.error = null;
           rebuildSocket(this);
-          this.$router.push('/');
+          this.$router.push('/course');
         })
         .catch((err) => {
           const { data, code } = err;
