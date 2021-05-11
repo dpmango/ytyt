@@ -30,13 +30,15 @@ class PaymentViewSet(FlexibleSerializerModelViewSetMixin, viewsets.GenericViewSe
         """
         # payment_layout.receive(request.data)
 
+        # 4300000000000777 1122 111
+
         from loguru import logger
         from pprint import pprint
         pprint(request.META)
         print('\n')
         pprint(request.data)
 
-        return Response({'status': 'ok'}, status=status.HTTP_200_OK)
+        return Response('OK', status=status.HTTP_200_OK)
 
     @action(methods=['POST'], detail=False)
     def init(self, request, *args, **kwargs):
@@ -54,7 +56,7 @@ class PaymentViewSet(FlexibleSerializerModelViewSetMixin, viewsets.GenericViewSe
         url = payment_layout.init(payment)
         payment_layout.is_valid(raise_exception=True)
 
-        return Response({'payment_url': url}, status=status.HTTP_200_OK)
+        return Response('OK', status=status.HTTP_200_OK)
 
     def get_serializer_context(self):
         return {
