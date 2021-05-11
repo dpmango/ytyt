@@ -24,14 +24,14 @@
           :class="[
             section.id === activeSection && 'is-current',
             section.status === 3 && 'is-compleated',
-            section.status === 4 && 'is-locked',
+            [4, 5, 6, 7, 8].includes(section.status) && 'is-locked',
           ]"
           @click="$emit('setFragment', section.id, section.status)"
         >
           <div class="sidebar__lesson-icon">
             <UiSvgIcon name="checkmark" />
           </div>
-          <div class="sidebar__lesson-name">{{ section.status }} {{ section.title }}</div>
+          <div class="sidebar__lesson-name">{{ section.title }}</div>
         </div>
       </div>
       <div class="sidebar__question">

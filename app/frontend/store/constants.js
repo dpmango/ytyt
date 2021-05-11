@@ -28,7 +28,7 @@ export const actions = {
 
     if (err) throw err;
 
-    commit('setConstants', result);
+    commit('setConstants', [...result['access.statuses'], ...result['access.waiting_statuses']]);
 
     return result;
   },

@@ -14,6 +14,6 @@ export const actions = {
       }
     }
 
-    // await dispatch('constants/get');
+    await dispatch('constants/get');
   },
 };

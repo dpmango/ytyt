@@ -18,7 +18,7 @@
         <div v-for="lesson in list" :key="lesson.id" class="list__row">
           <NuxtLink
             class="card"
-            :class="[lesson.status === 3 && 'is-compleated', lesson.status === 4 && 'is-locked']"
+            :class="[lesson.status === 3 && 'is-compleated', [4, 5, 6, 7, 8].includes(lesson.status) && 'is-locked']"
             :to="`/theme/${$route.params.id}/${lesson.id}`"
           >
             <div class="card__num">{{ lesson.id }}</div>

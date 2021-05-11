@@ -2,7 +2,7 @@
   <header class="header" @mouseleave="closeUserMenu">
     <div class="container">
       <div class="header__wrapper">
-        <NuxtLink to="/" class="header__logo">
+        <NuxtLink to="/course" class="header__logo">
           <img src="~/assets/img/logo-simple.png" srcset="~/assets/img/logo-simple@2x.png 2x" alt="logo" />
         </NuxtLink>
         <div class="header__search">
