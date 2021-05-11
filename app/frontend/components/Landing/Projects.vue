@@ -4,7 +4,7 @@
       <div v-swiper="swiperConfig" class="slider swiper-container">
         <div class="slider__header header-slider">
           <h2 class="header-slider__title">Проекты, которые вы создадите</h2>
-          <div class="header-slider__nav">
+          <div slot="navigation" class="header-slider__nav">
             <div class="slider-button-prev"></div>
             <div class="slider-button-next"></div>
           </div>
@@ -26,7 +26,12 @@
 </template>
 
 <script>
+import { directive } from 'vue-awesome-swiper';
+
 export default {
+  directives: {
+    swiper: directive,
+  },
   data() {
     return {
       swiperConfig: {
@@ -99,7 +104,7 @@ export default {
 .projects {
   padding-top: 60px;
   margin-bottom: 70px;
-  @media screen and (max-width: $md) {
+  @include r($md) {
     margin-bottom: 40px;
     padding-top: 40px;
   }

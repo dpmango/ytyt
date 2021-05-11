@@ -10,35 +10,22 @@
       </div>
       <ul class="footer__contacts contacts-footer">
         <li class="contacts-footer__item">
-          <a href="tel:+71234567890" class="contacts-footer__link"
-            ><img src="~assets/landing/img/icon-phone.svg" alt="" class="contacts-footer__icon" />+7 (123) 456-78-90</a
-          >
+          <a :href="`tel:${phone.trim()}`" class="contacts-footer__link">
+            <img src="~assets/landing/img/icon-phone.svg" alt="" class="contacts-footer__icon" />
+            <span>{{ phone }}</span>
+          </a>
         </li>
         <li class="contacts-footer__item">
-          <a href="mailto:info@ytyt.school" class="contacts-footer__link"
-            ><img src="~assets/landing/img/icon-envelope.svg" alt="" class="contacts-footer__icon" />info@ytyt.school</a
-          >
+          <a :href="`mailto:${mail}`" class="contacts-footer__link">
+            <img src="~assets/landing/img/icon-envelope.svg" alt="" class="contacts-footer__icon" />
+            <span>{{ mail }}</span>
+          </a>
         </li>
       </ul>
       <ul class="footer__soc soc-footer">
-        <li class="soc-footer__item">
-          <a href="#" class="soc-footer__link">
-            <img src="~assets/landing/img/soc-youtube.svg" alt="YouTube" class="soc-footer__icon" />
-          </a>
-        </li>
-        <li class="soc-footer__item">
-          <a href="#" class="soc-footer__link">
-            <img src="~assets/landing/img/soc-vk.svg" alt="VK" class="soc-footer__icon" />
-          </a>
-        </li>
-        <li class="soc-footer__item">
-          <a href="#" class="soc-footer__link">
-            <img src="~assets/landing/img/soc-fb.svg" alt="Facebook" class="soc-footer__icon" />
-          </a>
-        </li>
-        <li class="soc-footer__item">
-          <a href="#" class="soc-footer__link">
-            <img src="~assets/landing/img/soc-instagram.svg" alt="Instagram" class="soc-footer__icon" />
+        <li v-for="social in socials" :key="social.id" class="soc-footer__item">
+          <a :href="social.link" target="_blank" class="soc-footer__link">
+            <img :src="social.icon" :alt="social.title" class="soc-footer__icon" />
           </a>
         </li>
       </ul>
@@ -53,6 +40,43 @@
     </div>
   </footer>
 </template>
+
+<script>
+export default {
+  data() {
+    return {
+      phone: '+7 (123) 456-78-90',
+      mail: 'info@ytyt.school',
+      socials: [
+        {
+          id: 1,
+          title: 'YouTube',
+          href: 'https://youtube.com/',
+          icon: '/landing/img/soc-youtube.svg',
+        },
+        {
+          id: 2,
+          title: 'VK.com',
+          href: 'https://vk.com/',
+          icon: '/landing/img/soc-vk.svg',
+        },
+        {
+          id: 3,
+          title: 'Facebook',
+          href: 'https://facebook.com/',
+          icon: '/landing/img/soc-fb.svg',
+        },
+        {
+          id: 4,
+          title: 'Instagram',
+          href: 'https://instagram.com/',
+          icon: '/landing/img/soc-instagram.svg',
+        },
+      ],
+    };
+  },
+};
+</script>
 
 <style lang="scss" scoped>
 .footer {
@@ -124,6 +148,7 @@
   display: flex;
   list-style: none;
   &__item {
+    flex: 0 0 auto;
     margin-right: 32px;
     &:last-child {
       margin-right: 0;
@@ -166,7 +191,7 @@
   // }
 }
 
-@media screen and (max-width: 1140px) {
+@include r(1140) {
   .footer {
     &__top {
       justify-content: space-between;
@@ -198,7 +223,7 @@
   }
 }
 
-@media screen and (max-width: $md) {
+@include r($md) {
   .footer {
     &__top {
       padding-top: 25px;
@@ -211,7 +236,7 @@
   }
 }
 
-@media screen and (max-width: 575px) {
+@include r($sm) {
   .footer {
     &__top {
       flex-direction: column;

@@ -32,10 +32,10 @@
   background-color: #fff;
   padding-top: 120px;
   padding-bottom: 70px;
-  @media screen and (max-width: $lg) {
+  @include r($lg) {
     padding-top: 100px;
   }
-  @media screen and (max-width: $md) {
+  @include r($md) {
     padding-bottom: 50px;
   }
   &__container {
@@ -58,7 +58,7 @@
     height: 358px;
     margin-bottom: 12px;
     overflow: hidden;
-    @media screen and (max-width: 475px) {
+    @include r($mobile-s) {
       height: 185px;
     }
   }
@@ -84,7 +84,7 @@
 .features-study {
   list-style: none;
   max-width: 40%;
-  @media screen and (max-width: $lg) {
+  @include r($lg) {
     max-width: 100%;
   }
   &__item {
@@ -109,7 +109,7 @@
   }
 }
 
-@media screen and (max-width: $lg) {
+@include r($lg) {
   .study {
     &__container {
       flex-wrap: wrap;

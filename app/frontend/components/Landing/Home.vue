@@ -63,7 +63,7 @@ body {
   max-width: 1320px;
   padding: 0 20px;
   margin: 0 auto;
-  @media screen and (max-width: $md) {
+  @include r($md) {
     padding: 0 15px;
   }
 }
@@ -80,7 +80,7 @@ a {
 }
 h2 {
   font-size: 48px;
-  @media screen and (max-width: $md) {
+  @include r($md) {
     font-size: 32px;
   }
 }
@@ -120,7 +120,7 @@ h2 {
     background-color: #0d74cf;
     transition: 0.2s;
   }
-  @media screen and (max-width: $md) {
+  @include r($md) {
     width: 52px;
     height: 52px;
     img {
@@ -149,6 +149,7 @@ h2 {
 .header-tabs {
   display: flex;
   list-style: none;
+  padding: 0;
   &__item {
     font-family: $baseFont;
     cursor: pointer;
@@ -162,13 +163,14 @@ h2 {
     &:hover:not(.active) {
       background-color: rgba($fontColor, 0.05);
     }
-    @media screen and (max-width: 475px) {
+    @include r($mobile-s) {
       padding: 7px 12px;
     }
   }
 }
 .content-tabs {
   list-style: none;
+  padding: 0;
   &__item {
     display: none;
     font-family: $baseFont;
@@ -186,7 +188,7 @@ h2 {
     }
   }
 
-  @media screen and (max-width: 475px) {
+  @include r($mobile-s) {
     &__item {
       font-size: 30px;
     }
@@ -201,14 +203,14 @@ h2 {
       align-items: center;
       justify-content: space-between;
       margin-bottom: 50px;
-      @media screen and (max-width: $md) {
+      @include r($md) {
         justify-content: flex-start;
         margin-bottom: 30px;
       }
     }
     &__slide {
       width: 360px;
-      @media screen and (max-width: 425px) {
+      @include r(425) {
         width: 292px;
       }
     }
@@ -220,7 +222,7 @@ h2 {
     &__nav {
       display: flex;
     }
-    @media screen and (max-width: $md) {
+    @include r($md) {
       &__nav {
         display: none;
       }

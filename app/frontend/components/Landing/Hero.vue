@@ -53,7 +53,7 @@
     width: 59%;
   }
 }
-@media screen and (max-width: 1200px) {
+@include r($xl) {
   .hero {
     height: auto;
     padding-bottom: 180px;
@@ -63,7 +63,7 @@
   }
 }
 
-@media screen and (max-width: $lg) {
+@include r($lg) {
   .hero {
     height: auto;
     padding-bottom: 90px;
@@ -86,7 +86,7 @@
     }
   }
 }
-@media screen and (max-width: 575px) {
+@include r($sm) {
   .hero {
     padding-bottom: 50px;
     &__title {

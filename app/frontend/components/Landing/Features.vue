@@ -4,28 +4,30 @@
       <h2 class="features__title">Для тех, у кого мало опыта</h2>
       <span class="features__subtitle">или совсем его нет</span>
       <div class="features__row">
-        <div class="features__col">
+        <div v-for="col in cols" :key="col.id" class="features__col">
           <div class="features__item">
-            <img src="~assets/landing/img/feature__abc.svg" alt="" class="item-feature__icon" />
-            <p class="item-feature__text">Простые объяснения вместо <br />заумных терминов</p>
-          </div>
-        </div>
-        <div class="features__col">
-          <div class="features__item">
-            <img src="~assets/landing/img/feature__search.svg" alt="" class="item-feature__icon" />
-            <p class="item-feature__text">Много наглядных примеров <br />и практики</p>
-          </div>
-        </div>
-        <div class="features__col">
-          <div class="features__item">
-            <img src="~assets/landing/img/feature__chat.svg" alt="" class="item-feature__icon" />
-            <p class="item-feature__text">Прямая связь <br />с персональным наставником</p>
+            <img :src="`/landing/img/${col.icon}`" alt="" class="item-feature__icon" />
+            <p class="item-feature__text" v-html="col.content" />
           </div>
         </div>
       </div>
     </div>
   </section>
 </template>
+
+<script>
+export default {
+  data() {
+    return {
+      cols: [
+        { id: 1, icon: 'feature__abc.svg', content: 'Простые объяснения вместо <br />заумных терминов' },
+        { id: 2, icon: 'feature__search.svg', content: 'Много наглядных примеров <br />и практики' },
+        { id: 3, icon: 'feature__chat.svg', content: 'Прямая связь <br />с персональным наставником' },
+      ],
+    };
+  },
+};
+</script>
 
 <style lang="scss" scoped>
 .features {
@@ -47,7 +49,7 @@
     list-style: none;
     margin: 0 -15px;
     padding: 0 55px;
-    @media screen and (max-width: 1100px) {
+    @include r(1100) {
       padding: 0;
     }
   }
@@ -61,7 +63,7 @@
   // &__item {
   // }
 }
-@media screen and (max-width: $md) {
+@include r($md) {
   .features {
     margin-bottom: 50px;
     &__subtitle {
@@ -90,14 +92,14 @@
     line-height: 1.5;
   }
 }
-@media screen and (max-width: $md) {
+@include r($md) {
   .item-feature {
     &__icon {
       margin-bottom: 25px;
     }
   }
 }
-@media screen and (max-width: 425px) {
+@include r(425) {
   .item-feature {
     padding: 0;
     &__text {

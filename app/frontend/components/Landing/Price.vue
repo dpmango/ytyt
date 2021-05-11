@@ -163,7 +163,7 @@ export default {
     flex: 0 0 auto;
     width: 50%;
   }
-  @media screen and (max-width: $lg) {
+  @include r($lg) {
     margin-bottom: 0;
     .container {
       padding: 0;
@@ -250,12 +250,12 @@ export default {
       border-bottom-color: $colorPrimary;
     }
   }
-  @media screen and (max-width: $lg) {
+  @include r($lg) {
     &__title {
       margin-bottom: 30px;
     }
   }
-  @media screen and (max-width: $md) {
+  @include r($md) {
     padding: 30px 15px 25px;
     &__title {
       font-size: 28px;
@@ -265,7 +265,7 @@ export default {
       margin-bottom: 16px;
     }
   }
-  @media screen and (max-width: 475px) {
+  @include r($mobile-s) {
     &__label {
       font-size: 18px;
     }
@@ -304,10 +304,10 @@ export default {
       text-decoration: underline;
     }
   }
-  @media screen and (max-width: 1200px) {
+  @include r($xl) {
     padding: 40px 50px;
   }
-  @media screen and (max-width: $md) {
+  @include r($md) {
     padding: 30px 15px;
     &__title {
       font-size: 22px;

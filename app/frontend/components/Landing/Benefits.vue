@@ -20,7 +20,7 @@
 <style lang="scss" scoped>
 .benefits {
   margin-bottom: 90px;
-  @media screen and (max-width: 1210px) {
+  @include r(1210) {
     margin-bottom: 0;
   }
   &__container {
@@ -53,14 +53,14 @@
     p {
       font-size: 20px;
     }
-    @media screen and (max-width: 575px) {
+    @include r($sm) {
       padding: 20px 0;
       p {
         font-size: 18px;
       }
     }
   }
-  @media screen and (max-width: 1210px) {
+  @include r(1210) {
     &__container {
       flex-wrap: wrap;
       justify-content: center;
@@ -82,7 +82,7 @@
       }
     }
   }
-  @media screen and (max-width: 575px) {
+  @include r($sm) {
     &__item {
       flex: 0 0 100%;
     }
@@ -93,7 +93,7 @@
     display: block;
     color: $colorRed;
     font-size: 90px;
-    @media screen and (max-width: $md) {
+    @include r($md) {
       font-size: 65px;
     }
   }

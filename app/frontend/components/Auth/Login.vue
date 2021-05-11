@@ -63,7 +63,7 @@ export default {
         .then((_res) => {
           this.error = null;
           rebuildSocket(this);
-          this.$router.push('/');
+          this.$router.push('/course');
         })
         .catch((err) => {
           const { data, code } = err;

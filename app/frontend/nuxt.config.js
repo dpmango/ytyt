@@ -30,7 +30,7 @@ export default {
     { src: '~/plugins/toast', mode: 'client' },
     { src: '~/plugins/socket', mode: 'client' },
     { src: '~/plugins/vee-validate', mode: 'client' },
-    { src: '~/plugins/swiper', mode: 'client' },
+    { src: '~/plugins/swiper', mode: 'client', ssr: false },
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components

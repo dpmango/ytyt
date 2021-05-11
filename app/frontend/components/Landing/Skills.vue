@@ -25,7 +25,7 @@
           </span>
         </span>
       </p>
-      <a href="#" class="skills__button button">Пройти бесплатный вводный курс</a>
+      <NuxtLink to="/auth/signup" class="skills__button button">Пройти бесплатный вводный курс</NuxtLink>
     </div>
   </section>
 </template>
@@ -38,7 +38,7 @@
   padding-top: 70px;
   padding-bottom: 80px;
   margin-bottom: 70px;
-  @media screen and (max-width: $md) {
+  @include r($md) {
     padding-top: 32px;
     padding-bottom: 32px;
     margin-bottom: 40px;
@@ -47,7 +47,7 @@
     font-size: 36px;
     font-weight: 500;
     margin-bottom: 50px;
-    @media screen and (max-width: 575px) {
+    @include r($sm) {
       font-size: 27px;
       margin-bottom: 25px;
     }
@@ -60,7 +60,7 @@
     list-style: none;
     margin-bottom: 15px;
     padding: 0 50px;
-    @media screen and (max-width: $lg) {
+    @include r($lg) {
       padding: 0;
     }
   }
@@ -103,7 +103,7 @@
         display: block;
       }
     }
-    @media screen and (max-width: $lg) {
+    @include r($lg) {
       position: static;
     }
   }
@@ -132,7 +132,7 @@
       width: 22px;
       height: 14px;
     }
-    @media screen and (max-width: $lg) {
+    @include r($lg) {
       width: 70%;
       box-shadow: 0 6px 24px -4px rgba(23, 24, 24, 0.1);
       &::before {
@@ -140,7 +140,7 @@
         transform: translateX(0);
       }
     }
-    @media screen and (max-width: $md) {
+    @include r($md) {
       width: 100%;
       &::before {
         right: 11%;

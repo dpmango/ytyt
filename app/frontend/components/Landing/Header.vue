@@ -1,9 +1,9 @@
 <template>
   <header class="header hero__header">
     <div class="header__container container">
-      <a href="index.html" class="header__logo">
+      <div class="header__logo">
         <img src="~assets/landing/img/logo.svg" alt="YTYT Logo" />
-      </a>
+      </div>
       <div class="header__menu menu">
         <div class="menu__icon">
           <span></span>
@@ -15,7 +15,7 @@
             <li class="menu__item"><a data-goto=".reviews" href="#" class="menu__link">Отзывы</a></li>
             <li class="menu__item"><a data-goto=".price" href="#" class="menu__link">Стоимость</a></li>
             <li class="menu__item"><a data-goto=".footer" href="#" class="menu__link">Контакты</a></li>
-            <li class="menu__item menu__item-sign">
+            <li class="menu__item">
               <NuxtLink to="/auth/signup" class="menu__link">Вход/Зарегистрироваться</NuxtLink>
             </li>
           </ul>
@@ -105,10 +105,6 @@ export default {
     }
   }
 
-  &__item-sign {
-    display: none;
-  }
-
   &__link {
     font-family: $baseFont;
     position: relative;
@@ -120,13 +116,13 @@ export default {
     &:hover {
       opacity: 1;
     }
-    @media screen and (max-width: $lg) {
+    @include r($lg) {
       font-size: 16px;
     }
   }
 }
 
-@media screen and (max-width: $md) {
+@include r($md) {
   .menu__icon {
     display: block;
     position: relative;
@@ -205,9 +201,6 @@ export default {
       &:last-child {
         margin-bottom: 0;
       }
-    }
-    &__item-sign {
-      display: block;
     }
     &__link {
       font-size: 18px;

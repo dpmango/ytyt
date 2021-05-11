@@ -26,7 +26,7 @@
     box-shadow: 0 6px 24px 0 rgba(0, 0, 0, 0.1);
     padding: 36px 0;
     border-radius: 8px;
-    @media screen and (max-width: $lg) {
+    @include r($lg) {
       padding: 0;
     }
   }
@@ -60,29 +60,29 @@
       animation-duration: 0.8s;
       animation-iteration-count: infinite;
       animation-direction: alternate;
-      @media screen and (max-width: $lg) {
+      @include r($lg) {
         animation-name: none;
       }
     }
     span {
       margin-right: 20px;
     }
-    @media screen and (max-width: 1300px) {
+    @include r(1300) {
       right: -30%;
       img {
         display: none;
       }
     }
-    @media screen and (max-width: 1150px) {
+    @include r(1150) {
       right: -40%;
     }
-    @media screen and (max-width: 1060px) {
+    @include r(1060) {
       padding-left: 15px;
       right: -50%;
     }
   }
 }
-@media screen and (max-width: $lg) {
+@include r($lg) {
   .start {
     &__row {
       flex-direction: column;
@@ -113,7 +113,7 @@
   }
 }
 
-@media screen and (max-width: $md) {
+@include r($md) {
   .start {
     &__title {
       font-size: 20px;

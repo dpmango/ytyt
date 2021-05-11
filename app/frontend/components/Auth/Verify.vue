@@ -43,7 +43,7 @@ export default {
           this.verified = true;
           this.$toast.global.default({ message: res.detail });
           setTimeout(() => {
-            this.$router.push('/');
+            this.$router.push('/course');
           }, 500);
         })
         .catch((err) => {

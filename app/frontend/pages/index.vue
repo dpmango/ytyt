@@ -6,7 +6,7 @@
 export default {
   layout: 'clear',
   head: {
-    title: 'Назначить тайтл',
+    title: 'Понятные уроки программирования',
   },
 };
 </script>

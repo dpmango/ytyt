@@ -4,7 +4,7 @@
       <div v-swiper="swiperConfig" class="slider swiper-container">
         <div class="slider__header header-slider">
           <h2 class="header-slider__title">Отзывы учеников</h2>
-          <div class="header-slider__nav">
+          <div slot="navigation" class="header-slider__nav">
             <div class="slider-button-prev"></div>
             <div class="slider-button-next"></div>
           </div>
@@ -28,7 +28,12 @@
 </template>
 
 <script>
+import { directive } from 'vue-awesome-swiper';
+
 export default {
+  directives: {
+    swiper: directive,
+  },
   data() {
     return {
       swiperConfig: {
@@ -104,7 +109,7 @@ export default {
 <style lang="scss" scoped>
 .reviews {
   margin-bottom: 70px;
-  @media screen and (max-width: $md) {
+  @include r($md) {
     margin-bottom: 50px;
   }
 }
@@ -145,7 +150,7 @@ export default {
       border-bottom-color: $colorPrimary;
     }
   }
-  @media screen and (max-width: 425px) {
+  @include r(425) {
     &__photo {
       margin-bottom: 15px;
     }
