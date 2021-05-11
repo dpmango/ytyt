@@ -28,7 +28,14 @@ class PaymentViewSet(FlexibleSerializerModelViewSetMixin, viewsets.GenericViewSe
         """
         Метод получает статусы по оплате в банке
         """
-        payment_layout.receive(request.data)
+        # payment_layout.receive(request.data)
+
+        from loguru import logger
+        from pprint import pprint
+        pprint(request.META)
+        print('\n')
+        pprint(request.data)
+
         return Response({'status': 'ok'}, status=status.HTTP_200_OK)
 
     @action(methods=['POST'], detail=False)
