@@ -36,7 +36,7 @@ class AccessBaseSerializers(serializers.ModelSerializer):
             return target.status
 
         manual_access = access.check_manual_access(to_struct, obj.pk)
-        if manual_access is not None:
+        if manual_access:
             return Access.STATUS_AVAILABLE
 
         theme = obj
