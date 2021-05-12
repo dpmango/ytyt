@@ -137,6 +137,15 @@ class Tinkoff(BaseProvider):
 
         return sha256(to_hash.encode('utf-8')).hexdigest()
 
+    def cancel(self, **kwargs):
+        """
+        Метод отменяет платеж.
+        """
+        data = {'TerminalKey': self.terminal_key, **kwargs}
+        data.update({'Token': self._create_signature(**data)})
+
+        return self._call('post', url='Cancel', json=data)
+
 
 tinkoff_client = Tinkoff(
     base_url=settings.TINKOFF_URL,

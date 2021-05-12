@@ -18,6 +18,7 @@ class PaymentBase(models.Model):
 
 
 class Payment(PaymentBase):
+    external_payment_id = models.PositiveBigIntegerField('ID платежа во внешней системе', null=True, blank=True)
     amount = models.DecimalField('Сумма оплаты в копейках', max_digits=10, decimal_places=2)
     date_payment = models.DateTimeField('Дата оплаты', null=True, blank=True)
     status = models.CharField('Статус платежки', choices=Tinkoff.STATUSES, max_length=21, null=True, blank=True)

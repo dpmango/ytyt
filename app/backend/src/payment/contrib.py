@@ -1,5 +1,6 @@
-import typing
 import json
+import typing
+
 from django.conf import settings
 from django.db import transaction
 from django.forms.models import model_to_dict
@@ -40,6 +41,7 @@ class PaymentLayout:
 
         try:
             payment = Payment.objects.get(id=order_id)
+            prev_status = payment.status
         except Payment.DoesNotExist as e:
             logger.info('[payment-layout][receive] err=%s' % (e, ))
             return
@@ -50,16 +52,19 @@ class PaymentLayout:
 
         with transaction.atomic():
             payment.status = status
-            payment.save(update_fields=['status', 'date_updated'])
+            payment.external_payment_id = payment_id
+            payment.save(update_fields=['status', 'external_payment_id', 'date_updated'])
 
             # Если используется двухстайдийная оплата, то придет статус `STATUS_AUTHORIZED`, который нужно будет
             # подтвердить
-            if status == Tinkoff.STATUS_AUTHORIZED:
-                self.receive_authorized(payment, payment_id=payment_id)
+            # Этот статус учитывается только в том случае, если предыдущий статус был STATUS_3DS_CHECKED,
+            # это как сигнал о том, что оплата происходила в две стадии
+            if status == Tinkoff.STATUS_AUTHORIZED and prev_status == Tinkoff.STATUS_3DS_CHECKED:
+                self.receive_authorized(payment)
 
             # Если двухстадийная оплата не использовалась, то придет уже подтвержденный статус оплаты
             if status == Tinkoff.STATUS_CONFIRMED:
-                self.receive_confirmed(payment, payment_id=payment_id)
+                self.receive_confirmed(payment)
 
     def init(self, payment: Payment) -> typing.Optional[str]:
         """
@@ -112,13 +117,12 @@ class PaymentLayout:
             }
         })
 
-    def receive_authorized(self, payment: Payment, payment_id: str = None, **kwargs) -> None:
+    def receive_authorized(self, payment: Payment, **kwargs) -> None:
         """
         Метод подтверждает оплату и предоставляет доступ, если все ок
         :param payment: Объект платежки
-        :param payment_id: ID в системе банка
         """
-        confirm_data = self.c.confirm(PaymentId=payment_id)
+        confirm_data = self.c.confirm(PaymentId=str(payment.external_payment_id))
         status = confirm_data.get('Status')
 
         if status == Tinkoff.STATUS_REJECTED:

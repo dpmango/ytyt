@@ -29,13 +29,8 @@ class PaymentViewSet(FlexibleSerializerModelViewSetMixin, viewsets.GenericViewSe
         """
         Метод получает статусы по оплате в банке
         """
-        # payment_layout.receive(request.data)
-
-        # 4300000000000777 1122 111
-        from pprint import pprint
-        pprint(request.data)
-
-        return Response('OK', status=status.HTTP_200_OK)
+        payment_layout.receive(request.data)
+        return Response('ОК', status=status.HTTP_200_OK)
 
     @action(methods=['POST'], detail=False, url_path='init-installment')
     def init_installment(self, request, *args, **kwargs):
@@ -45,7 +40,6 @@ class PaymentViewSet(FlexibleSerializerModelViewSetMixin, viewsets.GenericViewSe
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         payment_installment = serializer.save()
-
 
         return Response({'payment_url': 'url'}, status=status.HTTP_200_OK)
 
