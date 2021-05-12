@@ -4,14 +4,19 @@
 
 body{
   margin: 0;
-  height: 100%;
+  overflow: hidden;
 }
 
 .brython__editor {
   position: relative;
+  height: 100%;
+  max-height: 600px;
+  display: flex;
+  flex-direction: column;
 }
 
 .brython__actions {
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   background: #F3F3F3;
@@ -19,18 +24,48 @@ body{
   border-bottom: 1px solid #C4C4C4;
 }
 
-.brython__main #editor{
-  float: none;
-  width: 100%;
-  height: 80px;
+.brython__main {
+  flex: 1 1 auto;
+  min-height: 1px;
+  display: flex;
+  flex-direction: column;
 }
 
-.brython__main textarea{
+.brython__main #editor{
+  flex: 0 0 auto;
+  width: 100%;
+  min-height: 60px;
+  max-height: 400px;
+}
+
+.brython__console{
+  position: relative;
+  z-index: 2;
+  flex: 1 1 auto;
+  height: 100%;
+  min-height: 1px;
+  font-size: 0;
+  overflow-y: auto;
+}
+
+.brython__console::-webkit-scrollbar{
+  width: 7px;
+}
+.brython__console::-webkit-scrollbar-track {
+  border-radius: 0;
+  background: #0a090c;
+  box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+}
+.brython__console::-webkit-scrollbar-thumb{
+  background:#939598;
+  border-radius: 4px;
+}
+
+.brython__main #console{
   -webkit-appearance: none;
   width: 100%;
   height: auto;
   margin: 0;
-  max-height: 600px;
   padding: 12px;
   font-size: 13px;
   border: 0;

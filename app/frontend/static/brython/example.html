@@ -63,8 +63,9 @@
 
       <div class="brython__main">
         <div id="editor"></div>
-        <textarea readonly id="console" autocomplete="off"></textarea>
-
+        <div class="brython__console">
+          <textarea readonly id="console" autocomplete="off"></textarea>
+        </div>
       </div>
 
       <div class="brython__version">Brython version: <span id="version"></span></div>
@@ -74,10 +75,18 @@
       const textarea = document.querySelector('textarea');
       const trigger = document.querySelector('#run');
 
-      trigger.addEventListener('click', function () {
-        console.log('cha')
+      const setHeight = () => {
         textarea.style.height = "";
         textarea.style.height = textarea.scrollHeight + "px";
+
+        document.dispatchEvent(new Event('view.updated'));
+      }
+
+      trigger.addEventListener('click', function () {
+        setHeight()
+        setTimeout(() => {
+          setHeight()
+        }, 300);
       });
     </script>
   </body>

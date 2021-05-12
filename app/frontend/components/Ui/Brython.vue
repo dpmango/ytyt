@@ -1,7 +1,7 @@
 <template>
   <client-only>
     <div class="brython">
-      <iframe src="/brython/example.html" onload="window.resizeIframe(this)" />
+      <iframe ref="iframe" src="/brython/example.html" onload="window.resizeIframe(this)" />
     </div>
   </client-only>
 </template>
@@ -27,6 +27,12 @@ export default {
     };
   },
   mounted() {
+    setTimeout(() => {
+      this.$refs.iframe.contentWindow.document.addEventListener('view.updated', () => {
+        window.resizeIframe(this.$refs.iframe);
+      });
+    }, 500);
+
     window.resizeIframe = (obj) => {
       obj.style.height = obj.contentWindow.document.documentElement.scrollHeight + 'px';
     };

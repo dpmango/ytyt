@@ -11,7 +11,7 @@ from browser.widgets import dialog
 # set height of container to 75% of screen
 _height = doc.documentElement.clientHeight
 _s = doc['container']
-_s.style.height = '%spx' % int(_height * 0.85)
+# _s.style.height = '%spx' % int(_height * 0.85)
 
 has_ace = True
 try:
