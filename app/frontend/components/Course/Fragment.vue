@@ -37,6 +37,8 @@
                   class="lesson__section"
                   :class="[fragment.id === activeSection && 'is-active']"
                 >
+                  <UiBrython />
+
                   <div class="lesson__body markdown-body" v-html="fragment.content"></div>
 
                   <div class="lesson__actions">
