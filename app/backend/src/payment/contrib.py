@@ -55,7 +55,7 @@ class PaymentLayout:
             # Если используется двухстайдийная оплата, то придет статус `STATUS_AUTHORIZED`, который нужно будет
             # подтвердить
             if status == Tinkoff.STATUS_AUTHORIZED:
-                self.confirm(payment, payment_id=payment_id)
+                self.receive_authorized(payment, payment_id=payment_id)
 
             # Если двухстадийная оплата не использовалась, то придет уже подтвержденный статус оплаты
             if status == Tinkoff.STATUS_CONFIRMED:
@@ -64,6 +64,7 @@ class PaymentLayout:
     def init(self, payment: Payment) -> typing.Optional[str]:
         """
         Метод инициализирует платеж
+        Документация — https://www.tinkoff.ru/kassa/develop/api/payments/
         :param payment: Объект платедки с базовой инфомрацией
         :return: Ссылка для оплаты
         """
@@ -111,19 +112,13 @@ class PaymentLayout:
             }
         })
 
-    def confirm(self, payment: Payment, payment_id: str = None, **kwargs) -> None:
+    def receive_authorized(self, payment: Payment, payment_id: str = None, **kwargs) -> None:
         """
-        Метод предоставляет доступ к курсу после оплаты
+        Метод подтверждает оплату и предоставляет доступ, если все ок
         :param payment: Объект платежки
         :param payment_id: ID в системе банка
         """
-        confirm_data = self.c.confirm(
-            Amount=payment.amount,
-            OrderId=str(payment.id),
-            Description=payment.course.description,
-            PaymentId=payment_id,
-        )
-
+        confirm_data = self.c.confirm(PaymentId=payment_id)
         status = confirm_data.get('Status')
 
         if status == Tinkoff.STATUS_REJECTED:

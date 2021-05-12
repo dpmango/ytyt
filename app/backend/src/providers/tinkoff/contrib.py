@@ -1,12 +1,11 @@
-import json
-
-from django.conf import settings
-from loguru import logger
-from requests import request, Response
 from hashlib import sha256
 
+from django.conf import settings
 
-class Tinkoff:
+from providers.core import BaseProvider
+
+
+class Tinkoff(BaseProvider):
     PAYMENT_METHOD_FULL_PAYMENT = 'full_payment'
     PAYMENT_METHOD_FULL_PREPAYMENT = 'full_prepayment'
     PAYMENT_METHOD_PREPAYMENT = 'prepayment'
@@ -137,34 +136,6 @@ class Tinkoff:
         to_hash = ''.join([str(list(item.values())[0]) for item in to_hash])
 
         return sha256(to_hash.encode('utf-8')).hexdigest()
-
-    def _call(self, method: str, url: str, **kwargs):
-        """
-        Вызов необходимого метода API из url
-        :param method: Метод для запроса
-        :param url: url api-метода
-        :param kwargs: Аргументы для вызова
-        """
-        base_url = self.base_url.rstrip('/')
-        url = '%s/%s' % (base_url, url)
-
-        logger.debug('[tinkoff][request][method=%s] url=%s, kwargs=%s' % (method, url, str(kwargs)))
-        response = request(method=method, url=url, **kwargs, headers={'content-type': 'application/json'})
-
-        if response.status_code in (200, 201, 202):
-            return self._force_json(response)
-
-        logger.info('[tinkoff][response][method=%s] status_code=%s, url=%s, response=%s' % (
-            method, response.status_code, url, str(response.text)
-        ))
-        return {}
-
-    @staticmethod
-    def _force_json(response: Response):
-        try:
-            return response.json()
-        except json.JSONDecodeError:
-            return {}
 
 
 tinkoff_client = Tinkoff(
