@@ -41,6 +41,7 @@ export const getters = {
 
 export const mutations = {
   logOut(state) {
+    console.log('logout mutation called');
     state.token = null;
     state.user = {
       email: null,
@@ -68,6 +69,10 @@ export const mutations = {
   },
   updateUser(state, user) {
     state.user = { ...state.user, ...user };
+    // const keys = Object.keys(user);
+    // keys.forEach((key) => {
+    //   state.user[key] = user[key];
+    // });
   },
   verifyUserEmail(state) {
     state.user.email_confirmed = true;

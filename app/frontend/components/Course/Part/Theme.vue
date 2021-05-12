@@ -1,7 +1,7 @@
 <template>
   <NuxtLink
     class="card"
-    :class="[theme.status === 3 && 'is-compleated', theme.status === 4 && 'is-locked']"
+    :class="[theme.status === 3 && 'is-compleated', [4, 5, 6, 7, 8].includes(theme.status) && 'is-locked']"
     :to="linkHref"
   >
     <div class="card__status">

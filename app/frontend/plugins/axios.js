@@ -21,7 +21,9 @@ export default function ({ $axios, store, $config, redirect }, inject) {
     console.log(`${x.method.toUpperCase()} | ${x.url}`, x.params, x.data);
 
     const token = store.state.auth.token;
-    if (token) x.headers.common.Authorization = `JWT ${token}`;
+    const isOpenEndpoint = ['constants'].find((v) => x.url.includes(v));
+
+    if (!isOpenEndpoint && token) x.headers.common.Authorization = `JWT ${token}`;
 
     return x;
   });

@@ -1,6 +1,6 @@
 {
   "name": "ytyt",
-  "version": "1.0.0",
+  "version": "0.1.2",
   "private": true,
   "scripts": {
     "dev": "nuxt",
@@ -32,7 +32,10 @@
     "lodash": "^4.17.21",
     "nuxt": "^2.15.3",
     "simplemde": "^1.11.2",
+    "svg4everybody": "^2.1.9",
+    "swiper": "^6.6.1",
     "vee-validate": "^3.4.5",
+    "vue-awesome-swiper": "^4.1.1",
     "vue-final-modal": "^2.1.0",
     "vue-native-websocket": "^2.0.14",
     "vue-simplemde": "^2.0.0",
