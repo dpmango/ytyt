@@ -30,8 +30,8 @@ class PasswordResetView(GenericAPIView, EmailNotificationMixin):
     serializer_class = PasswordResetSerializer
     permission_classes = (AllowAny,)
 
-    subject_template_name = 'users/password/password_reset_body.html'
-    email_template_name = 'users/password/password_reset_body.txt'
+    subject_template_name = 'users/password/password_reset_subject.txt'
+    email_template_name = 'users/password/password_reset_body.html'
 
     def get_serializer_context(self):
         current_site = urlparse(self.request.build_absolute_uri(''))

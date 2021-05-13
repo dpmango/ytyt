@@ -45,8 +45,8 @@ class VerifyEmailView(CreateAPIView, UpdateAPIView, EmailNotificationMixin):
     serializer_class = VerifyEmailSerializer
     permission_classes = (IsAuthenticated, )
 
-    subject_template_name = 'users/verify_email/verify_email_body.html'
-    email_template_name = 'users/verify_email/verify_email_body.txt'
+    subject_template_name = 'users/verify_email/verify_email_subject.txt'
+    email_template_name = 'users/verify_email/verify_email_body.html'
 
     def post(self, request, *args, **kwargs):
         """

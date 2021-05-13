@@ -170,5 +170,5 @@ class DialogEvent(EmailNotificationMixin):
 
         return {'data': message, 'to': users_to_notification}
 
-    subject_template_name = 'users/message/new_message_body.html'
-    email_template_name = 'users/message/new_message_subject.txt'
+    subject_template_name = 'users/message/new_message_subject.txt'
+    email_template_name = 'users/message/new_message_body.html'
