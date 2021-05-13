@@ -76,5 +76,5 @@ class VerifyEmailView(CreateAPIView, UpdateAPIView, EmailNotificationMixin):
         return {
             **super().get_serializer_context(),
             'domain': current_site.netloc,
-            'protocol': current_site.scheme
+            'protocol': current_site.scheme,
         }

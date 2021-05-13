@@ -56,7 +56,7 @@ class Mailgun:
         if 'files' in log_kwargs:
             log_kwargs = {**log_kwargs, 'files': len(log_kwargs.get('files'))}
 
-        if 'html' in log_kwargs:
+        if 'html' in log_kwargs.get('data') or {}:
             log_kwargs = {**log_kwargs, 'html': 'HTML-шаблон'}
 
         logger.debug('[mailgun][request][method=%s] url=%s, kwargs=%s' % (method, url, str(log_kwargs)))

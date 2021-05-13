@@ -161,6 +161,7 @@ class PasswordResetSerializer(serializers.Serializer):
             'token': default_token_generator.make_token(user),
             'domain': self.context['domain'],
             'protocol': self.context['protocol'],
+            'base_url': '%s://%s' % (self.context['protocol'], self.context['domain'])
         }
 
         return {'to': user.email, 'context': context}
@@ -193,6 +194,7 @@ class VerifyEmailSerializer(serializers.Serializer):
             'token': default_token_generator.make_token(instance),
             'domain': self.context['domain'],
             'protocol': self.context['protocol'],
+            'base_url': '%s://%s' % (self.context['protocol'], self.context['domain'])
         }
 
         return {'to': instance.email, 'context': context}

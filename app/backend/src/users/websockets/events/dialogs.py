@@ -162,7 +162,7 @@ class DialogEvent(EmailNotificationMixin):
         users_to_notification = set(dialog.users.all())
         users_to_email_notification = users_to_notification - {user}
 
-        context = {**message, **model_to_dict(user)}
+        context = {**message, **model_to_dict(user), 'base_url': kwargs.get('base_url')}
 
         for _user in users_to_email_notification:
             if _user.email_notifications:
