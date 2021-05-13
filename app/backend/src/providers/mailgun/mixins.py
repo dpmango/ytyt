@@ -26,6 +26,7 @@ class EmailNotificationMixin:
         :param files: Набор файлов
         """
         to = to if to is not None else settings.DEFAULT_ADMIN_EMAIL
+        kwargs = {}
 
         if self.subject_template_name:
             subject = loader.render_to_string(self.subject_template_name, context or {})
@@ -34,20 +35,20 @@ class EmailNotificationMixin:
             subject = self.subject_template_raw.format(**(context or {}))
 
         if self.email_template_name:
-            body = loader.render_to_string(self.email_template_name, context or {})
+            kwargs['html'] = loader.render_to_string(self.email_template_name, context or {})
         else:
-            body = self.email_template_raw.format(**(context or {}))
+            kwargs['text'] = self.email_template_raw.format(**(context or {}))
 
         if files is None:
             if settings.IS_PRODUCTION:
-                send_mail.delay(to, subject, body)
+                send_mail.delay(to, subject, **kwargs)
             else:
-                send_mail(to, subject, body)
+                send_mail(to, subject, **kwargs)
         else:
             if settings.IS_PRODUCTION:
-                send_file.delay(to, subject, body, files)
+                send_file.delay(to, subject, files, **kwargs)
             else:
-                send_file(to, subject, body, files)
+                send_file(to, subject, files, **kwargs)
 
 
 class EmailNotification(EmailNotificationMixin):

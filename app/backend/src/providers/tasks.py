@@ -11,7 +11,7 @@ def send_mail(_, *args, **kwargs) -> None:
     :param kwargs: Ключевые аргументы запроса
     :return: None
     """
-    mailgun.send_email(*args)
+    mailgun.send_email(*args, **kwargs)
 
 
 @app.task(bind=True)
@@ -23,4 +23,4 @@ def send_file(_, *args, **kwargs) -> None:
     :param kwargs: Ключевые аргументы запроса
     :return: None
     """
-    mailgun.send_file(*args)
+    mailgun.send_file(*args, **kwargs)
