@@ -1,5 +1,6 @@
 import typing
 
+from django.forms.models import model_to_dict
 from django.utils import timezone
 
 from dialogs.api.serializers import DialogWithLastMessageSerializers, DefaultDialogMessageSerializers
@@ -7,7 +8,6 @@ from dialogs.models import DialogMessage, Dialog
 from files.models import File
 from providers.mailgun.mixins import EmailNotificationMixin
 from users.models import User
-from django.forms.models import model_to_dict
 
 
 class DialogEvent(EmailNotificationMixin):
@@ -138,7 +138,7 @@ class DialogEvent(EmailNotificationMixin):
         """
         Создание сообщения
         Так же уведомляются все пользователи, которые есть в диалоге
-        :param user: Пользователь, который загрузил чат
+        :param user: Пользователь, который отправил сообщение
         :param dialog_id: ID диалога
         :param body: Тело сообщения
         :param file_id: ID файла
@@ -170,5 +170,5 @@ class DialogEvent(EmailNotificationMixin):
 
         return {'data': message, 'to': users_to_notification}
 
-    subject_template_raw = 'Новое сообщение от {email}'
-    email_template_raw = 'Сообщение: {body}'
+    subject_template_name = 'users/message/new_message_body.html'
+    email_template_name = 'users/message/new_message_subject.txt'

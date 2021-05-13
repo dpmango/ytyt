@@ -1,5 +1,0 @@
-Hello!
-
-Подтвердите почту
-
-{{ protocol }}://{{ domain }}/auth/verify/?token={{token}}&uid={{uid}}

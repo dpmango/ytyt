@@ -1,6 +1,7 @@
-from django.template import loader
-from providers.tasks import send_mail, send_file
 from django.conf import settings
+from django.template import loader
+
+from providers.tasks import send_mail, send_file
 
 
 class EmailNotificationMixin:
@@ -37,8 +38,6 @@ class EmailNotificationMixin:
         else:
             body = self.email_template_raw.format(**(context or {}))
 
-        # send_mail.delay(to, subject, body)
-        to = 'mat.coniaev2012@yandex.ru'
         if files is None:
             if settings.IS_PRODUCTION:
                 send_mail.delay(to, subject, body)

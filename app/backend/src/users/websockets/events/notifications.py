@@ -1,7 +1,7 @@
 from django.db.models import Q
 
-from users.models import User
 from dialogs.models import Dialog
+from users.models import User
 
 
 class InsidePlatformNotificationEvent:
