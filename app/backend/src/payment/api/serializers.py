@@ -32,7 +32,7 @@ class InitCreationSerializer(serializers.ModelSerializer):
         fields = ('course_id', )
 
 
-class InitInstallmentCreationSerializer(InitCreationSerializer):
+class InitCreditCreationSerializer(InitCreationSerializer):
     promo_code = serializers.ChoiceField(required=True, choices=TinkoffCredit.PROMO_CODES)
 
     def create(self, validated_data: dict):

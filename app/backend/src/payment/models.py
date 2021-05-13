@@ -25,6 +25,7 @@ class Payment(PaymentBase):
 
 
 class PaymentCredit(PaymentBase):
+    external_payment_id = models.CharField('ID платежа во внешней системе', null=True, blank=True, max_length=120)
     amount = models.DecimalField('Сумма оплаты', max_digits=10, decimal_places=2)
     promo_code = models.CharField('Тип кредитного продукта',
                                   choices=TinkoffCredit.PROMO_CODES, null=True, blank=True, max_length=21)

@@ -19,10 +19,10 @@ class TinkoffCredit(BaseProvider):
         (PROMO_CODE_0_0_12, '0-0-12'),
     )
 
-    STATUS_APPROVED = 'Approved'
-    STATUS_REJECTED = 'Rejected'
-    STATUS_CANCELED = 'Canceled'
-    STATUS_SIGNED = 'Signed'
+    STATUS_APPROVED = 'approved'
+    STATUS_REJECTED = 'rejected'
+    STATUS_CANCELED = 'canceled'
+    STATUS_SIGNED = 'signed'
     STATUSES = (
         (STATUS_APPROVED, 'Заявка одобрена'),
         (STATUS_REJECTED, 'По заявке отказ'),
@@ -50,11 +50,15 @@ class TinkoffCredit(BaseProvider):
         """
         Метод для создания демо-заявки на кредит или рассрочку
         """
-        data = {**kwargs}
+        data = {
+            'shopId': self.shop_id,
+            'showcaseId': self.showcase_id,
+            **kwargs,
+        }
         return self._call('post', url='orders/create-demo', json=data)
 
 
-tinkoff_client = TinkoffCredit(
+tinkoff_credit_client = TinkoffCredit(
     base_url=settings.TINKOFF_CREDIT_URL,
     shop_id=settings.TINKOFF_CREDIT_SHOP_ID,
     showcase_id=settings.TINKOFF_CREDIT_SHOWCASE_ID,

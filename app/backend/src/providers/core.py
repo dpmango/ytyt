@@ -21,16 +21,28 @@ class BaseProvider(ABC):
         base_url = self.base_url.rstrip('/')
         url = '%s/%s' % (base_url, url)
 
-        logger.debug('[tinkoff][request][method=%s] url=%s, kwargs=%s' % (method, url, str(kwargs)))
+        logger.debug('[%s][request][method=%s] url=%s, kwargs=%s' % (
+            self.__class__.__name__, method, url, str(kwargs)
+        ))
         response = request(method=method, url=url, **kwargs, headers={'content-type': 'application/json'})
 
         if response.status_code in (200, 201, 202):
             return self._force_json(response)
 
-        logger.info('[tinkoff][response][method=%s] status_code=%s, url=%s, response=%s' % (
-            method, response.status_code, url, str(response.text)
+        logger.info('[%s][response][method=%s] status_code=%s, url=%s, response=%s' % (
+            self.__class__.__name__, method, response.status_code, url, str(response.text)
         ))
+
+        response = self._force_json(response)
+        if len(response) > 0:
+            return {'error': response}
+
         return {}
+
+    @staticmethod
+    def is_error(data: dict):
+        if 'error' in data:
+            return data['error']
 
     @staticmethod
     def _force_json(response: Response):
