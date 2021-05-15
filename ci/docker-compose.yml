@@ -2,7 +2,7 @@ version: '3.7'
 
 x-backend-env:
   &backend-env
-    APP_MODE: 'production'
+    APP_MODE: ${APP_MODE}
     DATABASE_URL: 'psql://${PSQL_USER}:${PSQL_PASS}@psql:5432/${PSQL_DB}'
     DEBUG: ${APP_DEBUG}
     REDIS_URL: 'redis://redis:6379/1'
