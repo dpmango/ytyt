@@ -6,6 +6,7 @@ from xlsxwriter import Workbook
 from xlsxwriter.worksheet import Worksheet
 
 from courses_access.models import Access
+from dialogs.models import Dialog
 from providers.mailgun.mixins import EmailNotification
 from reports.configs import CONFIG
 from users.models import User
@@ -199,5 +200,42 @@ class GenerateReport:
         return last_course_lesson
 
     @staticmethod
-    def get_value__average_time_answer(reviewer: User) -> int:
-        return 10
+    def get_value__average_time_answer(reviewer: User):
+        """
+        Среднее время ответа на вопрос считается как среднее время ответа на сообщение студента
+        :param reviewer: Объект ревьюера
+        """
+        dialogs = Dialog.objects.filter(users__in=[reviewer])
+
+        dialogs_time_answers = []
+        for dialog in dialogs:
+            prev_user = prev_answer_date = None
+            time_answers = []
+
+            for message in dialog.dialogmessage_set.all():
+                if prev_user is None and message.user.is_staff:
+                    continue
+
+                if message.user == prev_user:
+                    continue
+
+                prev_user = message.user
+
+                if prev_answer_date is None:
+                    prev_answer_date = message.date_created
+                else:
+                    time_answers.append((message.date_created - prev_answer_date).seconds)
+                    prev_answer_date = None
+
+            try:
+                dialogs_time_answers.append(sum(time_answers) / len(time_answers))
+            except ZeroDivisionError:
+                pass
+
+        try:
+            mean_time_answer = sum(dialogs_time_answers) / len(dialogs_time_answers)
+            mean_time_answer /= 60
+        except ZeroDivisionError:
+            mean_time_answer = 0
+
+        return mean_time_answer

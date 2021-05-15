@@ -83,16 +83,11 @@ CONFIG = OrderedDict({
                 'value': lambda reviewer: reviewer.dialogmessage_set.count(),
                 'set_column_auto_width': True,
             },
-            # {
-            #     'title': 'Среднее время ответа на вопрос',
-            #     'value': 'average_time_answer',
-            #     'set_column_auto_width': True,
-            # },
+            {
+                'title': 'Среднее время ответа на вопрос (минут)',
+                'value': 'average_time_answer',
+                'set_column_auto_width': True,
+            },
         ]
     }),
 })
-
-
-
-
-
