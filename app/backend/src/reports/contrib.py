@@ -56,6 +56,7 @@ class GenerateReport:
             email_template_raw='Сгенерирован %s. Файл во вложении' % title,
         )
         mailgun.send_mail(
+            without_thread=True,
             files=[
                 ('attachment', ('%s.xlsx' % title, output.read())),
             ]

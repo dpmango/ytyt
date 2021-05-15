@@ -15,7 +15,7 @@ class EmailNotificationMixin:
     subject_template_name = None
     email_template_name = None
 
-    def send_mail(self, context: dict = None, to: str = None, files: list = None) -> None:
+    def send_mail(self, context: dict = None, to: str = None, files: list = None, without_thread: bool = None) -> None:
         """
         Метод производит формирование темы и тела сообщения.
         Если темплейта не существует, то метод будет искать захаркоженные темплейты
@@ -24,6 +24,7 @@ class EmailNotificationMixin:
         :param context: Контекстыне данные
         :param to: Адресат
         :param files: Набор файлов
+        :param without_thread: Произвести отправку без использования дополнительного потока
         """
         to = to if to is not None else settings.DEFAULT_ADMIN_EMAIL
         kwargs = {}
@@ -39,16 +40,22 @@ class EmailNotificationMixin:
         else:
             kwargs['text'] = self.email_template_raw.format(**(context or {}))
 
-        if files is None:
-            if settings.IS_PRODUCTION:
-                send_mail.delay(to, subject, **kwargs)
-            else:
+        if without_thread:
+            if files is None:
                 send_mail(to, subject, **kwargs)
+            else:
+                send_file(to, subject, files, **kwargs)
         else:
-            # if settings.IS_PRODUCTION:
-            #     send_file.delay(to, subject, files, **kwargs)
-            # else:
-            send_file(to, subject, files, **kwargs)
+            if files is None:
+                if settings.IS_PRODUCTION:
+                    send_mail.delay(to, subject, **kwargs)
+                else:
+                    send_mail(to, subject, **kwargs)
+            else:
+                if settings.IS_PRODUCTION:
+                    send_file.delay(to, subject, files, **kwargs)
+                else:
+                    send_file(to, subject, files, **kwargs)
 
 
 class EmailNotification(EmailNotificationMixin):
