@@ -18,4 +18,4 @@ class ReportAdmin(admin.ModelAdmin):
     _generate_users_report.short_description = 'Сгенерировать отчет'
     actions = [_generate_users_report]
 
-    read_only_fields = ('title', )
+    readonly_fields = ('title', )
