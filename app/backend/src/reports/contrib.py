@@ -39,6 +39,7 @@ class GenerateReport:
 
     def process(self):
         output = io.BytesIO()
+        title = self.meta['ru']
 
         self.workbook = xlsxwriter.Workbook(output, {'in_memory': True})
         self.worksheet = self.workbook.add_worksheet()
@@ -51,12 +52,12 @@ class GenerateReport:
         output.seek(0)
 
         mailgun = EmailNotification(
-            subject_template_raw='Отчет о пользователях',
-            email_template_raw='Сгеенирован отчет о пользователях. Файл во вложении',
+            subject_template_raw=title,
+            email_template_raw='Сгенерирован %s. Файл во вложении' % title,
         )
         mailgun.send_mail(
             files=[
-                ('attachment', ('%s.xlsx' % self.meta['ru'], output.read())),
+                ('attachment', ('%s.xlsx' % title, output.read())),
             ]
         )
 

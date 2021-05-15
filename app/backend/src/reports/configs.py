@@ -41,7 +41,7 @@ CONFIG = OrderedDict({
             },
             {
                 'title': 'Назначенный ментор',
-                'value': lambda user: user.reviewer.email,
+                'value': lambda user: user.reviewer.email if user.reviewer else None,
                 'set_column_auto_width': True,
             },
             {
