@@ -45,10 +45,10 @@ class EmailNotificationMixin:
             else:
                 send_mail(to, subject, **kwargs)
         else:
-            if settings.IS_PRODUCTION:
-                send_file.delay(to, subject, files, **kwargs)
-            else:
-                send_file(to, subject, files, **kwargs)
+            # if settings.IS_PRODUCTION:
+            #     send_file.delay(to, subject, files, **kwargs)
+            # else:
+            send_file(to, subject, files, **kwargs)
 
 
 class EmailNotification(EmailNotificationMixin):
