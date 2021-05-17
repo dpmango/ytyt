@@ -1,4 +1,8 @@
+import json
+
 from django import forms
+from django.core.exceptions import ValidationError
+from django.core.files.uploadedfile import InMemoryUploadedFile
 from markdownx.utils import markdownify
 
 from courses.models import CourseLesson, LessonFragment
@@ -6,6 +10,20 @@ from courses.utils import html_to_text
 
 
 class CourseLessonCreationForm(forms.ModelForm):
+
+    def clean(self):
+        if 'ipynb_file' in self.changed_data:
+            ipynb_file = self.cleaned_data['ipynb_file']
+
+            if isinstance(ipynb_file, InMemoryUploadedFile):
+                try:
+                    ipynb_file_file_extension = ipynb_file.name.split('.')[-1]
+                except IndexError:
+                    raise ValidationError('У файла `%s` не указано расширение' % ipynb_file.name)
+                else:
+                    if ipynb_file_file_extension not in self.Meta.allowed_file_extension:
+                        raise ValidationError('Расширение `.%s` не поддерживется' % ipynb_file_file_extension)
+
     def save(self, commit=True) -> CourseLesson:
         """
         Переопределенный метод сохранения урока.
@@ -15,9 +33,45 @@ class CourseLessonCreationForm(forms.ModelForm):
         :param commit: Фиксировать ли изменения
         """
         obj = super().save(commit=False)
-        obj.save()
 
+        print(self.changed_data)
+
+        if 'ipynb_file' in self.changed_data:
+            ipynb_file = self.cleaned_data['ipynb_file']
+
+            if isinstance(ipynb_file, InMemoryUploadedFile):
+                try:
+                    ipynb_cells = json.loads(ipynb_file.file.read())['cells']
+                except KeyError:
+                    ipynb_cells = []
+
+                content = []
+                for cell in ipynb_cells:
+                    cell_type = cell.get('cell_type')
+                    cell_source_lines = cell.get('source') or []
+
+                    if len(cell_source_lines) == 0:
+                        continue
+
+                    if cell_type == 'markdown':
+                        cell_source_lines.append('\n')
+
+                    elif cell_type == 'code':
+                        # Добавляем обартный слэш для кода в md
+                        cell_source_lines = ['```\n'] + cell_source_lines + ['\n```\n']
+
+                    content.extend(cell_source_lines)
+
+                content = ''.join(content)
+
+                # Обновляем нужные данные для того, чтобы включить вторую часть алгоритма парсинга
+                obj.content = content
+                self.changed_data.append('content')
+                self.cleaned_data['content'] = content
+
+        obj.save()
         instance: CourseLesson = self.instance
+
         if 'content' not in self.changed_data:
             return obj
 
@@ -83,5 +137,8 @@ class CourseLessonCreationForm(forms.ModelForm):
     class Meta:
         model = CourseLesson
         fields = '__all__'
+
         split_tag_start = '<h1'
         split_tag_end = '/h1>'
+
+        allowed_file_extension = ('ipynb', )
