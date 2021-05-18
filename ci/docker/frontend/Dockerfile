@@ -9,6 +9,6 @@ ENV NUXT_HOST 0.0.0.0
 
 EXPOSE 3000
 
-COPY ci/dev/docker/frontend/entrypoint.sh /
+COPY ci/docker/frontend/entrypoint.sh /
 
 CMD ["/entrypoint.sh"]
