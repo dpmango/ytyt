@@ -5,8 +5,8 @@ RUN apk update && apk upgrade
 RUN mkdir -p /var/app/
 WORKDIR /var/app/
 VOLUME /var/app
-ENV NUXT_HOST=0.0.0.0
-ENV NUXT_PORT=3000
+ENV HOST=0.0.0.0
+ENV PORT=$FRONTEND_EXT_PORT
 
 COPY ci/docker/frontend/entrypoint.sh /
 
