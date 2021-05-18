@@ -43,16 +43,16 @@ services:
   backend:
     <<: *backend
 
-#  frontend:
-#    build:
-#      context: ../
-#      dockerfile: ci/docker/frontend/Dockerfile
-#    restart: on-failure
-#    volumes:
-#      - "../app/frontend/:/var/app"
-#    environment:
-#      BASE_URL: ${BASE_URL}
-#      SOCKET_URL: ${SOCKET_URL}
+  frontend:
+    build:
+      context: ../
+      dockerfile: ci/docker/frontend/Dockerfile
+    restart: on-failure
+    volumes:
+      - "../app/frontend/:/var/app"
+    environment:
+      BASE_URL: ${BASE_URL}
+      SOCKET_URL: ${SOCKET_URL}
 
   asyns_tasks:
     <<: *backend
