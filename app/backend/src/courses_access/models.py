@@ -581,6 +581,32 @@ class Access(models.Model):
                 return self._struct_to_object(**item)
         return None
 
+    def get_learning_speed(self, to_struct: str) -> typing.Optional[dict]:
+        """
+        Метод считает время прохождения каждого элмента для одной стуркутуры данных:
+            - CourseTheme
+            - CourseLesson
+            - LessonFragment
+        :param to_struct: Название структуры
+        """
+        to_struct = to_snake_case(to_struct)
+        if to_struct == 'course':
+            return None
+
+        data = {}
+        struct = getattr(self, to_struct, [])
+
+        for item in struct:
+            date_start = item.get('date_start')
+            date_completed = item.get('date_completed')
+
+            if not date_start or not date_completed:
+                data[item.get('pk')] = None
+            else:
+                data[item.get('pk')] = (date_completed - date_start).seconds / 60
+
+        return data
+
     @force_int_pk
     def change_status(self, to_struct: str, pk: int, from_status: int = None, to_status: int = None) -> None:
         """
@@ -595,6 +621,7 @@ class Access(models.Model):
         :param to_status: Статус, на который будет сменен статус `from_status`
         """
         to_struct = to_snake_case(to_struct)
+        to_struct_method = getattr(self, f'set_status_{to_struct}')
         struct = getattr(self, to_struct, [])
 
         for idx, item in enumerate(struct):
@@ -604,9 +631,10 @@ class Access(models.Model):
             if item['status'] != from_status:
                 continue
 
-            getattr(self, f'set_status_{to_struct}', None)(
-                pk=pk, status=to_status
-            )
+            if from_status == self.STATUS_AVAILABLE and to_status == self.STATUS_IN_PROGRESS:
+                to_struct_method(pk=pk, status=to_status, date_start=timezone.now())
+            else:
+                to_struct_method(pk=pk, status=to_status)
 
     @force_int_pk
     def check_course_permission(self) -> bool:
