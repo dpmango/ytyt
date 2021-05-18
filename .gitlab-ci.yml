@@ -20,13 +20,13 @@ deploy:dev:
   script:
     - ssh -tt $SERVER_USER@$SERVER_HOST
       "
-      cd ${PROJECT_ROOT} &&
-      git reset --hard &&
-      git checkout master &&
-      git pull --recurse-submodules &&
-      cd ci/ &&
-      docker-compose -f docker-compose.yml -f docker-compose.override.yml up -d --remove-orphans --build &&
-      docker-compose -f docker-compose.yml -f docker-compose.override.yml restart &&
+        cd ${PROJECT_ROOT} &&
+        git reset --hard &&
+        git checkout dev &&
+        git pull --recurse-submodules &&
+        cd ci/dev &&
+        docker-compose up -d --remove-orphans --build &&
+        docker-compose restart
       "
   only:
     - dev
