@@ -46,7 +46,7 @@ services:
   frontend:
     build:
       context: ../
-      dockerfile: ci/dev/docker/frontend/Dockerfile
+      dockerfile: ci/docker/frontend/Dockerfile
     restart: on-failure
     volumes:
       - "../app/frontend/:/var/app"
