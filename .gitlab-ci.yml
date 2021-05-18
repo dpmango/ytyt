@@ -18,15 +18,16 @@ deploy:dev:
     - eval "$(ssh-agent -s)"
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
   script:
-    - ssh -tt $SERVER_USER@$SERVER_HOST
-      "
-        cd ${PROJECT_ROOT} &&
-        git reset --hard &&
-        git checkout dev &&
-        git pull --recurse-submodules &&
-        cd ci/dev &&
-        docker-compose up -d --remove-orphans --build &&
-        docker-compose restart
-      "
+    - ls -a
+#    - ssh -tt $SERVER_USER@$SERVER_HOST
+#      "
+#        cd ${PROJECT_ROOT} &&
+#        git reset --hard &&
+#        git checkout dev &&
+#        git pull --recurse-submodules &&
+#        cd ci/dev &&
+#        docker-compose up -d --remove-orphans --build &&
+#        docker-compose restart
+#      "
   only:
     - dev
