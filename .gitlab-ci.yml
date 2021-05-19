@@ -21,8 +21,9 @@ deploy:dev:
   script:
     - ssh -tt $SERVER_USER@$SERVER_HOST -p $SERVER_PORT
       "
-        cd / &&
-        ls -a
+        cd ${PROJECT_ROOT} &&
+        cd ci/ &&
+        docker-compose down
       "
   only:
     - dev
