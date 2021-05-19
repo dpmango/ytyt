@@ -1,0 +1,27 @@
+stages:
+  - deploy
+
+# - SERVER_USER
+# - SERVER_HOST
+# - SERVER_PORT
+# - SERVER_SSH_PRIVATE_KEY
+deploy:dev:
+  stage: deploy
+  image: ubuntu
+  tags:
+    - course-platform
+  before_script:
+    - mkdir -p ~/.ssh
+    # Paste the PRIVATE key into a gitlab variable. Pay attention to the linebreak at the end when pasting
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
+    - chmod 700 ~/.ssh/id_rsa
+    - eval "$(ssh-agent -s)"
+    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+  script:
+    - ssh -tt $SERVER_USER@$SERVER_HOST
+      "
+        cd / &&
+        ls -a
+      "
+  only:
+    - dev
