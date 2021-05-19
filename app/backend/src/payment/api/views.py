@@ -32,7 +32,7 @@ class PaymentViewSet(FlexibleSerializerModelViewSetMixin, viewsets.GenericViewSe
         """
         if self.request.method in ('POST', 'PUT',):
             payment_layout.receive(request.data)
-        return HttpResponse('ОК', status=status.HTTP_200_OK)
+        return HttpResponse('ОК', status=status.HTTP_200_OK, content_type='text')
 
     @action(methods=['POST', 'PUT', 'GET'], detail=False, url_path='statuses-installment')
     def statuses_installment(self, request, *args, **kwargs):
@@ -42,7 +42,7 @@ class PaymentViewSet(FlexibleSerializerModelViewSetMixin, viewsets.GenericViewSe
         if self.request.method in ('POST', 'PUT',):
             payment_layout.receive(request.data)
         payment_credit_layout.receive(request.data)
-        return HttpResponse('ОК', status=status.HTTP_200_OK)
+        return HttpResponse('ОК', status=status.HTTP_200_OK, content_type='text')
 
     # Для особенных ХАКЕРОВ метод назван как рассрочка, чтоб не доматались
     @action(methods=['POST'], detail=False, url_path='init-installment')
