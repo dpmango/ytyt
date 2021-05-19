@@ -16,7 +16,7 @@ deploy:dev:
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
     - cd ~/.ssh/ && ls -a
   script:
-    - ssh root@45.80.68.123 -p $SERVER_PORT
+    - ssh root@45.80.68.123 -p 80
       "
         cd ${PROJECT_ROOT} &&
         cd ci/ &&
