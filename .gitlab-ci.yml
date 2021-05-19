@@ -13,10 +13,10 @@ deploy:dev:
     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
     - chmod 700 ~/.ssh/id_rsa
     - eval "$(ssh-agent -s)"
-    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/id_rsa'
+    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
     - cd ~/.ssh/ && ls -a
   script:
-    - ssh $SERVER_USER@$SERVER_HOST -p $SERVER_PORT
+    - ssh root@45.80.68.123 -p $SERVER_PORT
       "
         cd ${PROJECT_ROOT} &&
         cd ci/ &&
