@@ -1,3 +1,4 @@
+from django.http import HttpResponse
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -30,7 +31,7 @@ class PaymentViewSet(FlexibleSerializerModelViewSetMixin, viewsets.GenericViewSe
         Метод получает статусы по оплате в банке
         """
         payment_layout.receive(request.data)
-        return Response('ОК', status=status.HTTP_200_OK)
+        return HttpResponse('ОК', status=status.HTTP_200_OK)
 
     @action(methods=['POST'], detail=False, url_path='statuses-installment')
     def statuses_installment(self, request, *args, **kwargs):
@@ -38,7 +39,7 @@ class PaymentViewSet(FlexibleSerializerModelViewSetMixin, viewsets.GenericViewSe
         Метод получает статусы по оплате в банке
         """
         payment_credit_layout.receive(request.data)
-        return Response('ОК', status=status.HTTP_200_OK)
+        return HttpResponse('ОК', status=status.HTTP_200_OK)
 
     # Для особенных ХАКЕРОВ метод назван как рассрочка, чтоб не доматались
     @action(methods=['POST'], detail=False, url_path='init-installment')
