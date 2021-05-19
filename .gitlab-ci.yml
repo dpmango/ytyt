@@ -11,6 +11,7 @@ deploy:dev:
   tags:
     - course-platform
   before_script:
+    - apt-get update && apt-get -y install openssh-server
     - mkdir -p ~/.ssh
     # Paste the PRIVATE key into a gitlab variable. Pay attention to the linebreak at the end when pasting
     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
@@ -18,7 +19,6 @@ deploy:dev:
     - eval "$(ssh-agent -s)"
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
   script:
-    - apt-get update && apt-get -y install openssh-server
     - ssh -tt $SERVER_USER@$SERVER_HOST -p $SERVER_PORT
       "
         cd / &&
