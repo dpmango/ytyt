@@ -17,9 +17,8 @@ deploy:dev:
     - ssh-keyscan -H 45.80.68.123 >> ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
-
   script:
-    - ssh root@45.80.68.123 -p 22
+    - ssh $SERVER_USER@$SERVER_HOST -p $SERVER_PORT
       "
         cd ${PROJECT_ROOT} &&
         cd ci/ &&
