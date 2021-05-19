@@ -17,7 +17,8 @@ class PaymentViewSet(FlexibleSerializerModelViewSetMixin, viewsets.GenericViewSe
 
     permission_classes = (IsAuthenticated, )
     permission_classes_by_action = {
-        'statuses': (AllowAny, )
+        'statuses': (AllowAny, ),
+        'statuses_installment': (AllowAny, ),
     }
 
     serializers = {
@@ -41,7 +42,6 @@ class PaymentViewSet(FlexibleSerializerModelViewSetMixin, viewsets.GenericViewSe
         """
         if self.request.method in ('POST', 'PUT',):
             payment_layout.receive(request.data)
-        payment_credit_layout.receive(request.data)
         return HttpResponse('ОК', status=status.HTTP_200_OK, content_type='text')
 
     # Для особенных ХАКЕРОВ метод назван как рассрочка, чтоб не доматались
