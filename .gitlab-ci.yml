@@ -10,11 +10,11 @@ deploy:dev:
     - apt-get update && apt-get -y install openssh-server
     - mkdir -p ~/.ssh
     # Paste the PRIVATE key into a gitlab variable. Pay attention to the linebreak at the end when pasting
+    - ssh-keygen -R 45.80.68.123
     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
     - chmod 700 ~/.ssh/id_rsa
     - eval "$(ssh-agent -s)"
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
-    - cd ~/.ssh/ && ls -a
   script:
     - ssh root@45.80.68.123 -p 22
       "
