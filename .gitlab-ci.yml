@@ -18,8 +18,9 @@ deploy:dev:
     - chmod 700 ~/.ssh/id_rsa
     - eval "$(ssh-agent -s)"
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+    - cd ~/.ssh/ && ls -a
   script:
-    - ssh -tt $SERVER_USER@$SERVER_HOST -p $SERVER_PORT
+    - ssh $SERVER_USER@$SERVER_HOST -p $SERVER_PORT
       "
         cd ${PROJECT_ROOT} &&
         cd ci/ &&
