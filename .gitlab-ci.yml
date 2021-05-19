@@ -14,15 +14,18 @@ deploy:dev:
     - chmod 700 ~/.ssh/id_rsa
     - eval "$(ssh-agent -s)"
     - ssh-add ~/.ssh/id_rsa
-    - ssh-keyscan -H 45.80.68.123 >> ~/.ssh/known_hosts
+    - ssh-keyscan -H $SERVER_HOST >> ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
   script:
     - ssh $SERVER_USER@$SERVER_HOST -p $SERVER_PORT
       "
         cd ${PROJECT_ROOT} &&
+        git reset --hard &&
+        git pull &&
         cd ci/ &&
-        docker-compose down
+        docker-compose up -d --remove-orphans --build &&
+        docker-compose restart
       "
   only:
-    - dev
+    - master
