@@ -1,10 +1,6 @@
 stages:
   - deploy
 
-# - SERVER_USER
-# - SERVER_HOST
-# - SERVER_PORT
-# - SERVER_SSH_PRIVATE_KEY
 deploy:dev:
   stage: deploy
   image: ubuntu
@@ -17,7 +13,7 @@ deploy:dev:
     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
     - chmod 700 ~/.ssh/id_rsa
     - eval "$(ssh-agent -s)"
-    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/id_rsa'
     - cd ~/.ssh/ && ls -a
   script:
     - ssh $SERVER_USER@$SERVER_HOST -p $SERVER_PORT
