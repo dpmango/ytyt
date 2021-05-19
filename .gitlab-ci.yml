@@ -13,7 +13,8 @@ deploy:dev:
     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
     - chmod 700 ~/.ssh/id_rsa
     - eval "$(ssh-agent -s)"
-    - ssh-keyscan 45.80.68.123 >> ~/.ssh/known_hosts
+    - ssh-add ~/.ssh/id_rsa
+    - ssh-keyscan -H 45.80.68.123 >> ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
   script:
