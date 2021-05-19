@@ -25,19 +25,22 @@ class PaymentViewSet(FlexibleSerializerModelViewSetMixin, viewsets.GenericViewSe
         'init_credit': InitCreditCreationSerializer,
     }
 
-    @action(methods=['POST'], detail=False, url_path='statuses')
+    @action(methods=['POST', 'PUT', 'GET'], detail=False, url_path='statuses')
     def statuses(self, request, *args, **kwargs):
         """
         Метод получает статусы по оплате в банке
         """
-        payment_layout.receive(request.data)
+        if self.request.method in ('POST', 'PUT',):
+            payment_layout.receive(request.data)
         return HttpResponse('ОК', status=status.HTTP_200_OK)
 
-    @action(methods=['POST'], detail=False, url_path='statuses-installment')
+    @action(methods=['POST', 'PUT', 'GET'], detail=False, url_path='statuses-installment')
     def statuses_installment(self, request, *args, **kwargs):
         """
         Метод получает статусы по оплате в банке
         """
+        if self.request.method in ('POST', 'PUT',):
+            payment_layout.receive(request.data)
         payment_credit_layout.receive(request.data)
         return HttpResponse('ОК', status=status.HTTP_200_OK)
 
