@@ -19,7 +19,7 @@ deploy:dev:
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
   script:
     - apt-get update && apt-get -y install openssh-client
-    - ssh -tt $SERVER_USER@$SERVER_HOST
+    - ssh -tt $SERVER_USER@$SERVER_HOST -p $SERVER_PORT
       "
         cd / &&
         ls -a
