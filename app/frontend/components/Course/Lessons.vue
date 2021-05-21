@@ -1,7 +1,7 @@
 <template>
   <div class="lessons">
     <div class="container">
-      <LayoutBack :to="`/`" title="Вернуться к списку" />
+      <LayoutBack :to="`/course`" title="Вернуться к списку" />
 
       <div v-if="theme" class="lessons__title">
         <h1 class="h2-title">{{ theme.title }}</h1>

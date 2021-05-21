@@ -62,6 +62,10 @@
         </div>
       </div>
     </div>
+
+    <template v-if="user.dialog">
+      <ChatHome :is-mini="true" :is-mini-opened="isChatOpened" :handle-click-back-mini="handleClickBack" />
+    </template>
   </div>
 </template>
 
@@ -75,6 +79,7 @@ export default {
   },
   data() {
     return {
+      isChatOpened: false,
       activeSection: 0,
     };
   },
@@ -160,7 +165,11 @@ export default {
       }
     },
     handleQuestionClick() {
-      this.$router.push(`/messages?id=${this.user.dialog.id}`);
+      this.isChatOpened = true;
+      // this.$router.push(`/messages?id=${this.user.dialog.id}`);
+    },
+    handleClickBack() {
+      this.isChatOpened = false;
     },
   },
 };

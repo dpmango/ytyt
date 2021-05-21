@@ -1,7 +1,7 @@
 <template>
   <div class="head">
     <div class="head__wrapper">
-      <div class="head__back" @click="clickBack">
+      <div v-if="clickBack" class="head__back" @click="clickBack">
         <UiSvgIcon name="arrow-left" />
       </div>
       <div class="head__avatar">
@@ -13,6 +13,9 @@
         <div class="head__title">{{ title }}</div>
         <div class="head__status" :class="[head.status_online && 'is-online']">{{ status }}</div>
       </div>
+      <div v-if="clickBackMini" class="head__mini-close" @click="clickBackMini">
+        <UiSvgIcon name="close" />
+      </div>
     </div>
   </div>
 </template>
@@ -22,6 +25,7 @@ export default {
   props: {
     head: Object,
     clickBack: Function,
+    clickBackMini: Function,
   },
   computed: {
     title() {
@@ -47,15 +51,13 @@ export default {
   &__wrapper {
     display: flex;
   }
-  &__back {
-    display: none;
+  &__back,
+  &__mini-close {
     flex: 0 0 30px;
     position: relative;
     min-width: 30px;
     min-height: 30px;
-    margin-right: 6px;
     font-size: 0;
-    color: $colorPrimary;
     cursor: pointer;
     transition: color 0.25s $ease;
     .svg-icon {
@@ -68,6 +70,16 @@ export default {
     &:hover {
       color: $fontColor;
     }
+  }
+  &__back {
+    display: none;
+    margin-right: 6px;
+    color: $colorPrimary;
+  }
+  &__mini-close {
+    align-self: center;
+    margin-left: 6px;
+    color: rgba($fontColor, 0.5);
   }
   &__avatar {
     flex: 0 0 44px;

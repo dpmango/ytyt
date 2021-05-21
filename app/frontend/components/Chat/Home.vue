@@ -1,5 +1,5 @@
 <template>
-  <div class="chat">
+  <div class="chat" :class="[isMini && 'is-mini', isMiniOpened && 'is-mini-opened']">
     <div class="chat__wrapper" :class="[activeDialog && 'is-dialog-active']">
       <div ref="sidebar" class="chat__sidebar">
         <div v-if="scrollDialogs.isLoading" class="chat__sidebar-loader">
@@ -14,7 +14,7 @@
           <UiButton size="small" theme="success" @click="rebuildSocket">Обновить</UiButton>
         </div>
         <div class="chat__head">
-          <ChatHead v-if="head" :click-back="handleClickBack" :head="head" />
+          <ChatHead v-if="head" :click-back="handleClickBack" :click-back-mini="handleClickBackMini" :head="head" />
         </div>
         <div ref="dialogs" class="chat__dialog">
           <div v-if="scrollMessages.isLoading" class="chat__dialog-loader">
@@ -40,7 +40,11 @@ import { scrollToEnd } from '~/helpers/Scroll';
 import { rebuildSocket } from '~/helpers/RebuildSocket';
 
 export default {
-  props: {},
+  props: {
+    isMini: Boolean,
+    isMiniOpened: Boolean,
+    handleClickBackMini: Function,
+  },
   data() {
     return {
       scrollDialogs: {
@@ -66,8 +70,14 @@ export default {
       'socket',
       'isConnected',
     ]),
+    ...mapGetters('auth', ['user']),
   },
   watch: {
+    isConnected() {
+      if (this.isMini && this.user.dialog && this.isConnected) {
+        this.setDialog(parseInt(this.user.dialog.id));
+      }
+    },
     messages() {
       const { scrollTop, scrollHeight, offsetHeight } = this.$refs.dialogs;
       const scrollBottom = scrollHeight - scrollTop - offsetHeight;
@@ -99,6 +109,10 @@ export default {
     if (this.$route.query && this.$route.query.id && this.isConnected) {
       this.setDialog(parseInt(this.$route.query.id));
     }
+
+    if (this.isMini && this.user.dialog && this.isConnected) {
+      this.setDialog(parseInt(this.user.dialog.id));
+    }
   },
   beforeDestroy() {
     if (this.$refs.sidebar) {
@@ -120,6 +134,7 @@ export default {
     handleClickBack() {
       this.resetMessages();
     },
+
     async handleSidebarScroll() {
       const { scrollHeight, scrollTop, offsetHeight } = this.$refs.sidebar;
       const { lastScroll, direction, isLoading } = this.scrollDialogs;
@@ -291,8 +306,8 @@ export default {
 }
 
 @include r($md) {
-  .chat {
-    &__wrapper {
+  .chat:not(.is-mini) {
+    .chat__wrapper {
       will-change: transform;
       transition: transform 0.3s $ease;
       &.is-dialog-active {
@@ -302,17 +317,55 @@ export default {
         }
       }
     }
-    &__sidebar {
+    .chat__sidebar {
       z-index: 2;
       flex-basis: 100%;
       max-width: 100%;
     }
-    &__content {
+    .chat__content {
       z-index: 3;
       flex-basis: 100%;
       max-width: 100%;
       will-change: transform;
       transition: transform 0.25s ease-in;
+    }
+  }
+}
+
+// mini chat
+.chat.is-mini {
+  position: fixed;
+  z-index: 9;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  max-width: 360px;
+  box-shadow: 0 6px 24px -4px rgba(23, 24, 24, 0.1);
+  transform: translate(100%, 0);
+  pointer-events: none;
+  transition: transform 0.25s $ease;
+  &.is-mini-opened {
+    transform: none;
+    pointer-events: all;
+  }
+  .chat {
+    &__wrapper {
+      display: block;
+    }
+    &__sidebar {
+      display: none;
+    }
+    &__content {
+      flex-basis: 100%;
+      max-width: 100%;
+      height: 100vh;
+      padding-top: 56px;
+      background: #eef0f2;
+      .messages {
+        padding-left: 16px;
+        padding-right: 16px;
+      }
     }
   }
 }
