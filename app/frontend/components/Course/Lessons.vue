@@ -15,13 +15,13 @@
       </template>
 
       <div class="list">
-        <div v-for="lesson in list" :key="lesson.id" class="list__row">
+        <div v-for="(lesson, idx) in list" :key="lesson.id" class="list__row">
           <NuxtLink
             class="card"
             :class="[lesson.status === 3 && 'is-compleated', [4, 5, 6, 7, 8].includes(lesson.status) && 'is-locked']"
             :to="`/theme/${$route.params.id}/${lesson.id}`"
           >
-            <div class="card__num">{{ lesson.id }}</div>
+            <div class="card__num">{{ idx + 1 }}</div>
             <div class="card__content">
               <div class="card__title">{{ lesson.title }}</div>
               <div class="card__description">{{ lesson.description }}</div>
@@ -54,8 +54,8 @@ export default {
       return null;
     },
     stats() {
-      const plural = Plurize(this.theme.count_lessons, 'урок', 'урока', 'уроков');
-      return `${this.theme.completed_count_lessons} / ${this.theme.count_lessons} ${plural}`;
+      const plural = Plurize(this.theme.count_lessons, 'уроков', 'уроков', 'уроков');
+      return `${this.theme.completed_count_lessons} / ${this.theme.count_lessons} ${plural} пройдено`;
     },
   },
 };

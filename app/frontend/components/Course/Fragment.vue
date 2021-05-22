@@ -216,6 +216,8 @@ export default {
     display: flex;
     align-items: center;
     .button {
+      padding-top: 13px;
+      padding-bottom: 14px;
       margin-right: 16px;
       &:last-child {
         margin-right: 0;

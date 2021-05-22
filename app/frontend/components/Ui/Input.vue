@@ -1,5 +1,5 @@
 <template>
-  <div class="input" :class="[{ 'has-error': error }, theme]">
+  <div class="input" :class="[{ 'has-error': error && !isFocused }, theme]">
     <label v-if="label" :for="_uid" class="input__label">{{ getLabel }}</label>
     <div class="input__input" :class="[{ 'is-iconed': icon || clearable, 'is-clearable': isClearable }, iconPosition]">
       <input
@@ -10,6 +10,8 @@
         v-bind="$attrs"
         v-on="$listeners"
         @input="setValue"
+        @focus="handleFocus"
+        @blur="handleBlur"
       />
       <textarea v-else :id="_uid" :value="value" :placeholder="placeholder" v-bind="$attrs" @input="setValue" />
 
@@ -60,6 +62,11 @@ export default {
       required: false,
     },
   },
+  data() {
+    return {
+      isFocused: false,
+    };
+  },
   computed: {
     isTextArea() {
       return this.$attrs.textarea !== undefined;
@@ -72,12 +79,18 @@ export default {
       }
     },
     getLabel() {
-      return typeof this.error === 'string' ? this.parseVeeError(this.error) : this.label;
+      return typeof this.error === 'string' && !this.isFocused ? this.parseVeeError(this.error) : this.label;
     },
   },
   methods: {
     setValue(e) {
       this.$emit('onChange', e.target.value);
+    },
+    handleFocus() {
+      this.isFocused = true;
+    },
+    handleBlur() {
+      this.isFocused = false;
     },
     clearInput() {
       if (this.isClearable) {
@@ -98,6 +111,7 @@ export default {
     display: block;
     font-size: 12px;
     line-height: 16px;
+    font-family: $baseFont;
     color: $colorGray;
     margin-bottom: 5px;
     white-space: nowrap;

@@ -11,8 +11,8 @@
       <div class="sidebar__progress">
         <div class="sidebar__progress-title">Твой прогресс</div>
         <div class="sidebar__progress-indicator">
-          <div class="sidebar__progress-number" :style="{ left: `calc(${progress}% - 18px)` }">{{ progress }} %</div>
-          <div class="sidebar__progress-inner" :style="{ width: `calc(${progress}% - 18px)` }"></div>
+          <div class="sidebar__progress-number" :style="{ left: progressPercent }">{{ progressRounded }} %</div>
+          <div class="sidebar__progress-inner" :style="{ width: progressPercent }"></div>
         </div>
       </div>
 
@@ -68,6 +68,15 @@ export default {
     };
   },
   computed: {
+    progressRounded() {
+      return Math.round(this.progress);
+    },
+    progressPercent() {
+      if (this.progressRounded > 85) {
+        return `calc(${this.progressRounded}% - 30px)`;
+      }
+      return `${this.progressRounded}%`;
+    },
     ...mapGetters('auth', ['user']),
   },
   methods: {
@@ -112,6 +121,7 @@ export default {
     z-index: 2;
     top: 50%;
     left: 0;
+    white-space: nowrap;
     font-size: 13px;
     color: $colorGreen;
     background: white;
