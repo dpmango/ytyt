@@ -2,4 +2,4 @@
 
 yarn install
 yarn run build
-yarn start
+HOST=0.0.0.0 PORT=3000 yarn start
