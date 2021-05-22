@@ -29,5 +29,6 @@ export default {
   },
   payment: {
     init: `${api}/payment/init/`,
+    initInstallment: `${api}/payment/init-installment/`,
   },
 };

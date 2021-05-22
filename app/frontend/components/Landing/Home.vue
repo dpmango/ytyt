@@ -25,9 +25,9 @@ export default {
         {
           src: '/landing/jquery.fancybox.min.js',
         },
-        {
-          src: '/landing/jquery.inputmask.bundle.min.js',
-        },
+        // {
+        //   src: '/landing/jquery.inputmask.bundle.min.js',
+        // },
       ],
     };
   },

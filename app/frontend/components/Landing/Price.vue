@@ -132,10 +132,10 @@ export default {
     }
 
     // Маска телефона
-    window.$('#input-phone').inputmask({
-      mask: '+7 (999) 999-99-99',
-      showMaskOnHover: false,
-    });
+    // window.$('#input-phone').inputmask({
+    //   mask: '+7 (999) 999-99-99',
+    //   showMaskOnHover: false,
+    // });
   },
   methods: {
     setTab(id) {
