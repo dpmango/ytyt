@@ -17,29 +17,29 @@ class Mailgun:
     def _auth(self):
         return 'api', self.token
 
-    def send_file(self, to: str, subject: str, body: str, files: List[Tuple[str, bytes]]):
+    def send_file(self, to: str, subject: str, files: List[Tuple[str, bytes]], **kwargs):
         """
         Метод отправляет сообщение пользователю на email
         :param to: Email пользователя
         :param subject: Тема сообщения
-        :param body: Тело сообщения
         :param files: Список файлов
+        :param kwargs:
+            - text: Текстовое сообщение
+            - html: Сообщение в формате html
         """
-        data = {
-            'from': self.from_email, 'to': [to], 'subject': subject, 'text': body,
-        }
+        data = {'from': self.from_email, 'to': [to], 'subject': subject, **kwargs}
         return self._call('POST', url='messages', data=data, files=files)
 
-    def send_email(self, to: str, subject: str, body: str) -> dict:
+    def send_email(self, to: str, subject: str, **kwargs) -> dict:
         """
         Метод отправляет сообщение пользователю на email
         :param to: Email пользователя
         :param subject: Тема сообщения
-        :param body: Тело сообщения
+        :param kwargs:
+            - text: Текстовое сообщение
+            - html: Сообщение в формате html
         """
-        data = {
-            'from': self.from_email, 'to': [to], 'subject': subject, 'text': body,
-        }
+        data = {'from': self.from_email, 'to': [to], 'subject': subject, **kwargs}
         return self._call('POST', url='messages', data=data)
 
     def _call(self, method: str, url: str, **kwargs):
@@ -52,7 +52,14 @@ class Mailgun:
         base_url = self.base_url.rstrip('/')
         url = '%s/%s' % (base_url, url)
 
-        logger.debug('[mailgun][request][method=%s] url=%s, kwargs=%s' % (method, url, str(kwargs)))
+        log_kwargs = kwargs
+        if 'files' in log_kwargs:
+            log_kwargs = {**log_kwargs, 'files': len(log_kwargs.get('files'))}
+
+        if 'html' in log_kwargs.get('data') or {}:
+            log_kwargs = {**log_kwargs, 'html': 'HTML-шаблон'}
+
+        logger.debug('[mailgun][request][method=%s] url=%s, kwargs=%s' % (method, url, str(log_kwargs)))
         response = request(method=method, url=url, auth=self._auth, **kwargs)
 
         response = {

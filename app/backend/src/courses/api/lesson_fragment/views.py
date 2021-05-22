@@ -110,8 +110,11 @@ class LessonFragmentViewSet(FlexibleSerializerModelViewSetMixin,
 
             if next_course_theme is not None:
 
+                # Предоставляем доступ к теме/уроку/фрагменту в любом случае.
+                # Если у пользователя не оплачено, то доступ не будет предоставлен на уровне курса
+                access.set__course_theme__course_lesson__lesson_fragment(pk=next_course_theme.pk)
+
                 # Если следующая тема НЕ бесплатная и у пользователя НЕ оплачен курс, то вернем ему ошибку доступа
-                # В противном случае — даем доступ к следующей теме
                 if not next_course_theme.free_access and \
                         access.access_type not in Access.AVAILABLE_ACCESS_TYPES_FULL:
 
@@ -119,8 +122,6 @@ class LessonFragmentViewSet(FlexibleSerializerModelViewSetMixin,
                     msg = 'Для доступа к теме `%s` вам необходимо произвести оплату' % next_course_theme.title
 
                     return Response({'detail': msg}, status=status.HTTP_403_FORBIDDEN)
-
-                access.set__course_theme__course_lesson__lesson_fragment(pk=next_course_theme.pk)
 
                 # Проверка на скорость прохождения курса
                 # Делаем ее сразу после того, как предоставили доступы

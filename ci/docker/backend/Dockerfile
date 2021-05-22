@@ -1,4 +1,4 @@
-FROM python:3.7-stretch
+FROM python:3.8-buster
 LABEL maintainer="Matvey Konyaev <mat.coniaev2012@yandex.ru>"
 ENV DEBIAN_FRONTEND=noninteractive
 

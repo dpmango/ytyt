@@ -10,9 +10,9 @@ dockerize -wait tcp://${DB_HOST}:${DB_PORT}
 ./manage.py migrate --noinput
 ./manage.py collectstatic --noinput
 ./manage.py sync_permissions
+./manage.py sync_reports
 ./manage.py loaddata crm/fixtures/dev.json
 ./manage.py loaddata crm/fixtures/courses.json
-#./manage.py sync_db
 
 # Запуск
 daphne -b 0.0.0.0 -p 8000 crm.asgi:application

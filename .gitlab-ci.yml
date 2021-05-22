@@ -1,0 +1,31 @@
+stages:
+  - deploy
+
+deploy:dev:
+  stage: deploy
+  image: ubuntu
+  tags:
+    - course-platform
+  before_script:
+    - apt-get update && apt-get -y install openssh-server
+    - mkdir -p ~/.ssh
+    # Paste the PRIVATE key into a gitlab variable. Pay attention to the linebreak at the end when pasting
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
+    - chmod 700 ~/.ssh/id_rsa
+    - eval "$(ssh-agent -s)"
+    - ssh-add ~/.ssh/id_rsa
+    - ssh-keyscan -H $SERVER_HOST >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+  script:
+    - ssh $SERVER_USER@$SERVER_HOST -p $SERVER_PORT
+      "
+        cd ${PROJECT_ROOT} &&
+        git reset --hard &&
+        git pull &&
+        cd ci/ &&
+        docker-compose up -d --remove-orphans --build &&
+        docker-compose restart
+      "
+  only:
+    - master

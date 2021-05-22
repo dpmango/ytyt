@@ -31,7 +31,7 @@ class PasswordResetView(GenericAPIView, EmailNotificationMixin):
     permission_classes = (AllowAny,)
 
     subject_template_name = 'users/password/password_reset_subject.txt'
-    email_template_name = 'users/password/password_reset_body.txt'
+    email_template_name = 'users/password/password_reset_body.html'
 
     def get_serializer_context(self):
         current_site = urlparse(self.request.build_absolute_uri(''))
@@ -45,7 +45,7 @@ class PasswordResetView(GenericAPIView, EmailNotificationMixin):
     def post(self, request, *args, **kwargs):
         """
         Метод отправляет ссылку на указанный email для восстановления пароля
-        Пример: http://example.com/auth/reset/confirm?token=al6051-1b6854c210eab8e327129a8d878b68b8&uid=MjY
+        Пример: https://example.com/auth/reset/confirm?token=al6051-1b6854c210eab8e327129a8d878b68b8&uid=MjY
         """
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)

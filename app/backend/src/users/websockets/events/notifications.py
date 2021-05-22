@@ -1,7 +1,7 @@
 from django.db.models import Q
 
-from users.models import User
 from dialogs.models import Dialog
+from users.models import User
 
 
 class InsidePlatformNotificationEvent:
@@ -10,7 +10,7 @@ class InsidePlatformNotificationEvent:
 
     EVENTS = (
         (EVENT_NOTIFICATIONS_DIALOG_COUNT, 'Уведомление о количестве непрочитанных диалогов'),
-        (EVENT_NOTIFICATIONS_DIALOG_MESSAGES_COUNT, 'Уведомление о количестве непрочитанных сообщений в диалоге')
+        (EVENT_NOTIFICATIONS_DIALOG_MESSAGES_COUNT, 'Уведомление о количестве непрочитанных сообщений в диалоге'),
     )
 
     def get_dialogs_count(self, user: User) -> dict:

@@ -2,6 +2,7 @@ version: '3.7'
 
 x-backend-env:
   &backend-env
+    APP_MODE: ${APP_MODE}
     DATABASE_URL: 'psql://${PSQL_USER}:${PSQL_PASS}@psql:5432/${PSQL_DB}'
     DEBUG: ${APP_DEBUG}
     REDIS_URL: 'redis://redis:6379/1'
@@ -15,6 +16,11 @@ x-backend-env:
 
     TINKOFF_URL: 'https://securepay.tinkoff.ru/v2/'
     TINKOFF_TERMINAL_KEY: ${TINKOFF_TERMINAL_KEY}
+    TINKOFF_TERMINAL_PASSWORD: ${TINKOFF_TERMINAL_PASSWORD}
+
+    TINKOFF_CREDIT_URL: 'https://forma.tinkoff.ru/api/partners/v2/'
+    TINKOFF_CREDIT_SHOP_ID: ${TINKOFF_CREDIT_SHOP_ID}
+    TINKOFF_CREDIT_SHOWCASE_ID: ${TINKOFF_CREDIT_SHOWCASE_ID}
 
 x-backend:
   &backend
@@ -36,6 +42,17 @@ services:
   # ####################################################################################################################
   backend:
     <<: *backend
+
+  frontend:
+    build:
+      context: ../
+      dockerfile: ci/docker/frontend/Dockerfile
+    restart: on-failure
+    volumes:
+      - "../app/frontend/:/var/app"
+    environment:
+      BASE_URL: ${BASE_URL}
+      SOCKET_URL: ${SOCKET_URL}
 
   asyns_tasks:
     <<: *backend

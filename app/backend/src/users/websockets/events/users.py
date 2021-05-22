@@ -5,7 +5,7 @@ class UserEvent:
 
     EVENT_USERS_STATUS_ONLINE = 'users.status.online'
     EVENTS = (
-        (EVENT_USERS_STATUS_ONLINE, 'Онлайн статус пользователя')
+        (EVENT_USERS_STATUS_ONLINE, 'Онлайн статус пользователя'),
     )
 
     @staticmethod

@@ -46,12 +46,12 @@ class VerifyEmailView(CreateAPIView, UpdateAPIView, EmailNotificationMixin):
     permission_classes = (IsAuthenticated, )
 
     subject_template_name = 'users/verify_email/verify_email_subject.txt'
-    email_template_name = 'users/verify_email/verify_email_body.txt'
+    email_template_name = 'users/verify_email/verify_email_body.html'
 
     def post(self, request, *args, **kwargs):
         """
         Метод отправит пользователю ссылку для подтверждения email
-        Пример: http://example.com/auth/verify-email/confirm?token=al6051-1b6854c210eab8e327129a8d878b68b8&uid=MjY
+        Пример: https://example.com/auth/verify-email/confirm?token=al6051-1b6854c210eab8e327129a8d878b68b8&uid=MjY
         """
         serializer = self.get_serializer(request.user)
         self.send_mail(**serializer.data)
@@ -76,5 +76,5 @@ class VerifyEmailView(CreateAPIView, UpdateAPIView, EmailNotificationMixin):
         return {
             **super().get_serializer_context(),
             'domain': current_site.netloc,
-            'protocol': current_site.scheme
+            'protocol': current_site.scheme,
         }

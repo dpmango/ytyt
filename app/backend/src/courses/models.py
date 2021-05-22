@@ -4,7 +4,7 @@ from django.db import models
 from markdownx.models import MarkdownxField
 from markdownx.utils import markdownify
 
-from courses.utils import html_to_text
+from courses.utils import html_to_text, upload_path
 
 
 class CourseBase(models.Model):
@@ -53,7 +53,10 @@ class CourseLesson(CourseBase):
     course_theme = models.ForeignKey(CourseTheme, on_delete=models.PROTECT)
     title = models.CharField('Название урока', max_length=1000)
     description = models.CharField('Описание урока', max_length=1000)
-    content = MarkdownxField('Содержание урока')
+
+    content = MarkdownxField('Содержание урока', null=True, blank=True)
+    ipynb_file = models.FileField('Урок в формате .ipynb', upload_to=upload_path, null=True, blank=True)
+
     date_created = models.DateTimeField('Дата создания', auto_now_add=True, null=True, blank=True)
     date_updated = models.DateTimeField('Дата обновления', auto_now=True)
 
@@ -62,7 +65,11 @@ class CourseLesson(CourseBase):
         verbose_name_plural = 'Уроки'
 
     def __str__(self):
-        return '%s' % self.title
+        return '%s | %s | %s' % (
+            self.course_theme.course.title,
+            self.course_theme.title,
+            self.title
+        )
 
 
 class LessonFragment(models.Model):

@@ -28,8 +28,11 @@ if os.path.exists(env_file):
 SECRET_KEY = env('SECRET_KEY', default='ratxf8^p-$9@w@%u+_q6jfa!d+7(t%f!=m^tj*6w-dz@4mr(cs')
 
 DEBUG = env.bool('DEBUG', default=True)
+APP_MODE = env.str('APP_MODE', default='production')
 
-ALLOWED_HOSTS = ['*']
+IS_PRODUCTION = APP_MODE == 'production'
+
+ALLOWED_HOSTS = ['*']  # 138.68.112.220
 
 
 INSTALLED_APPS = [
@@ -71,6 +74,7 @@ INSTALLED_APPS = [
     'providers',
 
     'dialogs',
+    'reports',
 ]
 
 
@@ -282,3 +286,8 @@ if SENTRY_DSN:
 
 TINKOFF_URL = env('TINKOFF_URL')
 TINKOFF_TERMINAL_KEY = env('TINKOFF_TERMINAL_KEY')
+TINKOFF_TERMINAL_PASSWORD = env('TINKOFF_TERMINAL_PASSWORD')
+
+TINKOFF_CREDIT_URL = env('TINKOFF_CREDIT_URL')
+TINKOFF_CREDIT_SHOP_ID = env('TINKOFF_CREDIT_SHOP_ID')
+TINKOFF_CREDIT_SHOWCASE_ID = env('TINKOFF_CREDIT_SHOWCASE_ID')

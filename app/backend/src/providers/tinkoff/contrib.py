@@ -1,11 +1,11 @@
-import json
+from hashlib import sha256
 
 from django.conf import settings
-from loguru import logger
-from requests import request, Response
+
+from providers.core import BaseProvider
 
 
-class Tinkoff:
+class Tinkoff(BaseProvider):
     PAYMENT_METHOD_FULL_PAYMENT = 'full_payment'
     PAYMENT_METHOD_FULL_PREPAYMENT = 'full_prepayment'
     PAYMENT_METHOD_PREPAYMENT = 'prepayment'
@@ -95,9 +95,10 @@ class Tinkoff:
         (STATUS_REFUNDED, 'Возвращен полностью'),
     )
 
-    def __init__(self, base_url: str, terminal_key: str, admin_email: str):
+    def __init__(self, base_url: str, terminal_key: str, terminal_password: str, admin_email: str):
         self.base_url = base_url
         self.terminal_key = terminal_key
+        self.terminal_password = terminal_password
         self.admin_email = admin_email
 
     def init(self, **kwargs):
@@ -105,37 +106,50 @@ class Tinkoff:
         Метод создает платеж: продавец получает ссылку на платежную форму и должен перенаправить по ней покупателя
         """
         data = {'TerminalKey': self.terminal_key, **kwargs}
-        return self._call('post', url='Init', data=data)
+        return self._call('post', url='Init', json=data)
 
-    def _call(self, method: str, url: str, **kwargs):
+    def confirm(self, **kwargs):
         """
-        Вызов необходимого метода API из url
-        :param method: Метод для запроса
-        :param url: url api-метода
-        :param kwargs: Аргументы для вызова
+        Метод подтверждает платеж и списывает ранее заблокированные средства.
+
+        Используется при двухстадийной оплате. При одностадийной оплате вызывается автоматически. Применим к платежу
+        только в статусе AUTHORIZED и только один раз.
+
+        Сумма подтверждения не может быть больше заблокированной. Если сумма подтверждения меньше заблокированной,
+        будет выполнено частичное подтверждение.
         """
-        base_url = self.base_url.rstrip('/')
-        url = '%s/%s' % (base_url, url)
+        data = {'TerminalKey': self.terminal_key, **kwargs}
+        data.update({'Token': self._create_signature(**data)})
 
-        logger.debug('[tinkoff][request][method=%s] url=%s, kwargs=%s' % (method, url, str(kwargs)))
-        response = request(method=method, url=url, **kwargs)
+        return self._call('post', url='Confirm', json=data)
 
-        if response.status_code in (200, 201, 202):
-            return self._force_json(response)
+    def _create_signature(self, **kwargs):
+        """
+        Подпись подтверждения оплаты
+        Описние алгоритма — https://www.tinkoff.ru/kassa/develop/api/request-sign/
+        :param kwargs: Аргументы на основе которых будет выполнено хеширование
+        """
+        to_hash = [{key: value} for key, value in kwargs.items()]
+        to_hash.append({'Password': self.terminal_password})
 
-        logger.info('[tinkoff][response][method=%s] url=%s, response=%s' % (method, url, str(response)))
-        return {}
+        to_hash = sorted(to_hash, key=lambda item: list(item.keys())[0])
+        to_hash = ''.join([str(list(item.values())[0]) for item in to_hash])
 
-    @staticmethod
-    def _force_json(response: Response):
-        try:
-            return response.json()
-        except json.JSONDecodeError:
-            return {}
+        return sha256(to_hash.encode('utf-8')).hexdigest()
+
+    def cancel(self, **kwargs):
+        """
+        Метод отменяет платеж.
+        """
+        data = {'TerminalKey': self.terminal_key, **kwargs}
+        data.update({'Token': self._create_signature(**data)})
+
+        return self._call('post', url='Cancel', json=data)
 
 
 tinkoff_client = Tinkoff(
     base_url=settings.TINKOFF_URL,
     terminal_key=settings.TINKOFF_TERMINAL_KEY,
+    terminal_password=settings.TINKOFF_TERMINAL_PASSWORD,
     admin_email=settings.DEFAULT_ADMIN_EMAIL,
 )

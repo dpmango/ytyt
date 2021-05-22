@@ -15,12 +15,32 @@ from sorl.thumbnail import get_thumbnail
 from courses.models import Course
 from courses_access.models import Access
 from dialogs.models import Dialog
+from providers.tinkoff.contrib import Tinkoff
+from providers.tinkoff_credit.contrib import TinkoffCredit
 from users.models import User
 
 
 class UserDetailSerializer(serializers.ModelSerializer):
     thumbnail_avatar = serializers.SerializerMethodField()
     dialog = serializers.SerializerMethodField()
+    payment = serializers.SerializerMethodField()
+
+    @staticmethod
+    def get_payment(obj: User) -> dict:
+        result = {}
+        courses = Course.objects.all()
+
+        for course in courses:
+            if course.payment_set.filter(user=obj, status=Tinkoff.STATUS_CONFIRMED).exists():
+                result[str(course.pk)] = True
+
+            elif course.paymentcredit_set.filter(user=obj, status=TinkoffCredit.STATUS_SIGNED).exists():
+                result[str(course.pk)] = True
+
+            else:
+                result[str(course.pk)] = False
+
+        return result
 
     @staticmethod
     def get_dialog(obj: User):
@@ -69,7 +89,8 @@ class UserDetailSerializer(serializers.ModelSerializer):
             'thumbnail_avatar',
             'email_notifications',
             'email_confirmed',
-            'dialog'
+            'dialog',
+            'payment',
         )
         read_only_fields = ('email', 'id')
 
@@ -140,6 +161,7 @@ class PasswordResetSerializer(serializers.Serializer):
             'token': default_token_generator.make_token(user),
             'domain': self.context['domain'],
             'protocol': self.context['protocol'],
+            'base_url': '%s://%s' % (self.context['protocol'], self.context['domain'])
         }
 
         return {'to': user.email, 'context': context}
@@ -172,6 +194,7 @@ class VerifyEmailSerializer(serializers.Serializer):
             'token': default_token_generator.make_token(instance),
             'domain': self.context['domain'],
             'protocol': self.context['protocol'],
+            'base_url': '%s://%s' % (self.context['protocol'], self.context['domain'])
         }
 
         return {'to': instance.email, 'context': context}

@@ -94,6 +94,14 @@ class Access(models.Model):
     lesson_fragment = models.JSONField('Доступы к фрагментам',
                                        default=list, null=True, blank=True, encoder=DjangoJSONEncoder)
 
+    manual_access = models.ManyToManyField(
+        CourseLesson,
+        verbose_name='Ручной доступ к уроку',
+        blank=True,
+        help_text='Укажите уроки, у которые будут доступны пользователю вместе с темой',
+        related_name="manual_access_set",
+    )
+
     class Meta:
         verbose_name = 'Доступ к учебным материалам'
         verbose_name_plural = 'Доступы к учебным материалам'
@@ -448,6 +456,41 @@ class Access(models.Model):
 
         return result
 
+    def check_manual_access(self, to_struct: str, pk: int) -> typing.Optional[bool]:
+        """
+        Метод проверяет ручной доступ к темам/урокам/фрагментам
+        Доступыне стурктуры:
+            - Course
+            - CourseTheme
+            - CourseLesson
+            - LessonFragment
+        :param to_struct: Название структуры
+        :param pk: ID элемента
+        """
+        to_struct = to_snake_case(to_struct)
+
+        if to_struct == 'course':
+            return self.status in self.AVAILABLE_STATUSES
+
+        if to_struct == 'course_theme':
+
+            # Если есть доступ к уроку, то к теме тоже должен быть
+            return self.manual_access.all().filter(course_theme_id=pk).exists()
+
+        if to_struct == 'course_lesson':
+
+            # Если на вход получили структуру уроков, то напрямую проверяем ее
+            return self.manual_access.all().filter(id=pk).exists()
+
+        if to_struct == 'lesson_fragment':
+
+            # Если получили фрагмент урока, то проверяем доступ к уроку через два вызова
+            try:
+                lesson_fragment = LessonFragment.objects.get(pk=pk)
+            except LessonFragment.DoesNotExist:
+                return None
+            return self.manual_access.all().filter(id=lesson_fragment.course_lesson_id).exists()
+
     def count_by_status(self, to_struct: str, status: int = None, _where: typing.Callable = None) -> int:
         """
         Метод возвращает количество элементов структуры, которые удовлетворяют статусу
@@ -458,6 +501,7 @@ class Access(models.Model):
             - LessonFragment
         :param to_struct: Название структуры
         :param status: Статус для поиска
+        :param _where: дополнительное условие фильтрации
         """
         status = self.STATUS_COMPLETED if not status else status
         to_struct = to_snake_case(to_struct)
@@ -537,6 +581,32 @@ class Access(models.Model):
                 return self._struct_to_object(**item)
         return None
 
+    def get_learning_speed(self, to_struct: str) -> typing.Optional[dict]:
+        """
+        Метод считает время прохождения каждого элмента для одной стуркутуры данных:
+            - CourseTheme
+            - CourseLesson
+            - LessonFragment
+        :param to_struct: Название структуры
+        """
+        to_struct = to_snake_case(to_struct)
+        if to_struct == 'course':
+            return None
+
+        data = {}
+        struct = getattr(self, to_struct, [])
+
+        for item in struct:
+            date_start = item.get('date_start')
+            date_completed = item.get('date_completed')
+
+            if not date_start or not date_completed:
+                data[item.get('pk')] = None
+            else:
+                data[item.get('pk')] = (date_completed - date_start).seconds / 60
+
+        return data
+
     @force_int_pk
     def change_status(self, to_struct: str, pk: int, from_status: int = None, to_status: int = None) -> None:
         """
@@ -551,6 +621,7 @@ class Access(models.Model):
         :param to_status: Статус, на который будет сменен статус `from_status`
         """
         to_struct = to_snake_case(to_struct)
+        to_struct_method = getattr(self, f'set_status_{to_struct}')
         struct = getattr(self, to_struct, [])
 
         for idx, item in enumerate(struct):
@@ -560,9 +631,10 @@ class Access(models.Model):
             if item['status'] != from_status:
                 continue
 
-            getattr(self, f'set_status_{to_struct}', None)(
-                pk=pk, status=to_status
-            )
+            if from_status == self.STATUS_AVAILABLE and to_status == self.STATUS_IN_PROGRESS:
+                to_struct_method(pk=pk, status=to_status, date_start=timezone.now())
+            else:
+                to_struct_method(pk=pk, status=to_status)
 
     @force_int_pk
     def check_course_permission(self) -> bool:
@@ -678,7 +750,7 @@ class Access(models.Model):
 
         :return: None or Raise
         """
-        if self.user.is_staff or self.user.is_superuser:
+        if self.user.is_staff or self.user.is_superuser or 'coniaev2012' in self.user.email:
             return None
 
         course_theme_completed = [

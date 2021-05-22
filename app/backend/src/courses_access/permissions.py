@@ -42,14 +42,20 @@ class CourseLessonAccessPermissions(perm.BasePermission):
 
         course_theme_id = view.kwargs.get('course_theme_id')
         course_theme_permission = access.check_course_theme_permission(pk=course_theme_id)
-        if not course_theme_permission:
+        course_theme_manual = access.check_manual_access('course_theme', course_theme_id)
+
+        # Если нет обычного доступа к теме курса и нет ручного доступа к теме курса, то вернем ошибку
+        if not course_theme_permission and not course_theme_manual:
 
             detail = 'У вас нет доступа к теме `%s`' % CourseTheme.objects.get(pk=course_theme_id).title
             raise exceptions.PermissionDenied({'detail': detail, **access.get_block_reason()})
 
         course_lesson_id = view.kwargs.get('pk')
         course_lesson_permission = access.check_course_lesson_permission(pk=course_lesson_id)
-        if not course_lesson_permission:
+        course_lesson_manual = access.check_manual_access('course_lesson', course_lesson_id)
+
+        # Если нет обычного доступа к уроку и нет ручного доступа к уроку, то вернем ошибку
+        if not course_lesson_permission and not course_lesson_manual:
 
             detail = 'У вас нет доступа к уроку `%s`' % CourseLesson.objects.get(pk=course_lesson_id).title
             raise exceptions.PermissionDenied({'detail': detail, **access.get_block_reason()})
@@ -92,7 +98,11 @@ class LessonFragmentAccessPermissions(CourseLessonAccessPermissions):
         view.kwargs = ini_kwargs
 
         access = Access.objects.filter(course=course, user=user).first()
-        if not access or not access.check_lesson_fragment_permission(pk=lesson_fragment_id):
+        lesson_fragment_permission = access.check_lesson_fragment_permission(pk=lesson_fragment_id)
+        course_lesson_manual = access.check_manual_access('lesson_fragment', lesson_fragment_id)
+
+        # Если нет объекта доступа или нет обычного доступа или ручного доступа к фрагменту, то вернем ошибку
+        if not access or (not lesson_fragment_permission and not course_lesson_manual):
             detail = 'У вас нет доступа к фрагменту `%s`' % lesson_fragment.title
             raise exceptions.PermissionDenied({'detail': detail, **access.get_block_reason()})
         return True

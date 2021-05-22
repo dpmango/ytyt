@@ -12,6 +12,10 @@ services:
     ports:
       - $BACKEND_EXT_PORT:8000
 
+  frontend:
+    ports:
+      - $FRONTEND_EXT_PORT:3000
+
   psql:
     image: postgres:11-alpine
     restart: on-failure

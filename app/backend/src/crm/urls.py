@@ -5,7 +5,6 @@ from django.urls import path, include
 
 from crm.swagger import schema_view
 
-
 urlpatterns = [
     path('markdownx/', include('markdownx.urls')),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),

@@ -19,6 +19,8 @@ class AccessBaseSerializers(serializers.ModelSerializer):
         :param obj: Объект из courses-app
         """
         user = self.context.get('user')
+
+        to_struct = obj.__class__.__name__
         course_id = get_course_from_struct(obj)
 
         access = Access.objects.filter(course_id=course_id, user=user).first()
@@ -29,9 +31,13 @@ class AccessBaseSerializers(serializers.ModelSerializer):
         if isinstance(obj, Course):
             return access.status
 
-        target = access.get_object(obj.__class__.__name__, obj.pk)
+        target = access.get_object(to_struct, obj.pk)
         if target.status in Access.AVAILABLE_STATUSES:
             return target.status
+
+        manual_access = access.check_manual_access(to_struct, obj.pk)
+        if manual_access:
+            return Access.STATUS_AVAILABLE
 
         theme = obj
         if isinstance(obj, CourseLesson):
