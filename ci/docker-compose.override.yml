@@ -14,7 +14,7 @@ services:
 
   frontend:
     ports:
-      - $FRONTEND_EXT_PORT:3000
+      - 3000
 
   psql:
     image: postgres:11-alpine
