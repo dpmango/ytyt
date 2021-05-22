@@ -92,6 +92,6 @@ export default {
     middleware: 'global',
   },
 
-  target: 'static',
-  ssr: false,
+  // target: 'static',
+  // ssr: false,
 };
