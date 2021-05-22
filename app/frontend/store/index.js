@@ -1,8 +1,8 @@
 export const actions = {
   async nuxtServerInit({ dispatch, commit }) {
-    const token = this.$cookies.get('ytyt_token');
+    // wont be triggered with ssr: false in nuxt.config.js
 
-    console.log('nuxt server init', token);
+    const token = this.$cookies.get('ytyt_token');
 
     if (token) {
       // https://github.com/nuxt-community/axios-module/issues/298
@@ -10,7 +10,6 @@ export const actions = {
       try {
         await commit('auth/updateToken', token);
         await dispatch('auth/getUserInfo');
-        // await dispatch('constants/get');
       } catch (e) {
         await commit('auth/logOut');
       }
