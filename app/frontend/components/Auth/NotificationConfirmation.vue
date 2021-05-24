@@ -1,9 +1,10 @@
 <template>
   <div v-if="!user.email_confirmed" class="notification">
-    <div class="notification__wrapper">
+    <div class="container notification__wrapper">
       <span class="notification__message">
-        Пожалуйста подтвердите адрес электронной почты,
-        <a class="notification__cta" @click="handleClick"> отправить ссылку еще раз </a>
+        На <strong>{{ user.email }}</strong> было отправлено письмо. Пожалуйста, откройте его и перейдите по ссылке,
+        чтобы завершить регистрацию.
+        <a class="notification__cta" @click="handleClick"> Отправить письмо еще раз </a>
       </span>
     </div>
   </div>
@@ -35,13 +36,12 @@ export default {
 .notification {
   position: relative;
   z-index: 2;
+  background: rgba(#38bff2, 0.1);
   &__wrapper {
     display: flex;
     align-items: center;
-    border-radius: 0;
-    margin: 0;
-    background: rgba(#38bff2, 0.1);
-    padding: 10px 32px;
+    padding-top: 10px;
+    padding-bottom: 10px;
   }
   &__message {
     font-size: 15px;

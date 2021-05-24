@@ -7,10 +7,10 @@
     <div class="nav__actions">
       <a href="#" class="nav__actions-prev" :class="[!isPrevAvailable && 'disabled']" @click.prevent="setPrevFragment">
         <UiSvgIcon name="arrow-left-filled" />
-        <span>предидущий</span>
+        <span>предидущий урок</span>
       </a>
       <a href="#" class="nav__actions-next" @click.prevent="setNextFragment">
-        <span>следующий</span>
+        <span>следующий урок</span>
         <UiSvgIcon name="arrow-right-filled" />
       </a>
     </div>

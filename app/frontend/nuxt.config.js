@@ -87,4 +87,11 @@ export default {
   toast: {
     position: 'bottom-right',
   },
+
+  router: {
+    middleware: 'global',
+  },
+
+  // target: 'static',
+  // ssr: false,
 };

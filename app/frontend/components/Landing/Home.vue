@@ -1,5 +1,5 @@
 <template>
-  <div class="page">
+  <div class="page page--homepage">
     <LandingHero />
     <LandingFeatures />
     <LandingStart />
@@ -25,9 +25,9 @@ export default {
         {
           src: '/landing/jquery.fancybox.min.js',
         },
-        {
-          src: '/landing/jquery.inputmask.bundle.min.js',
-        },
+        // {
+        //   src: '/landing/jquery.inputmask.bundle.min.js',
+        // },
       ],
     };
   },
@@ -50,153 +50,142 @@ export default {
 @include font('PTRootUI', 'PT-Root-UI_Medium', '500', 'normal');
 @include font('PTRootUI', 'PT-Root-UI_Bold', '700', 'normal');
 
-body {
+body._lock {
+  overflow: hidden;
+}
+
+.page--homepage {
   font-family: 'PTRootUI', 'Arial', sans-serif;
   font-size: 16px;
   background-color: #fafafa;
-  &._lock {
-    overflow: hidden;
-  }
-}
 
-.container {
-  max-width: 1320px;
-  padding: 0 20px;
-  margin: 0 auto;
-  @include r($md) {
-    padding: 0 15px;
-  }
-}
-.visually-hidden {
-  position: absolute;
-  clip: rect(0 0 0 0);
-  width: 1px;
-  height: 1px;
-  margin: -1px;
-}
-
-a {
-  text-decoration: none;
-}
-h2 {
-  font-size: 48px;
-  @include r($md) {
-    font-size: 32px;
-  }
-}
-
-.button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 64px;
-  padding: 0 32px;
-  background-color: $colorPrimary;
-  color: #fff;
-  font-size: 18px;
-  font-weight: 500;
-  border-radius: 8px;
-  transition: 0.2s;
-  &:hover {
-    background-color: #0d74cf;
-  }
-}
-
-.button-play {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  height: 85px;
-  width: 85px;
-  background-color: $colorPrimary;
-  box-shadow: 0 0 0 16px rgba($colorPrimary, 0.5), 0 0 0 8px rgba($colorPrimary, 0.5);
-  transition: background-color 0.2s;
-  &:hover {
-    animation-name: button-shadow;
-    animation-duration: 0.8s;
-    animation-iteration-count: infinite;
-    animation-direction: alternate;
-    background-color: #0d74cf;
-    transition: 0.2s;
-  }
-  @include r($md) {
-    width: 52px;
-    height: 52px;
-    img {
-      width: 18px;
+  .container {
+    max-width: 1320px;
+    padding: 0 20px;
+    margin: 0 auto;
+    @include r($md) {
+      padding: 0 15px;
     }
   }
-}
+  .visually-hidden {
+    position: absolute;
+    clip: rect(0 0 0 0);
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+  }
 
-@keyframes button-shadow {
-  0% {
+  a {
+    text-decoration: none;
+  }
+  h2 {
+    font-size: 48px;
+    @include r($md) {
+      font-size: 32px;
+    }
+  }
+
+  .button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 64px;
+    padding: 0 32px;
+    background-color: $colorPrimary;
+    color: #fff;
+    font-size: 18px;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: 0.2s;
+    &:hover {
+      background-color: #0d74cf;
+    }
+  }
+
+  .button-play {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    height: 85px;
+    width: 85px;
+    background-color: $colorPrimary;
     box-shadow: 0 0 0 16px rgba($colorPrimary, 0.5), 0 0 0 8px rgba($colorPrimary, 0.5);
-  }
-  100% {
-    box-shadow: 0 0 0 24px rgba($colorPrimary, 0.1), 0 0 0 12px rgba($colorPrimary, 0.1);
-  }
-}
-
-.tabs {
-  &__header {
-    margin-bottom: 13px;
-  }
-
-  // &__content {
-  // }
-}
-.header-tabs {
-  display: flex;
-  list-style: none;
-  padding: 0;
-  &__item {
-    font-family: $baseFont;
-    cursor: pointer;
-    padding: 7px 16px;
-    border-radius: 4px;
-    transition: 0.2s;
-    &.active {
-      background-color: $fontColor;
-      color: #fff;
+    transition: background-color 0.2s;
+    &:hover {
+      animation-name: button-shadow;
+      animation-duration: 0.8s;
+      animation-iteration-count: infinite;
+      animation-direction: alternate;
+      background-color: #0d74cf;
+      transition: 0.2s;
     }
-    &:hover:not(.active) {
-      background-color: rgba($fontColor, 0.05);
-    }
-    @include r($mobile-s) {
-      padding: 7px 12px;
-    }
-  }
-}
-.content-tabs {
-  list-style: none;
-  padding: 0;
-  &__item {
-    display: none;
-    font-family: $baseFont;
-    color: $fontColor;
-    font-size: 54px;
-    font-weight: 300;
-    &.active {
-      display: flex;
-    }
-    span {
-      display: inline-block;
-      color: $fontColor;
-      opacity: 0.5;
-      margin-left: 20px;
+    @include r($md) {
+      width: 52px;
+      height: 52px;
+      img {
+        width: 18px;
+      }
     }
   }
 
-  @include r($mobile-s) {
+  .tabs {
+    &__header {
+      margin-bottom: 13px;
+    }
+
+    // &__content {
+    // }
+  }
+  .header-tabs {
+    display: flex;
+    list-style: none;
+    padding: 0;
     &__item {
-      font-size: 30px;
+      font-family: $baseFont;
+      cursor: pointer;
+      padding: 7px 16px;
+      border-radius: 4px;
+      transition: 0.2s;
+      &.active {
+        background-color: $fontColor;
+        color: #fff;
+      }
+      &:hover:not(.active) {
+        background-color: rgba($fontColor, 0.05);
+      }
+      @include r($mobile-s) {
+        padding: 7px 12px;
+      }
     }
   }
-}
+  .content-tabs {
+    list-style: none;
+    padding: 0;
+    &__item {
+      display: none;
+      font-family: $baseFont;
+      color: $fontColor;
+      font-size: 54px;
+      font-weight: 300;
+      &.active {
+        display: flex;
+      }
+      span {
+        display: inline-block;
+        color: $fontColor;
+        opacity: 0.5;
+        margin-left: 20px;
+      }
+    }
 
-.page {
-  overflow: hidden;
+    @include r($mobile-s) {
+      &__item {
+        font-size: 30px;
+      }
+    }
+  }
+
   .slider {
     &__header {
       display: flex;
@@ -251,6 +240,14 @@ h2 {
     transition: 0.2s;
     &.swiper-button-disabled {
       opacity: 0.3;
+    }
+  }
+  @keyframes button-shadow {
+    0% {
+      box-shadow: 0 0 0 16px rgba($colorPrimary, 0.5), 0 0 0 8px rgba($colorPrimary, 0.5);
+    }
+    100% {
+      box-shadow: 0 0 0 24px rgba($colorPrimary, 0.1), 0 0 0 12px rgba($colorPrimary, 0.1);
     }
   }
 }

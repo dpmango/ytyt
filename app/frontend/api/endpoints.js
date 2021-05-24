@@ -27,4 +27,8 @@ export default {
   constants: {
     get: `${api}/constants/`,
   },
+  payment: {
+    init: `${api}/payment/init/`,
+    initInstallment: `${api}/payment/init-installment/`,
+  },
 };

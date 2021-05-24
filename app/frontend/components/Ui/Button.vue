@@ -127,10 +127,10 @@ export default {
     box-shadow: 0 6px 24px -4px rgba(23, 24, 24, 0.1);
 
     &:hover {
-      background-color: $colorAccent;
+      background: #0d74cf;
     }
     &:active {
-      background: $colorAccent;
+      background: #0d74cf;
     }
   }
   &.outline {
@@ -139,9 +139,8 @@ export default {
     border-color: $colorPrimary;
     &:hover,
     &:active {
-      background: rgba($colorPrimary, 0.8);
-      border-color: $colorPrimary;
-      color: white;
+      border-color: #0d74cf;
+      color: #0d74cf;
     }
   }
   &.danger {

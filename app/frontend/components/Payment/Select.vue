@@ -1,112 +1,213 @@
 <template>
-  <div class="payment">
-    <div class="container">
-      <div class="payment__wrapper">
-        <h1 class="payment__title">Выберите способ оплаты</h1>
-        <div class="row payment__list">
-          <div class="col col-4 col-md-12">
-            <div class="card">
-              <div class="card__name">Оплатить сразу</div>
+  <div class="row">
+    <div class="col col-6 col-md-12 payment__form-wrapper">
+      <div class="payment__form">
+        <div class="payment__form-title">Есть вопросы?</div>
+        <div class="payment__form-desc">Укажите номер телефона, менеджер свяжется с вами и ответит на все вопросы</div>
+        <ValidationObserver
+          ref="form"
+          v-slot="{ invalid }"
+          tag="form"
+          class="profile__form"
+          @submit.prevent="handleSubmit"
+        >
+          <ValidationProvider v-slot="{ errors }">
+            <UiInput :value="phone" type="tel" :error="errors[0]" placeholder="+7" @onChange="(v) => (phone = v)" />
+          </ValidationProvider>
+          <UiButton theme="outline" block>Перезвоните мне</UiButton>
+        </ValidationObserver>
+      </div>
+    </div>
+    <div class="col col-6 col-md-12">
+      <div class="payment__options">
+        <h1 class="payment__title">Выберите удобный вариант оплаты</h1>
+        <div class="payment__list">
+          <div
+            v-for="option in options"
+            :key="option.id"
+            class="card"
+            :class="[activeVariant === option.id && 'is-active']"
+            @click="() => selectPayment(option.id)"
+          >
+            <div class="card__checkbox"></div>
+            <div class="card__content">
+              <div class="card__name">{{ option.title }}</div>
               <div class="card__price">
-                <span class="card__price-val">54 000</span>
-                <span class="card__price-help">₽</span>
+                <span v-if="option.priceOld" class="card__price-old">{{ option.priceOld }} ₽</span>
+                {{ option.price }} ₽
+                <span v-if="option.installment">/мес</span>
               </div>
-              <div class="card__desc">Без скидки 60 000 ₽</div>
-            </div>
-          </div>
-          <div class="col col-4 col-md-12">
-            <div class="card">
-              <div class="card__name">Рассрочка на 6 мес.</div>
-              <div class="card__price">
-                <span class="card__price-val">10 000</span>
-                <span class="card__price-help">₽<span>/мес</span></span>
-              </div>
-              <div class="card__desc">Суммарно 60 000 ₽</div>
-            </div>
-          </div>
-          <div class="col col-4 col-md-12">
-            <div class="card">
-              <div class="card__name">Рассрочка на 12 мес.</div>
-              <div class="card__price">
-                <span class="card__price-val">5 000</span>
-                <span class="card__price-help">₽<span>/мес</span></span>
-              </div>
-              <div class="card__desc">Суммарно 60 000 ₽</div>
             </div>
           </div>
         </div>
-        <div class="payment__partner">Рассрочка предоставляется банком Тинькофф</div>
+        <div class="payment__cta">
+          <UiButton block @click="submitPayment">Оплатить</UiButton>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import { mapActions, mapGetters } from 'vuex';
+
 export default {
+  data() {
+    return {
+      phone: '',
+      activeVariant: 1,
+      options: [
+        { id: 1, title: 'Вся сумма целиком', installment: false, price: '54 000', priceOld: '60 000' },
+        { id: 2, title: 'Рассрочка на 4 месяца', installment: true, price: '15 000' },
+        { id: 3, title: 'Рассрочка на 6 месяцев', installment: true, price: '10 000' },
+        { id: 4, title: 'Рассрочка на 12 месяцев', installment: true, price: '5 000' },
+      ],
+    };
+  },
   methods: {
-    // modalClosed() {
-    // },
+    selectPayment(id) {
+      this.activeVariant = id;
+    },
+    async submitPayment() {
+      if (this.activeVariant === 1) {
+        await this.init()
+          .then((res) => {
+            window.open(res.url);
+          })
+          .catch((err) => {
+            this.$toast.global.error({ message: err.data });
+          });
+      } else {
+        await this.initInstallment({ id: this.activeVariant })
+          .then((res) => {
+            window.open(res.url);
+          })
+          .catch((err) => {
+            const { data, code } = err;
+
+            if (data && code === 400) {
+              this.$toast.global.error({ message: data.error.errors[0] });
+            }
+          });
+      }
+    },
+    async handleSubmit() {
+      const isValid = await this.$refs.form.validate();
+      if (!isValid) {
+        return;
+      }
+
+      const { phone } = this;
+    },
+    ...mapActions('payment', ['init', 'initInstallment']),
   },
 };
 </script>
 
 <style lang="scss" scoped>
 .payment {
-  margin: 32px 0;
-  &__wrapper {
-    max-width: 684px;
-    margin: 0 auto;
+  &__form-wrapper {
+    background: #f2f2f2;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
   }
-  &__title {
-    font-weight: 500;
-    font-size: 28px;
+  &__form {
+    padding: 20px 40px 50px 40px;
     text-align: center;
-  }
-  &__list {
-    margin: 22px -6px -6px;
-    .col {
-      padding: 6px;
+    form {
+      margin-top: 24px;
+    }
+    .button {
+      margin-top: 12px;
+    }
+    ::v-deep input {
+      padding-top: 20px;
+      padding-bottom: 20px;
+      background: white;
     }
   }
-  &__partner {
-    margin-top: 28px;
-    font-size: 15px;
-    text-align: center;
-    opacity: 0.5;
+  &__form-title {
+    font-weight: bold;
+    font-size: 32px;
+    line-height: 1.5;
+  }
+  &__form-desc {
+    margin-top: 12px;
+    font-size: 18px;
+    line-height: 1.5;
+  }
+  &__title {
+    font-weight: bold;
+    font-size: 24px;
+    line-height: 130%;
+  }
+  &__list {
+    margin: 24px 0 20px;
+  }
+  &__options {
+    padding: 30px 40px;
   }
 }
 
 .card {
-  padding: 20px 8px 24px;
-  background: #fff;
-  box-shadow: 0 6px 24px -4px rgba(23, 24, 24, 0.1);
+  position: relative;
+  display: flex;
   border-radius: 8px;
-  text-align: center;
+  background: white;
+  border: 1px solid rgba($fontColor, 0.15);
+  margin-bottom: 8px;
+  padding: 10px 12px;
   cursor: pointer;
   transition: box-shadow 0.25s $ease;
+  &:last-child {
+    margin-bottom: 0;
+  }
   &:hover {
-    box-shadow: 0 8px 26px -2px rgba(23, 24, 24, 0.18);
+    border-color: $colorPrimary;
+  }
+  &__checkbox {
+    flex: 0 0 20px;
+    position: relative;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid $colorPrimary;
+    &::after {
+      display: inline-block;
+      content: ' ';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: $colorPrimary;
+      transition: transform 0.25s $ease;
+    }
+  }
+  &__content {
+    padding-left: 12px;
+    margin-top: -4px;
   }
   &__name {
-    font-weight: 500;
-    font-size: 17px;
+    font-size: 18px;
+    // font-weight: 500;
+    line-height: 1.5;
   }
   &__price {
     margin-top: 4px;
-    font-size: 28px;
+    font-size: 14px;
+    line-height: 150%;
+    color: rgba($fontColor, 0.5);
   }
-  // &__price-val{
-  // }
-  &__price-help {
-    opacity: 0.5;
-    span {
-      font-size: 17px;
+  &.is-active {
+    .card__checkbox {
+      &::after {
+        transform: translate(-50%, -50%) scale(1);
+      }
     }
-  }
-  &__desc {
-    margin-top: 4px;
-    font-size: 15px;
-    opacity: 0.5;
   }
 }
 </style>
