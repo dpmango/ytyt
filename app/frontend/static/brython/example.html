@@ -1,0 +1,93 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Brython</title>
+<link rel="stylesheet" href="brython.css">
+
+<script type="text/javascript" src="src/brython_builtins.js"></script>
+<script type="text/javascript" src="src/version_info.js"></script>
+<script type="text/javascript" src="src/py2js.js"></script>
+<script type="text/javascript" src="src/loaders.js"></script>
+<script type="text/javascript" src="src/py_object.js"></script>
+<script type="text/javascript" src="src/py_type.js"></script>
+<script type="text/javascript" src="src/py_utils.js"></script>
+<script type="text/javascript" src="src/py_sort.js"></script>
+<script type="text/javascript" src="src/py_builtin_functions.js"></script>
+<script type="text/javascript" src="src/py_exceptions.js"></script>
+<script type="text/javascript" src="src/py_range_slice.js"></script>
+<script type="text/javascript" src="src/py_bytes.js"></script>
+<script type="text/javascript" src="src/py_set.js"></script>
+<script type="text/javascript" src="src/js_objects.js"></script>
+<script type="text/javascript" src="src/stdlib_paths.js"></script>
+<script type="text/javascript" src="src/py_import.js"></script>
+
+<script type="text/javascript" src="src/unicode_data.js"></script>
+<script type="text/javascript" src="src/py_string.js"></script>
+<script type="text/javascript" src="src/py_int.js"></script>
+<script type="text/javascript" src="src/py_long_int.js"></script>
+<script type="text/javascript" src="src/py_float.js"></script>
+<script type="text/javascript" src="src/py_complex.js"></script>
+<script type="text/javascript" src="src/py_dict.js"></script>
+<script type="text/javascript" src="src/py_list.js"></script>
+<script type="text/javascript" src="src/py_generator.js"></script>
+<script type="text/javascript" src="src/py_dom.js"></script>
+
+<script type="text/javascript" src="src/builtin_modules.js"></script>
+<script type="text/javascript" src="src/async.js"></script>
+
+<script type="text/javascript" src="src/brython_stdlib.js"></script>
+
+<script src="ace/ace.js" type="text/javascript" charset="utf-8"></script>
+<script src="ace/ext-language_tools.js" type="text/javascript" charset="utf-8"></script>
+
+<script type="text/python3" id="tests_editor">
+  from browser import document as doc, window
+  from browser import html
+  import editor
+
+  # next functions are defined in editor.py
+  # Create a lambda around editor.run() so that the event object is not passed to it
+  doc['run'].bind('click',lambda *args: editor.run())
+  doc['show_console'].bind('click', editor.show_console)
+  </script>
+</head>
+
+  <body onload="brython()">
+    <div class="brython__editor" id="container">
+      <div class="brython__actions">
+        <button id="run">▶</button>
+        <button id="show_console">Python</button>
+      </div>
+
+      <div class="brython__main">
+        <div id="editor"></div>
+        <div class="brython__console">
+          <textarea readonly id="console" autocomplete="off"></textarea>
+        </div>
+      </div>
+
+      <div class="brython__version">Brython version: <span id="version"></span></div>
+    </div>
+
+    <script type="text/javascript">
+      const textarea = document.querySelector('textarea');
+      const trigger = document.querySelector('#run');
+
+      const setHeight = () => {
+        textarea.style.height = "";
+        textarea.style.height = textarea.scrollHeight + "px";
+
+        document.dispatchEvent(new Event('view.updated'));
+      }
+
+      trigger.addEventListener('click', function () {
+        setHeight()
+        setTimeout(() => {
+          setHeight()
+        }, 300);
+      });
+    </script>
+  </body>
+</html>

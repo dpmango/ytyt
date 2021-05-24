@@ -35,8 +35,8 @@ export default {
       return this.theme.status !== 4 ? `/theme/${this.theme.id}` : '#';
     },
     stats() {
-      const plural = Plurize(this.theme.count_lessons, 'урок', 'урока', 'уроков');
-      return `${this.theme.completed_count_lessons} / ${this.theme.count_lessons} ${plural}`;
+      const plural = Plurize(this.theme.count_lessons, 'уроков', 'уроков', 'уроков');
+      return `${this.theme.completed_count_lessons} / ${this.theme.count_lessons} ${plural} пройдено`;
     },
   },
 };

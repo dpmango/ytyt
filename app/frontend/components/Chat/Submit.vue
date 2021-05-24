@@ -1,31 +1,25 @@
 <template>
   <div class="chat-submit">
-    <client-only>
-      <template slot="placeholder">
-        <UiLoader :loading="true" theme="block" />
-      </template>
+    <template slot="placeholder">
+      <UiLoader :loading="true" theme="block" />
+    </template>
 
-      <form class="chat-submit__form" @submit.prevent="handleSubmit">
-        <div class="editor">
-          <div class="editor__attach" @click="handleAttachClick">
-            <UiSvgIcon name="paper-clip" />
-          </div>
-          <div class="editor__body">
-            <vue-simplemde
-              ref="markdownEditor"
-              v-model="text"
-              :highlight="true"
-              :configs="config"
-              preview-class="markdown-body"
-            />
-          </div>
+    <form class="chat-submit__form" @submit.prevent="handleSubmit">
+      <div class="editor">
+        <div class="editor__attach" @click="handleAttachClick">
+          <UiSvgIcon name="paper-clip" />
         </div>
-
-        <div class="chat-submit__submit">
-          <UiButton type="submit">Отправить</UiButton>
+        <div class="editor__body">
+          <vue-simplemde
+            ref="markdownEditor"
+            v-model="text"
+            :highlight="true"
+            :configs="config"
+            preview-class="markdown-body"
+          />
         </div>
-      </form>
-    </client-only>
+      </div>
+    </form>
   </div>
 </template>
 
@@ -52,6 +46,18 @@ export default {
     },
     ...mapGetters('chat', ['activeDialog']),
   },
+  mounted() {
+    if (this.simplemde) {
+      this.simplemde.codemirror.on('keydown', (instance, event) => {
+        if ((event.ctrlKey || event.shiftKey) && event.keyCode === 13) {
+          this.text += '\n';
+        } else if (event.keyCode === 13) {
+          event.preventDefault();
+          this.handleSubmit();
+        }
+      });
+    }
+  },
   methods: {
     handleSubmit() {
       if (this.text.trim().length >= 1) {
@@ -63,6 +69,7 @@ export default {
         // this.simplemde.codemirror.refresh();
       }
     },
+
     handleAttachClick() {
       this.simplemde.drawImage();
     },
@@ -97,12 +104,6 @@ export default {
     display: flex;
     align-items: center;
     padding-right: 10px;
-  }
-  &__submit {
-    .button {
-      padding: 7px 12px;
-      font-size: 14px;
-    }
   }
 }
 

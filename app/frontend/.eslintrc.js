@@ -4,7 +4,7 @@ module.exports = {
     browser: true,
     node: true,
   },
-  ignorePatterns: ['**/*.min.js'],
+  ignorePatterns: ['static/', '**/*.min.js'],
   extends: ['@nuxtjs/eslint-config-typescript', 'plugin:prettier/recommended', 'plugin:nuxt/recommended'],
   plugins: [],
   // add your custom rules here

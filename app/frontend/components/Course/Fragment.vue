@@ -37,6 +37,8 @@
                   class="lesson__section"
                   :class="[fragment.id === activeSection && 'is-active']"
                 >
+                  <UiBrython />
+
                   <div class="lesson__body markdown-body" v-html="fragment.content"></div>
 
                   <div class="lesson__actions">
@@ -60,6 +62,10 @@
         </div>
       </div>
     </div>
+
+    <template v-if="user.dialog">
+      <ChatHome :is-mini="true" :is-mini-opened="isChatOpened" :handle-click-back-mini="handleClickBack" />
+    </template>
   </div>
 </template>
 
@@ -73,6 +79,7 @@ export default {
   },
   data() {
     return {
+      isChatOpened: false,
       activeSection: 0,
     };
   },
@@ -158,7 +165,11 @@ export default {
       }
     },
     handleQuestionClick() {
-      this.$router.push(`/messages?id=${this.user.dialog.id}`);
+      this.isChatOpened = true;
+      // this.$router.push(`/messages?id=${this.user.dialog.id}`);
+    },
+    handleClickBack() {
+      this.isChatOpened = false;
     },
   },
 };
@@ -205,6 +216,8 @@ export default {
     display: flex;
     align-items: center;
     .button {
+      padding-top: 13px;
+      padding-bottom: 14px;
       margin-right: 16px;
       &:last-child {
         margin-right: 0;

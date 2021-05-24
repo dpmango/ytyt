@@ -36,7 +36,7 @@
             :value="passwordConfirm"
             theme="dynamic"
             name="password"
-            label="Повторите Пароль"
+            label="Повторите пароль"
             type="password"
             :error="errors[0]"
             @onChange="(v) => (passwordConfirm = v)"
