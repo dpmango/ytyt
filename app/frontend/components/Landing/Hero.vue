@@ -17,13 +17,13 @@
 .hero {
   background-color: $fontColor;
   color: #fff;
-  padding-bottom: 246px;
+  padding-bottom: 252px;
   margin-bottom: 90px;
   &__container {
     position: relative;
   }
   &__title {
-    padding-top: 100px;
+    padding-top: 92px;
     font-size: 48px;
     margin-bottom: 30px;
     span {
@@ -67,7 +67,7 @@
   .hero {
     height: auto;
     padding-bottom: 90px;
-    margin-bottom: 50px;
+    margin-bottom: 32px;
     &__container {
       display: flex;
       flex-direction: column;

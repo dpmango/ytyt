@@ -18,9 +18,7 @@
 </template>
 
 <script>
-export default {
-  middleware: ['auth'],
-};
+export default {};
 </script>
 
 <style lang="scss" scoped>

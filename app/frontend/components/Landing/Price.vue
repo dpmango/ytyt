@@ -41,7 +41,7 @@
           </div>
         </div>
         <div class="price__join join-price">
-          <h2 class="join-price__title">Записаться на курс или получить бесплатную консультацю</h2>
+          <h2 class="join-price__title">Записаться на курс или получить бесплатную консультацию</h2>
           <form id="form" action="#" class="join-price__form form">
             <input id="input-name" type="text" name="form-name" class="form__input _req" placeholder="Имя" />
             <input id="input-email" type="email" name="form-email" class="form__input _req" placeholder="E-mail" />
@@ -62,7 +62,7 @@
 export default {
   data() {
     return {
-      activePrice: 1,
+      activePrice: 3,
       prices: [
         {
           id: 1,

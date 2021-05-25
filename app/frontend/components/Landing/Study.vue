@@ -33,7 +33,7 @@
   padding-top: 120px;
   padding-bottom: 70px;
   @include r($lg) {
-    padding-top: 100px;
+    padding-top: 90px;
   }
   @include r($md) {
     padding-bottom: 50px;
@@ -79,6 +79,10 @@
   &__description {
     color: #171818;
     opacity: 0.5;
+    @include r($sm) {
+      font-size: 14px;
+      text-align: center;
+    }
   }
 }
 .features-study {
@@ -93,6 +97,10 @@
     line-height: 1.5;
     margin-bottom: 20px;
     padding-left: 44px;
+    @include r($lg) {
+      font-size: 18px;
+      padding-left: 36px;
+    }
     &:last-child {
       margin-bottom: 0;
     }
@@ -105,6 +113,10 @@
       border: 2px solid $colorRed;
       width: 24px;
       height: 24px;
+      @include r($lg) {
+        width: 20px;
+        height: 20px;
+      }
     }
   }
 }
@@ -120,7 +132,7 @@
     }
     &__features {
       margin-left: 0;
-      margin-bottom: 40px;
+      margin-bottom: 24px;
       order: 1;
     }
   }
