@@ -14,7 +14,6 @@ export const actions = {
         await commit('auth/logOut');
       }
     }
-
     await dispatch('constants/get');
   },
 };

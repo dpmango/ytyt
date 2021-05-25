@@ -1,7 +1,7 @@
 <template>
   <section class="features">
     <div class="container">
-      <h2 class="features__title">Для тех, у кого мало опыта</h2>
+      <h2 class="features__title">Для тех, у кого <br />мало опыта</h2>
       <span class="features__subtitle">или совсем его нет</span>
       <div class="features__row">
         <div v-for="col in cols" :key="col.id" class="features__col">
@@ -35,6 +35,9 @@ export default {
   margin-bottom: 70px;
   &__title {
     margin-bottom: 10px;
+    br {
+      display: none;
+    }
   }
 
   &__subtitle {
@@ -66,13 +69,23 @@ export default {
 @include r($md) {
   .features {
     margin-bottom: 50px;
+    &__title {
+      br {
+        display: block;
+      }
+    }
     &__subtitle {
       font-size: 22px;
       margin-bottom: 40px;
     }
+    &__item {
+      img {
+        max-width: 72px;
+      }
+    }
     &__col {
       width: 100%;
-      margin-bottom: 40px;
+      margin-bottom: 32px;
       &:last-child {
         margin-bottom: 0;
       }
@@ -95,10 +108,11 @@ export default {
 @include r($md) {
   .item-feature {
     &__icon {
-      margin-bottom: 25px;
+      margin-bottom: 20px;
     }
   }
 }
+
 @include r(425) {
   .item-feature {
     padding: 0;

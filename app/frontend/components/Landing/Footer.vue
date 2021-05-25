@@ -24,7 +24,7 @@
       </ul>
       <ul class="footer__soc soc-footer">
         <li v-for="social in socials" :key="social.id" class="soc-footer__item">
-          <a :href="social.link" target="_blank" class="soc-footer__link">
+          <a :href="social.href" target="_blank" class="soc-footer__link">
             <img :src="social.icon" :alt="social.title" class="soc-footer__icon" />
           </a>
         </li>
@@ -34,8 +34,8 @@
     <div class="footer__bottom container">
       <span class="footer__copyright">© Онлайн-школа программирования</span>
       <div class="footer__links">
-        <a href="#">Пользовательское соглашение</a>
-        <a href="#">Политика конфиденциальности</a>
+        <a href="landing/files/terms_of_service.pdf" target="_blank">Пользовательское соглашение</a>
+        <a href="landing/files/confidentiality_policy.pdf" target="_blank">Политика конфиденциальности</a>
       </div>
     </div>
   </footer>
@@ -179,8 +179,12 @@ export default {
   list-style: none;
   &__item {
     margin-right: 8px;
+    transition: opacity 0.25s $ease;
     &:last-child {
       margin-right: 0;
+    }
+    &:hover {
+      opacity: 0.7;
     }
   }
 
@@ -294,6 +298,12 @@ export default {
       &:last-child {
         margin-bottom: 0;
       }
+    }
+    &__link {
+      font-size: 16px;
+    }
+    &__icon {
+      max-width: 24px;
     }
   }
 }

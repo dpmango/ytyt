@@ -55,16 +55,26 @@ body._lock {
 }
 
 .page--homepage {
+  display: block;
   font-family: 'PTRootUI', 'Arial', sans-serif;
   font-size: 16px;
+  line-height: normal;
   background-color: #fafafa;
+
+  * {
+    padding: 0;
+    margin: 0;
+    border: 0;
+  }
 
   .container {
     max-width: 1320px;
-    padding: 0 20px;
+    padding-left: 20px;
+    padding-right: 20px;
     margin: 0 auto;
     @include r($md) {
-      padding: 0 15px;
+      padding-left: 15px;
+      padding-right: 15px;
     }
   }
   .visually-hidden {
@@ -81,7 +91,8 @@ body._lock {
   h2 {
     font-size: 48px;
     @include r($md) {
-      font-size: 32px;
+      font-size: 34px;
+      line-height: 1.1;
     }
   }
 

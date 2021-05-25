@@ -3,6 +3,7 @@
     <div class="header__container container">
       <div class="header__logo">
         <img src="~assets/landing/img/logo.svg" alt="YTYT Logo" />
+        <img src="~assets/landing/img/logo-mobile.png" class="mobile" alt="YTYT Logo" />
       </div>
       <div class="header__menu menu">
         <div class="menu__icon">
@@ -16,7 +17,10 @@
             <li class="menu__item"><a data-goto=".price" href="#" class="menu__link">Стоимость</a></li>
             <li class="menu__item"><a data-goto=".footer" href="#" class="menu__link">Контакты</a></li>
             <li class="menu__item">
-              <NuxtLink to="/auth/signup" class="menu__link">Вход/Зарегистрироваться</NuxtLink>
+              <NuxtLink to="/auth/signup" class="menu__link">
+                <UiSvgIcon name="login" />
+                <span>Войти</span>
+              </NuxtLink>
             </li>
           </ul>
         </nav>
@@ -81,6 +85,9 @@ export default {
 
   &__logo {
     z-index: 5;
+    .mobile {
+      display: none;
+    }
   }
 }
 
@@ -91,6 +98,7 @@ export default {
 
   &__body {
     display: flex;
+    margin-top: -8px;
   }
 
   &__list {
@@ -99,13 +107,15 @@ export default {
   }
 
   &__item {
-    margin-right: 25px;
+    margin-right: 27px;
     &:last-child {
       margin-right: 0;
     }
   }
 
   &__link {
+    display: inline-flex;
+    align-items: center;
     font-family: $baseFont;
     position: relative;
     color: #fff;
@@ -113,6 +123,10 @@ export default {
     text-decoration: none;
     opacity: 0.6;
     transition: 0.3s;
+    .svg-icon {
+      font-size: 18px;
+      margin-right: 12px;
+    }
     &:hover {
       opacity: 1;
     }
@@ -122,11 +136,22 @@ export default {
   }
 }
 
-@include r($md) {
+@include r($lg) {
+  .header {
+    padding-top: 15px;
+    &__logo {
+      img {
+        display: none;
+      }
+      .mobile {
+        display: block;
+      }
+    }
+  }
   .menu__icon {
     display: block;
     position: relative;
-    width: 30px;
+    width: 24px;
     height: 18px;
     cursor: pointer;
     z-index: 5;
@@ -140,6 +165,7 @@ export default {
     height: 3px;
     border-radius: 5px;
     background-color: #8b8b8c;
+    transform-origin: center top;
     transition: 0.2s;
   }
   .menu__icon::before,
@@ -182,7 +208,7 @@ export default {
       flex-direction: column;
       align-items: flex-start;
       justify-content: flex-start;
-      padding-top: 100px;
+      padding-top: 90px;
       padding-left: 15px;
       transition: left 0.3s ease 0s;
       overflow: auto;
@@ -197,8 +223,9 @@ export default {
     }
     &__item {
       margin-right: 0;
-      margin-bottom: 25px;
+      margin-bottom: 22px;
       &:last-child {
+        margin-top: 12px;
         margin-bottom: 0;
       }
     }
