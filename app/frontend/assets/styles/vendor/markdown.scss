@@ -418,12 +418,12 @@
     }
   }
 
-  // TODO - pre > code problem of parser
   p, ul, ol, a, table, h1, h2, h3, h4, h5, h6, blockquote {
     .hljs{
       display: inline-block;
       max-width: 100%;
       vertical-align: middle;
+      margin-top: -2px;
     }
   }
 

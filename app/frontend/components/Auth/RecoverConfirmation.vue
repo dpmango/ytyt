@@ -1,6 +1,6 @@
 <template>
   <AuthWrapper>
-    <template #title>Смените пароль</template>
+    <template #title>Смена пароля</template>
 
     <template #actions>
       <NuxtLink to="/auth/login">Войти</NuxtLink>

@@ -7,10 +7,10 @@
     <div class="nav__actions">
       <a href="#" class="nav__actions-prev" :class="[!isPrevAvailable && 'disabled']" @click.prevent="setPrevFragment">
         <UiSvgIcon name="arrow-left-filled" />
-        <span>предидущий урок</span>
+        <span>Предыдущий урок</span>
       </a>
       <a href="#" class="nav__actions-next" @click.prevent="setNextFragment">
-        <span>следующий урок</span>
+        <span>Следующий урок</span>
         <UiSvgIcon name="arrow-right-filled" />
       </a>
     </div>
@@ -34,7 +34,7 @@ export default {
 .nav {
   display: flex;
   align-items: center;
-  padding: 16px 20px;
+  padding: 16px 20px 15px 20px;
   border-bottom: 1px solid rgba(#171818, 0.1);
   &__title {
     font-size: 15px;

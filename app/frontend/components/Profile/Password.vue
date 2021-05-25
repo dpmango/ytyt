@@ -1,6 +1,6 @@
 <template>
   <AuthWrapper>
-    <template #title>Смените пароль</template>
+    <template #title>Смена пароля</template>
 
     <template #actions>
       <NuxtLink to="/profile">Вернуться</NuxtLink>
@@ -14,7 +14,7 @@
             :value="passwordCurrent"
             theme="dynamic"
             name="password"
-            label="Старый Пароль"
+            label="Старый пароль"
             type="password"
             :error="errors[0]"
             @onChange="(v) => (passwordCurrent = v)"
@@ -25,7 +25,7 @@
             :value="password"
             theme="dynamic"
             name="password"
-            label="Пароль"
+            label="Новый пароль"
             type="password"
             :error="errors[0]"
             @onChange="(v) => (password = v)"
