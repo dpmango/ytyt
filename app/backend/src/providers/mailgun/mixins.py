@@ -2,6 +2,7 @@ from django.conf import settings
 from django.template import loader
 
 from providers.tasks import send_mail, send_file
+from loguru import logger
 
 
 class EmailNotificationMixin:
@@ -26,6 +27,8 @@ class EmailNotificationMixin:
         :param files: Набор файлов
         :param without_thread: Произвести отправку без использования дополнительного потока
         """
+        logger.debug('[send_mail] to=%s, context=%s ' % (to, context,))
+
         to = to if to is not None else settings.DEFAULT_ADMIN_EMAIL
         kwargs = {}
 
