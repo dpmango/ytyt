@@ -32,7 +32,8 @@ APP_MODE = env.str('APP_MODE', default='production')
 
 IS_PRODUCTION = APP_MODE == 'production'
 
-ALLOWED_HOSTS = ['*']  # 138.68.112.220
+BASE_FRONT_URL = env('BASE_FRONT_URL').rstrip('/')
+ALLOWED_HOSTS = ['*']
 
 
 INSTALLED_APPS = [

@@ -30,10 +30,10 @@ class Access(models.Model):
     WAITING_STATUS_COMPLETED_THEME = 7
     WAITING_STATUS_PAID = 8
     WAITING_STATUSES = (
-        (WAITING_STATUS_COMPLETED_FRAGMENT, 'Ожидание завершения предыдущего фрагмента'),
-        (WAITING_STATUS_COMPLETED_LESSON, 'Ожидание завершения предыдущего урока'),
-        (WAITING_STATUS_COMPLETED_THEME, 'Ожидание завершения предыдущей темы'),
-        (WAITING_STATUS_PAID, 'Ожидание статуса оплачено'),
+        (WAITING_STATUS_COMPLETED_FRAGMENT, 'Пройдите предыдущий фрагмент'),
+        (WAITING_STATUS_COMPLETED_LESSON, 'Пройдите предыдущий урок'),
+        (WAITING_STATUS_COMPLETED_THEME, 'Пройдите предыдущую тему'),
+        (WAITING_STATUS_PAID, 'Не оплачено'),
     )
 
     AVAILABLE_STATUSES = (

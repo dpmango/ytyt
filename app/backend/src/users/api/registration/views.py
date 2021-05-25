@@ -12,8 +12,6 @@ from rest_framework.response import Response
 
 from providers.mailgun.mixins import EmailNotificationMixin
 from users.serializers import VerifyEmailSerializer
-from drf_yasg.openapi import Parameter, IN_QUERY, TYPE_STRING
-from drf_yasg.utils import swagger_auto_schema
 
 
 class RegisterView(RegisterViewBase):
@@ -77,4 +75,5 @@ class VerifyEmailView(CreateAPIView, UpdateAPIView, EmailNotificationMixin):
             **super().get_serializer_context(),
             'domain': current_site.netloc,
             'protocol': current_site.scheme,
+            'base_front_url': settings.BASE_FRONT_URL,
         }
