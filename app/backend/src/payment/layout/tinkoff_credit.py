@@ -18,14 +18,14 @@ class PaymentCreditLayout(Layout):
     def receive(self, raw_payment_credit: dict):
         super().receive(raw_payment_credit)
 
-        _id = raw_payment_credit.get('id')
+        pk = raw_payment_credit.get('id')
         status = raw_payment_credit.get('status')
 
-        if not status or not _id:
+        if not status or not pk:
             return
 
         try:
-            payment_credit = PaymentCredit.objects.get(external_payment_id=_id)
+            payment_credit = PaymentCredit.objects.get(pk=pk)
         except PaymentCredit.DoesNotExist as e:
             logger.info('[%s][receive] err=%s' % (self._class, e,))
             return
@@ -36,8 +36,7 @@ class PaymentCreditLayout(Layout):
 
         with transaction.atomic():
             payment_credit.status = status
-            payment_credit.external_payment_id = _id
-            payment_credit.save(update_fields=['status', 'external_payment_id', 'date_updated'])
+            payment_credit.save(update_fields=['status', 'date_updated'])
 
             if payment_credit.status == TinkoffCredit.STATUS_SIGNED:
                 self.receive_signed(payment_credit)
