@@ -35,7 +35,7 @@ class PaymentCreditLayout(Layout):
             payment_credit.external_payment_id = _id
             payment_credit.save(update_fields=['status', 'external_payment_id', 'date_updated'])
 
-            if status.status == TinkoffCredit.STATUS_SIGNED:
+            if payment_credit.status == TinkoffCredit.STATUS_SIGNED:
                 self.receive_signed(payment_credit)
 
     @staticmethod
