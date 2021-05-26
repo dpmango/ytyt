@@ -27,7 +27,7 @@ class PaymentCreditLayout(Layout):
             return
 
         # Если кредит был подтвержден ранее, то пропускаем
-        if payment_credit.status == TinkoffCredit.STATUS_SIGNED:
+        if not payment_credit or payment_credit.status == TinkoffCredit.STATUS_SIGNED:
             return None
 
         with transaction.atomic():
