@@ -7,9 +7,10 @@ from abc import ABC, abstractmethod
 
 
 class Layout(ABC):
+    _cli = None
 
-    def __init__(self, cli):
-        self.cli = cli
+    def __init__(self, cli=None):
+        self.cli = cli or self._cli
         self.errors: typing.Optional[dict] = None
 
     def is_valid(self, raise_exception: bool = None):

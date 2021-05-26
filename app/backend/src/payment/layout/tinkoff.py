@@ -11,10 +11,11 @@ from payment.layout.core import Layout
 from payment.models import Payment
 from providers.tinkoff.contrib import Tinkoff, tinkoff_client
 
-__all__ = ('payment_layout', )
+__all__ = ('PaymentLayout', )
 
 
 class PaymentLayout(Layout):
+    _cli = tinkoff_client
 
     def receive(self, raw_payment: dict):
         super().receive(raw_payment)
@@ -153,8 +154,3 @@ class PaymentLayout(Layout):
             access = payment.user.access_set.filter(course=payment.course).first()
             access.access_type = Access.COURSE_ACCESS_TYPE_FULL_PAID
             access.save()
-
-
-payment_layout = PaymentLayout(
-    cli=tinkoff_client
-)

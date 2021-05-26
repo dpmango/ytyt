@@ -6,8 +6,8 @@ from rest_framework.response import Response
 
 from api.mixins import FlexibleSerializerModelViewSetMixin
 from payment.api.serializers import InitCreationSerializer, InitCreditCreationSerializer
-from payment.layout.tinkoff import payment_layout
-from payment.layout.tinkoff_credit import payment_credit_layout
+from payment.layout.tinkoff import PaymentLayout
+from payment.layout.tinkoff_credit import PaymentCreditLayout
 from payment.models import Payment
 
 
@@ -32,7 +32,7 @@ class PaymentViewSet(FlexibleSerializerModelViewSetMixin, viewsets.GenericViewSe
         Метод получает статусы по оплате в банке
         """
         if self.request.method in ('POST', 'PUT',):
-            payment_layout.receive(request.data)
+            PaymentLayout().receive(request.data)
         return HttpResponse('OK', status=status.HTTP_200_OK, content_type='text')
 
     @action(methods=['POST', 'PUT', 'GET'], detail=False, url_path='statuses-installment')
@@ -41,7 +41,7 @@ class PaymentViewSet(FlexibleSerializerModelViewSetMixin, viewsets.GenericViewSe
         Метод получает статусы по оплате в банке
         """
         if self.request.method in ('POST', 'PUT',):
-            payment_credit_layout.receive(request.data)
+            PaymentCreditLayout().receive(request.data)
         return HttpResponse('OK', status=status.HTTP_200_OK, content_type='text')
 
     # Для особенных ХАКЕРОВ метод назван как рассрочка, чтоб не доматались
@@ -57,6 +57,8 @@ class PaymentViewSet(FlexibleSerializerModelViewSetMixin, viewsets.GenericViewSe
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         payment_credit = serializer.save()
+
+        payment_credit_layout = PaymentCreditLayout()
 
         url = payment_credit_layout.create(payment_credit)
         payment_credit_layout.is_valid(raise_exception=True)
@@ -75,6 +77,8 @@ class PaymentViewSet(FlexibleSerializerModelViewSetMixin, viewsets.GenericViewSe
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         payment = serializer.save()
+
+        payment_layout = PaymentLayout()
 
         url = payment_layout.init(payment)
         payment_layout.is_valid(raise_exception=True)

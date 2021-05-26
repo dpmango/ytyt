@@ -9,10 +9,11 @@ from payment.layout.core import Layout
 from payment.models import PaymentCredit
 from providers.tinkoff_credit.contrib import tinkoff_credit_client, TinkoffCredit
 
-__all__ = ('payment_credit_layout', )
+__all__ = ('PaymentCreditLayout', )
 
 
 class PaymentCreditLayout(Layout):
+    _cli = tinkoff_credit_client
 
     def receive(self, raw_payment_credit: dict):
         super().receive(raw_payment_credit)
@@ -108,8 +109,3 @@ class PaymentCreditLayout(Layout):
         payment_credit.save(update_fields=['external_payment_id', 'date_updated'])
 
         return link
-
-
-payment_credit_layout = PaymentCreditLayout(
-    cli=tinkoff_credit_client
-)
