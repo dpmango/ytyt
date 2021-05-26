@@ -10,9 +10,9 @@ services:
       - 80:80
       - 443:443
     volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./data/traefik.yml:/traefik.yml:ro
+      - /etc/localtime:/etc/localtime:rw
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+      - ./data/traefik.yml:/traefik.yml:rw
       - ./data/acme.json:/acme.json
     labels:
       - "traefik.enable=true"
