@@ -68,6 +68,7 @@ class PaymentCreditLayout(Layout):
             sum=payment_credit.amount,
             orderNumber=payment_credit.pk,
             promoCode=payment_credit.promo_code,
+            demoFlow="sms",
             items=[
                 dict(
                     name=payment_credit.course.title,
