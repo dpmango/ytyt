@@ -20,6 +20,9 @@ class PaymentCreditLayout(Layout):
         _id = raw_payment_credit.get('id')
         status = raw_payment_credit.get('status')
 
+        if not status or not _id:
+            return
+
         try:
             payment_credit = PaymentCredit.objects.get(external_payment_id=_id)
         except PaymentCredit.DoesNotExist as e:
@@ -27,7 +30,7 @@ class PaymentCreditLayout(Layout):
             return
 
         # Если кредит был подтвержден ранее, то пропускаем
-        if not payment_credit or payment_credit.status == TinkoffCredit.STATUS_SIGNED:
+        if payment_credit.status == TinkoffCredit.STATUS_SIGNED:
             return None
 
         with transaction.atomic():
