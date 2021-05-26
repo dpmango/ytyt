@@ -41,7 +41,7 @@ class PaymentViewSet(FlexibleSerializerModelViewSetMixin, viewsets.GenericViewSe
         Метод получает статусы по оплате в банке
         """
         if self.request.method in ('POST', 'PUT',):
-            payment_layout.receive(request.data)
+            payment_credit_layout.receive(request.data)
         return HttpResponse('OK', status=status.HTTP_200_OK, content_type='text')
 
     # Для особенных ХАКЕРОВ метод назван как рассрочка, чтоб не доматались
