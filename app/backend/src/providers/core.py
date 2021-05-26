@@ -24,14 +24,14 @@ class BaseProvider(ABC):
         logger.debug('[%s][request][method=%s] url=%s, kwargs=%s' % (
             self.__class__.__name__, method, url, str(kwargs)
         ))
+
         response = request(method=method, url=url, **kwargs, headers={'content-type': 'application/json'})
-
-        if response.status_code in (200, 201, 202):
-            return self._force_json(response)
-
         logger.info('[%s][response][method=%s] status_code=%s, url=%s, response=%s' % (
             self.__class__.__name__, method, response.status_code, url, str(response.text)
         ))
+
+        if response.status_code in (200, 201, 202):
+            return self._force_json(response)
 
         response = self._force_json(response)
         if len(response) > 0:

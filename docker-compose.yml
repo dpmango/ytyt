@@ -1,0 +1,45 @@
+version: '3.7'
+
+networks:
+  traefik:
+    external:
+      name: traefik
+
+services:
+
+  proxy:
+    image: traefik:v2.2
+    restart: always
+    labels:
+      - traefik.enable=true
+      # Redirect all HTTP to HTTPS permanently
+      - traefik.http.middlewares.https_redirect.redirectscheme.scheme=https
+      - traefik.http.middlewares.https_redirect.redirectscheme.permanent=true
+      # Redirect all to HTTPS
+      - traefik.http.routers.http_catchall.rule=HostRegexp(`{any:.+}`)
+      - traefik.http.routers.http_catchall.entrypoints=web
+      - traefik.http.routers.http_catchall.middlewares=https_redirect
+    networks:
+      - traefik
+    ports:
+      - 81:80
+      - 442:443
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - acme_storage:/storage/
+    command:
+      - "--ping=true"
+      - "--ping.entryPoint=web"
+      - "--api.insecure=true"
+      - "--providers.docker"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entryPoints.web.address=:80"
+      - "--entryPoints.websecure.address=:443"
+      - "--certificatesResolvers.le.acme.email=${PROXY_LE_EMAIL}"
+      - "--certificatesResolvers.le.acme.storage=/storage/acme.json"
+      - "--certificatesResolvers.le.acme.tlsChallenge=true"
+      - "--certificatesResolvers.le.acme.httpChallenge=true"
+      - "--certificatesResolvers.le.acme.httpChallenge.entryPoint=web"
+
+volumes:
+  acme_storage: {}
