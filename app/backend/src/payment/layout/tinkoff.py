@@ -128,12 +128,13 @@ class PaymentLayout(Layout):
             self.receive_confirmed(payment)
             return None
 
-        raise Exception({
+        self.errors = {
             'detail': 'У подтверждения пришел странный статус — %s' % (status,),
             'context': {
                 'confirm_data': confirm_data, 'payment': model_to_dict(payment),
             }
-        })
+        }
+        logger.info('[{_class}][confirm] {detail}, {error_code}'.format(_class=self._class, **self.errors))
 
     @staticmethod
     def receive_confirmed(payment: Payment, **kwargs) -> None:
