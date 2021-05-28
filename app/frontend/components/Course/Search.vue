@@ -75,8 +75,9 @@ export default {
         .catch((err) => {
           if (err.code === 403) {
             this.isLoading = false;
-            this.$toast.global.error({ message: err.data.detail });
-            this.$router.push('/payment');
+            // this.$toast.global.error({ message: err.data.detail });
+            // this.$router.push('/payment');
+            this.$vfm.show('paymentStart');
           }
         });
 
