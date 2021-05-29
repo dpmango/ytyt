@@ -131,38 +131,6 @@ def show_js(ev):
     src = editor.getValue()
     doc["console"].value = javascript.py2js(src, '__main__')
 
-def share_code(ev):
-    src = editor.getValue()
-    if len(src) > 2048:
-        d = dialog.InfoDialog("Copy url",
-                              f"code length is {len(src)}, must be < 2048",
-                              style={"zIndex": 10},
-                              ok=True)
-    else:
-        href = window.location.href.rsplit("?", 1)[0]
-        query = doc.query
-        query["code"] = src
-        url = f"{href}{query}"
-        url = url.replace("(", "%28").replace(")", "%29")
-        d = dialog.Dialog("Copy url")
-        area = html.TEXTAREA(rows=0, cols=0)
-        d.panel <= area
-        area.value = url
-        # copy to clipboard
-        area.focus()
-        area.select()
-        doc.execCommand("copy")
-        d.remove()
-        d = dialog.Dialog("Copy url")
-        d.panel <= html.DIV("url copied in the clipboard<br>Send it to share the code")
-        buttons = html.DIV()
-        ok = html.BUTTON("Ok")
-        buttons <= html.DIV(ok, style={"text-align": "center"})
-        d.panel <= html.BR() + buttons
-
-        @bind(ok, "click")
-        def click(evt):
-            d.remove()
 
 if has_ace:
     reset_src()
