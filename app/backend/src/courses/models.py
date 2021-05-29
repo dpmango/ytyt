@@ -91,5 +91,4 @@ class LessonFragment(models.Model):
         return markdownify(self.content)
 
     def get_text_content(self) -> str:
-        return html_to_text(self.content())
-
+        return html_to_text(self.get_content())

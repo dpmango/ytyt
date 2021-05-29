@@ -24,6 +24,19 @@ class UserDetailSerializer(serializers.ModelSerializer):
     thumbnail_avatar = serializers.SerializerMethodField()
     dialog = serializers.SerializerMethodField()
     payment = serializers.SerializerMethodField()
+    installment_available = serializers.SerializerMethodField()
+
+    @staticmethod
+    def get_installment_available(obj: User) -> bool:
+        """
+        Метод вернет факт доступа к возможности оформления кредита
+        :param obj: Объект пользователя
+        """
+        courses = Course.objects.all()
+        return not any(
+            course.paymentcredit_set.filter(user=obj, status=TinkoffCredit.STATUS_REJECTED).exists()
+            for course in courses
+        )
 
     @staticmethod
     def get_payment(obj: User) -> dict:
@@ -91,6 +104,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
             'email_confirmed',
             'dialog',
             'payment',
+            'installment_available',
         )
         read_only_fields = ('email', 'id')
 

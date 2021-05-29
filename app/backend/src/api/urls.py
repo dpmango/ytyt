@@ -11,6 +11,7 @@ from files.api.views import FileUploadView
 from payment.api.views import PaymentViewSet
 from search.api.views import SearchViewSet
 from users.api.auth.views import PasswordResetView, UserDetailsView
+from users.api.feedback.views import feedback
 from users.api.registration.views import RegisterView, VerifyEmailView
 
 router = routers.DefaultRouter()
@@ -26,6 +27,7 @@ router.register(r'lessons-fragments', LessonFragmentViewSet, basename='lessons-f
 
 
 urlpatterns = [
+    re_path('api/feedback/', feedback),
     path('api/', include(router.urls)),
 
     re_path(r'^rest-auth/token-refresh/$', refresh_jwt_token),

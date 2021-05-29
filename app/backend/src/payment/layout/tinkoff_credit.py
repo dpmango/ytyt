@@ -1,12 +1,14 @@
 import typing
 
 from django.db import transaction
+from django.forms import model_to_dict
 from django.utils import timezone
 from loguru import logger
 
 from courses_access.models import Access
 from payment.layout.core import Layout
 from payment.models import PaymentCredit
+from providers.mailgun.mixins import EmailNotification
 from providers.tinkoff_credit.contrib import tinkoff_credit_client, TinkoffCredit
 
 __all__ = ('PaymentCreditLayout', )
@@ -38,8 +40,11 @@ class PaymentCreditLayout(Layout):
             payment_credit.status = status
             payment_credit.save(update_fields=['status', 'date_updated'])
 
-            if payment_credit.status == TinkoffCredit.STATUS_SIGNED:
+            if status == TinkoffCredit.STATUS_SIGNED:
                 self.receive_signed(payment_credit)
+
+            elif status == TinkoffCredit.STATUS_REJECTED:
+                self.receive_rejected(payment_credit)
 
     @staticmethod
     def receive_signed(payment_credit: PaymentCredit) -> None:
@@ -60,6 +65,18 @@ class PaymentCreditLayout(Layout):
             access = payment_credit.user.access_set.filter(course=payment_credit.course).first()
             access.access_type = Access.COURSE_ACCESS_TYPE_FULL_PAID
             access.save()
+
+    @staticmethod
+    def receive_rejected(payment_credit: PaymentCredit) -> None:
+        """
+        Метод уведомляет админа по отказу в рассрочке для пользователя
+        :param payment_credit: Объект займа
+        """
+        mailgun = EmailNotification(
+            subject_template_raw='Отказ в рассрочке',
+            email_template_raw='Пользователю отказали в рассрочке.\nID: {id},\nИмя: {first_name},\nEmail: {email}',
+        )
+        mailgun.send_mail(context=model_to_dict(payment_credit.user))
 
     def create(self, payment_credit: PaymentCredit) -> typing.Optional[str]:
         """
