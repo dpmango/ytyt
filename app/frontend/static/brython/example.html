@@ -4,7 +4,6 @@
 <head>
 <meta charset="utf-8">
 <title>Brython</title>
-<link rel="stylesheet" href="brython.css">
 
 <script type="text/javascript" src="src/brython_builtins.js"></script>
 <script type="text/javascript" src="src/version_info.js"></script>
@@ -68,26 +67,7 @@
         </div>
       </div>
 
-      <div class="brython__version">Brython version: <span id="version"></span></div>
     </div>
 
-    <script type="text/javascript">
-      const textarea = document.querySelector('textarea');
-      const trigger = document.querySelector('#run');
-
-      const setHeight = () => {
-        textarea.style.height = "";
-        textarea.style.height = textarea.scrollHeight + "px";
-
-        document.dispatchEvent(new Event('view.updated'));
-      }
-
-      trigger.addEventListener('click', function () {
-        setHeight()
-        setTimeout(() => {
-          setHeight()
-        }, 300);
-      });
-    </script>
   </body>
 </html>

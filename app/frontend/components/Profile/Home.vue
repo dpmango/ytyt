@@ -76,8 +76,8 @@
                   <UiInput
                     :value="github"
                     type="text"
-                    placeholder="Github"
-                    icon="github"
+                    placeholder="Replit"
+                    icon="repl"
                     icon-position="left"
                     @onChange="(v) => (github = v)"
                   />

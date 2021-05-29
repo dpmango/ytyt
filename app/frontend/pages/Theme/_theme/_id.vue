@@ -4,12 +4,20 @@
 
 <script>
 export default {
-  async asyncData({ params, store, error }) {
-    const lesson = await store.dispatch('courses/lesson', {
-      course_id: 1,
-      theme_id: params.theme,
-      fragment_id: params.id,
-    });
+  async asyncData({ params, store, error, ...context }) {
+    const lesson = await store
+      .dispatch('courses/lesson', {
+        course_id: 1,
+        theme_id: params.theme,
+        fragment_id: params.id,
+      })
+      .catch((err) => {
+        if (err.code === 403) {
+          // this.$toast.global.error({ message: err.data.detail });
+          // this.$router.push('/payment');
+          context.modal.show('paymentStart');
+        }
+      });
 
     return { lesson };
   },
@@ -80,8 +88,9 @@ export default {
         })
         .catch((err) => {
           if (err.code === 403) {
-            this.$toast.global.error({ message: err.data.detail });
-            this.$router.push('/payment');
+            // this.$toast.global.error({ message: err.data.detail });
+            // this.$router.push('/payment');
+            this.$vfm.show('paymentStart');
           }
         });
 
@@ -90,11 +99,19 @@ export default {
     async getData() {
       const { course, theme, id } = this.$route.params;
 
-      const lesson = await this.$store.dispatch('courses/lesson', {
-        course_id: course,
-        theme_id: theme,
-        fragment_id: id,
-      });
+      const lesson = await this.$store
+        .dispatch('courses/lesson', {
+          course_id: course,
+          theme_id: theme,
+          fragment_id: id,
+        })
+        .catch((err) => {
+          if (err.code === 403) {
+            // this.$toast.global.error({ message: err.data.detail });
+            // this.$router.push('/payment');
+            this.$vfm.show('paymentStart');
+          }
+        });
 
       return { lesson };
     },

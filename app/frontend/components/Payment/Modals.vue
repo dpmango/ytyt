@@ -1,5 +1,16 @@
 <template>
   <div class="payment-modals">
+    <UiModal v-model="paymentStart" name="paymentStart" content-class="narrow">
+      <div class="payment-modals__text">
+        <p>Бесплатный курс пройден, произведите оплату для продолжения обучения</p>
+      </div>
+
+      <div class="payment-modal__cta">
+        <UiButton theme="outline" @click="$vfm.hide('paymentStart')">Отмена</UiButton>
+        <UiButton @click="$vfm.show('paymentModal')">Перейти к оплате</UiButton>
+      </div>
+    </UiModal>
+
     <UiModal v-model="paymentModal" name="paymentModal">
       <PaymentSelect />
     </UiModal>
@@ -10,6 +21,7 @@
 export default {
   data() {
     return {
+      paymentStart: false,
       paymentModal: false,
     };
   },
@@ -19,3 +31,24 @@ export default {
   },
 };
 </script>
+
+<style lang="scss" scoped>
+.payment-modals {
+  &__text {
+    text-align: center;
+  }
+  &__cta {
+    display: flex;
+    align-items: center;
+    margin-top: 24px;
+    .button {
+      padding-top: 14px;
+      padding-bottom: 13px;
+      margin-right: 8px;
+      &:last-child {
+        margin-right: 0;
+      }
+    }
+  }
+}
+</style>
