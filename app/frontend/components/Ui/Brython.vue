@@ -1,7 +1,6 @@
 <template>
   <client-only>
     <div class="brython">
-      <!-- <iframe ref="iframe" src="/brython/example.html" onload="window.resizeIframe(this)" /> -->
       <div :id="`container_${id}`" class="brython__editor">
         <div class="brython__actions">
           <button :id="`run_${id}`" class="brython__run">▶</button>
@@ -30,8 +29,8 @@
         has_ace = True
         try:
             editor = window.ace.edit("editor_{{id}}")
-            editor.setTheme("brython/ace/theme/solarized_light")
-            editor.session.setMode("brython/ace/mode/python")
+            editor.setTheme("ace/theme/solarized_light")
+            editor.session.setMode("ace/mode/python")
             editor.focus()
 
             editor.setOptions({
@@ -40,7 +39,6 @@
              'highlightSelectedWord': True
             })
         except:
-            from browser import html
             editor = html.TEXTAREA(rows=20, cols=70)
             doc["editor_{{id}}"] <= editor
             def get_value(): return editor.value
@@ -95,15 +93,6 @@
             sys.stdout = cOut
             sys.stderr = cOut
 
-
-        def to_str(xx):
-            return str(xx)
-
-        info = sys.implementation.version
-        version = '%s.%s.%s' % (info.major, info.minor, info.micro)
-        if info.releaselevel == "rc":
-            version += f"rc{info.serial}"
-
         output = ''
 
         def show_console(ev):
@@ -136,18 +125,13 @@
 
             return state
 
-        def show_js(ev):
-            src = editor.getValue()
-            doc["console_{{id}}"].value = javascript.py2js(src, '__main__')
-
         if has_ace:
             reset_src()
         else:
             reset_src_area()
 
-
-        doc['run_{{id}}'].bind('click',lambda *args: editor.run())
-        doc['show_console_{{id}}'].bind('click', editor.show_console)
+        doc['run_{{id}}'].bind('click',lambda *args: run())
+        doc['show_console_{{id}}'].bind('click', show_console)
       </script>
     </div>
   </client-only>
@@ -159,7 +143,7 @@ export default {
     id: String,
   },
   mounted() {
-    window.brython();
+    // TODO add method aka ready
     // setTimeout(() => {
     //   this.$refs.iframe.contentWindow.document.addEventListener('view.updated', () => {
     //     window.resizeIframe(this.$refs.iframe);
