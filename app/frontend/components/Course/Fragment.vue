@@ -134,21 +134,34 @@ export default {
   },
   methods: {
     async setNextFragment() {
-      await this.requestFragment({
-        id: this.activeSection,
-      })
-        .then((res) => {
-          if (res.id) {
-            this.activeSection = res.id;
-          } else if (res.course_id) {
-            // eslint-disable-next-line no-console
-            console.log('end of lesson');
-          }
+      let shouldFetch = true;
+      const curIndex = this.sections.findIndex((x) => x.id === this.activeSection);
+
+      if (curIndex !== -1) {
+        const nextSection = this.sections[curIndex + 1];
+        if (nextSection && [1, 2, 3].includes(nextSection.status)) {
+          shouldFetch = false;
+          this.activeSection = nextSection.id;
+        }
+      }
+
+      if (shouldFetch) {
+        await this.requestFragment({
+          id: this.activeSection,
         })
-        .catch((_err) => {});
+          .then((res) => {
+            if (res.id) {
+              this.activeSection = res.id;
+            } else if (res.course_id) {
+              // eslint-disable-next-line no-console
+              console.log('end of lesson');
+            }
+          })
+          .catch((_err) => {});
+      }
     },
     setFragment(id, status) {
-      if (status && status !== 4) {
+      if (status && ![4, 5, 6, 7, 8].includes(status)) {
         this.activeSection = id;
       }
     },
