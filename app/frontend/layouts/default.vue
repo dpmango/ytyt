@@ -5,6 +5,7 @@
       <AuthNotificationConfirmation v-if="showConfirmationNotification" />
       <Nuxt />
     </div>
+    <PaymentModals />
   </div>
 </template>
 

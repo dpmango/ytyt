@@ -5,7 +5,6 @@
         <PaymentSelect />
       </div>
     </div>
-    <!-- <UiButton @click="$vfm.show('paymentModal')"> Открыть </UiButton> -->
   </div>
 </template>
 

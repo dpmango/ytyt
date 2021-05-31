@@ -37,7 +37,7 @@
                   class="lesson__section"
                   :class="[fragment.id === activeSection && 'is-active']"
                 >
-                  <UiBrython />
+                  <UiBrython :id="`${fragment.id}`" />
 
                   <div class="lesson__body markdown-body" v-html="fragment.content"></div>
 
@@ -81,6 +81,107 @@ export default {
     return {
       isChatOpened: false,
       activeSection: 0,
+    };
+  },
+  head() {
+    return {
+      script: [
+        {
+          src: '/brython/src/brython_builtins.js',
+        },
+        {
+          src: '/brython/src/version_info.js',
+        },
+        {
+          src: '/brython/src/py2js.js',
+        },
+        {
+          src: '/brython/src/loaders.js',
+        },
+        {
+          src: '/brython/src/py_object.js',
+        },
+        {
+          src: '/brython/src/py_type.js',
+        },
+        {
+          src: '/brython/src/py_utils.js',
+        },
+        {
+          src: '/brython/src/py_sort.js',
+        },
+        {
+          src: '/brython/src/py_builtin_functions.js',
+        },
+        {
+          src: '/brython/src/py_exceptions.js',
+        },
+        {
+          src: '/brython/src/py_range_slice.js',
+        },
+        {
+          src: '/brython/src/py_bytes.js',
+        },
+        {
+          src: '/brython/src/py_set.js',
+        },
+        {
+          src: '/brython/src/js_objects.js',
+        },
+        {
+          src: '/brython/src/stdlib_paths.js',
+        },
+        {
+          src: '/brython/src/py_import.js',
+        },
+
+        {
+          src: '/brython/src/unicode_data.js',
+        },
+        {
+          src: '/brython/src/py_string.js',
+        },
+        {
+          src: '/brython/src/py_int.js',
+        },
+        {
+          src: '/brython/src/py_long_int.js',
+        },
+        {
+          src: '/brython/src/py_float.js',
+        },
+        {
+          src: '/brython/src/py_complex.js',
+        },
+        {
+          src: '/brython/src/py_dict.js',
+        },
+        {
+          src: '/brython/src/py_list.js',
+        },
+        {
+          src: '/brython/src/py_generator.js',
+        },
+        {
+          src: '/brython/src/py_dom.js',
+        },
+
+        {
+          src: '/brython/src/builtin_modules.js',
+        },
+        {
+          src: '/brython/src/async.js',
+        },
+        {
+          src: '/brython/src/brython_stdlib.js',
+        },
+        {
+          src: '/brython/ace/ace.js',
+        },
+        {
+          src: '/brython/ace/ext-language_tools.js',
+        },
+      ],
     };
   },
   computed: {
@@ -134,21 +235,34 @@ export default {
   },
   methods: {
     async setNextFragment() {
-      await this.requestFragment({
-        id: this.activeSection,
-      })
-        .then((res) => {
-          if (res.id) {
-            this.activeSection = res.id;
-          } else if (res.course_id) {
-            // eslint-disable-next-line no-console
-            console.log('end of lesson');
-          }
+      let shouldFetch = true;
+      const curIndex = this.sections.findIndex((x) => x.id === this.activeSection);
+
+      if (curIndex !== -1) {
+        const nextSection = this.sections[curIndex + 1];
+        if (nextSection && [1, 2, 3].includes(nextSection.status)) {
+          shouldFetch = false;
+          this.activeSection = nextSection.id;
+        }
+      }
+
+      if (shouldFetch) {
+        await this.requestFragment({
+          id: this.activeSection,
         })
-        .catch((_err) => {});
+          .then((res) => {
+            if (res.id) {
+              this.activeSection = res.id;
+            } else if (res.course_id) {
+              // eslint-disable-next-line no-console
+              console.log('end of lesson');
+            }
+          })
+          .catch((_err) => {});
+      }
     },
     setFragment(id, status) {
-      if (status && status !== 4) {
+      if (status && ![4, 5, 6, 7, 8].includes(status)) {
         this.activeSection = id;
       }
     },

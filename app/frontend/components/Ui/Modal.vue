@@ -37,7 +37,7 @@ export default {
   flex-direction: column;
   width: 100%;
   max-height: calc(100% - 40px);
-  max-width: 748px;
+  max-width: 880px;
   margin: 0 auto;
   padding: 0;
   background: #fff;
@@ -45,6 +45,7 @@ export default {
   border-radius: 8px;
   &.narrow {
     max-width: 420px;
+    padding: 32px 30px;
     .modal__close {
       display: none;
     }
