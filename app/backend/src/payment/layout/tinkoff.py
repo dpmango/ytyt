@@ -67,7 +67,7 @@ class PaymentLayout(Layout):
             ),
             Receipt=dict(
                 Email=payment.user.email,
-                EmailCompany=settings.DEFAULT_ADMIN_EMAIL,
+                EmailCompany=settings.DEFAULT_SUPPORT_EMAIL,
                 Taxation=Tinkoff.TAXATION_USN_INCOME,
                 Items=[
                     dict(
@@ -75,8 +75,9 @@ class PaymentLayout(Layout):
                         Price=payment.amount,
                         Quantity=1.00,
                         Amount=payment.amount,
-                        PaymentMethod=Tinkoff.PAYMENT_METHOD_FULL_PAYMENT,
+                        PaymentMethod=Tinkoff.PAYMENT_METHOD_FULL_PREPAYMENT,
                         Tax=Tinkoff.TAX_NONE,
+                        PaymentObject=Tinkoff.PAYMENT_OBJECT_SERVICE,
                     ),
                 ],
             ),
