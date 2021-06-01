@@ -44,6 +44,11 @@ class UserAdmin(BaseUserAdmin):
                 'reviewer',
             ),
         }),
+        (_('Суппорты'), {
+            'fields': (
+                'support',
+            ),
+        }),
     )
 
     add_fieldsets = (

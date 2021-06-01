@@ -33,6 +33,8 @@ APP_MODE = env.str('APP_MODE', default='production')
 IS_PRODUCTION = APP_MODE == 'production'
 
 BASE_FRONT_URL = env('BASE_FRONT_URL').rstrip('/')
+BASE_URL = env('BASE_URL').rstrip('/')
+
 ALLOWED_HOSTS = ['*']
 
 

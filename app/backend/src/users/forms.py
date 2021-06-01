@@ -1,8 +1,11 @@
 from django import forms
 from django.core.exceptions import ValidationError
+from django.db import transaction
+from rest_framework.exceptions import ValidationError
 
 from courses.models import Course
 from courses_access.models import Access
+from dialogs.models import Dialog, DialogMessage
 from users.models import User
 
 
@@ -25,20 +28,36 @@ class UserCreationForm(forms.ModelForm):
         return password2
 
     def save(self, commit=True):
-        # Save the provided password in hashed format
-        user = super().save(commit=False)
-        user.set_password(self.cleaned_data["password1"])
-        user.save()
+        with transaction.atomic():
 
-        # При регистрации юзера даем ему триал-доступ к курсу
-        course = Course.objects.first()
-        access, created = Access.objects.get_or_create(user=user, course=course, status=Access.COURSE_ACCESS_TYPE_TRIAL)
+            user = super().save(commit=False)
+            user.set_password(self.cleaned_data["password1"])
+            user.save()
 
-        if created:
-            access.set_trial()
+            course = Course.objects.order_by('id').first()
+            if course:
+                access, created = Access.objects.get_or_create(
+                    user=user, course=course, status=Access.COURSE_ACCESS_TYPE_TRIAL
+                )
+                if created:
+                    access.set_trial()
 
-        educator = User.reviewers.get_less_busy_educator()
-        user.reviewer = educator
-        user.save()
+            educator = User.reviewers.get_less_busy_educator()
+            user.reviewer = educator
+
+            support = User.supports.get_less_busy_support()
+            user.support = support
+            user.save()
+
+            dialog_with_educator = Dialog.objects.create()
+            dialog_with_educator.users.add(user, educator)
+            dialog_with_educator.save()
+
+            dialog_with_support = Dialog.objects.create()
+            dialog_with_support.users.add(user, support)
+            dialog_with_support.save()
+
+            DialogMessage.objects.create_hello(dialog_with_educator, from_user=educator, student=user)
+            DialogMessage.objects.create_hello(dialog_with_support, from_user=support, student=user)
 
         return user

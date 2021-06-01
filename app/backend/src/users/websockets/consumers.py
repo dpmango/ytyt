@@ -1,8 +1,9 @@
 import json
-import typing
+import typing as t
 
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import JsonWebsocketConsumer
+from django.conf import settings
 from loguru import logger
 
 from users.models import User
@@ -14,7 +15,8 @@ class UserConsumer(JsonWebsocketConsumer, ConsumerEvents):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.user: typing.Optional[User] = None
+        self.user: t.Optional[User] = None
+        self.base_url = settings.BASE_URL
 
     def _declare(self) -> None:
         """
@@ -22,7 +24,6 @@ class UserConsumer(JsonWebsocketConsumer, ConsumerEvents):
         """
         self.user = self.scope['user']
         self.headers = {k.decode(): v.decode() for k, v in self.scope['headers']}
-        self.base_url = self.headers.get('origin')
 
     def connect(self) -> None:
         """
@@ -74,8 +75,7 @@ class UserConsumer(JsonWebsocketConsumer, ConsumerEvents):
             self.user.ws_key, self.channel_name
         )
 
-    def push(self,
-             to: typing.Union[typing.Set[User], User] = None, data: typing.Union[dict, list] = None, **kwargs) -> None:
+    def push(self, to: t.Union[t.Set[User], User] = None, data: t.Union[dict, list] = None, **kwargs) -> None:
         """
         Непосредственная отправка данных в сокет.
         Момент отправки данных в сокет генерирует доплнительные события:
