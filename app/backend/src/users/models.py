@@ -103,19 +103,18 @@ class ReviewersManager(models.Manager):
 
 
 class SupportManager(models.Manager):
-    _support_group = Group.objects.get(pk=permissions.GROUP_SUPPORT)
 
     def get_less_busy_support(self) -> 'User':
         """
         Метод вернет случайного суппорта
         """
         random.seed(timezone.now())
-        supports = self.filter(groups=self._support_group, is_active=True)
+        supports = self.filter(groups=Group.objects.get(pk=permissions.GROUP_SUPPORT), is_active=True)
 
         return random.choices(supports)[0]
 
     def all(self) -> typing.List['User']:
-        return self.filter(groups=self._support_group)
+        return self.filter(groups=Group.objects.get(pk=permissions.GROUP_SUPPORT))
 
 
 class User(AbstractBaseUser,
