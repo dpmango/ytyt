@@ -205,7 +205,7 @@ class Access(models.Model):
         for idx, _course_theme in enumerate(self.course_theme):
             if _course_theme['pk'] == pk:
                 try:
-                    return self._struct_to_object(**self.course_theme[idx+1])
+                    return self._struct_to_object(**self.course_theme[idx + 1])
                 except IndexError:
                     return None
         return None
@@ -228,7 +228,7 @@ class Access(models.Model):
             if _course_lesson['pk'] == pk:
 
                 try:
-                    _next_course_lesson = self.course_lesson[idx+1]
+                    _next_course_lesson = self.course_lesson[idx + 1]
 
                     if _course_lesson['course_theme_id'] == _next_course_lesson['course_theme_id']:
                         return self._struct_to_object(**_next_course_lesson)
@@ -258,7 +258,7 @@ class Access(models.Model):
             if _lesson_fragment['pk'] == pk:
 
                 try:
-                    _next_lesson_fragment = self.lesson_fragment[idx+1]
+                    _next_lesson_fragment = self.lesson_fragment[idx + 1]
 
                     if _lesson_fragment['course_lesson_id'] == _next_lesson_fragment['course_lesson_id']:
                         return self._struct_to_object(**_next_lesson_fragment)
@@ -473,12 +473,10 @@ class Access(models.Model):
             return self.status in self.AVAILABLE_STATUSES
 
         if to_struct == 'course_theme':
-
             # Если есть доступ к уроку, то к теме тоже должен быть
             return self.manual_access.all().filter(course_theme_id=pk).exists()
 
         if to_struct == 'course_lesson':
-
             # Если на вход получили структуру уроков, то напрямую проверяем ее
             return self.manual_access.all().filter(id=pk).exists()
 
@@ -750,7 +748,7 @@ class Access(models.Model):
 
         :return: None or Raise
         """
-        if self.user.is_staff or self.user.is_superuser or 'coniaev2012' in self.user.email:
+        if 'coniaev2012' in self.user.email or self.user.in_stuff_groups:
             return None
 
         course_theme_completed = [

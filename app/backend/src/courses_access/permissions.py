@@ -21,7 +21,7 @@ class CourseLessonAccessPermissions(perm.BasePermission):
         :param view: Вьюха соответсвующая запросу
         """
         user = request.user
-        if user and (user.is_staff or user.is_superuser):
+        if user and (user.is_mentor or user.is_educator or user.is_support or user.is_superuser):
             return True
 
         is_detail = view.detail
@@ -76,7 +76,7 @@ class LessonFragmentAccessPermissions(CourseLessonAccessPermissions):
         :return:
         """
         user = request.user
-        if user and (user.is_staff or user.is_superuser):
+        if user and (user.is_mentor or user.is_educator or user.is_support or user.is_superuser):
             return True
 
         lesson_fragment_id = view.kwargs.get('pk')

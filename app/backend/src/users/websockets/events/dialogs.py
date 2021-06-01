@@ -1,4 +1,4 @@
-import typing
+import typing as t
 
 from django.forms.models import model_to_dict
 from django.utils import timezone
@@ -53,8 +53,13 @@ class DialogEvent(EmailNotificationMixin):
         offset = offset or 0
         limit = limit or 20
 
-        dialogs = user.dialog_users_set.all().order_by('id').prefetch_related('dialogmessage_set')
-        dialogs = dialogs.distinct('id')[offset:limit]
+        if user.is_support:
+            dialogs_qs = Dialog.objects.filter(users__in=User.supports.all())
+        else:
+            dialogs_qs = user.dialog_users_set.all()
+
+        dialogs_qs = dialogs_qs.order_by('id').prefetch_related('dialogmessage_set').distinct('id')
+        dialogs = dialogs_qs[offset:limit]
 
         context = {'user': user, 'base_url': kwargs.get('base_url')}
         dialogs = DialogWithLastMessageSerializers(dialogs, many=True, context=context).data
@@ -76,11 +81,9 @@ class DialogEvent(EmailNotificationMixin):
         dialogs_without_unread_message = sorted(dialogs_without_unread_message, key=sorted_func)
 
         dialogs = dialogs_with_unread_message + dialogs_without_unread_message
-        dialogs_count = user.dialog_users_set.count()
-        return {'data': dialogs, 'to': user, **self.generate_meta(limit, offset, dialogs_count)}
+        return {'data': dialogs, 'to': user, **self.generate_meta(limit, offset, dialogs_qs.count())}
 
-    def _dialogs_messages_load(
-            self, user: User, dialog_id=None, limit=None, offset=None, **kwargs) -> typing.Optional[dict]:
+    def _dialogs_messages_load(self, user: User, dialog_id=None, limit=None, offset=None, **kwargs) -> t.Optional[dict]:
         """
         Получение всех сообщений диалога
         :param user: Пользователь, который загрузил чат
@@ -95,7 +98,7 @@ class DialogEvent(EmailNotificationMixin):
             return {'to': user, 'data': 'Не указан `dialog_id`', 'exception': True}
 
         dialog = Dialog.objects.filter(id=dialog_id).first()
-        if not dialog or user not in dialog.users.all():
+        if (not dialog or user not in dialog.users.all()) and not user.is_support:
             return {'to': user, 'data': 'Диалог не принадлежит пользователю', 'exception': True}
 
         messages = DialogMessage.objects.filter(dialog=dialog).order_by('-date_created')
@@ -110,7 +113,7 @@ class DialogEvent(EmailNotificationMixin):
         return {'data': messages, 'to': user, **self.generate_meta(limit, offset, messages_count)}
 
     @staticmethod
-    def _dialogs_messages_seen(user: User, dialog_id=None, message_id=None, **kwargs) -> typing.Optional[dict]:
+    def _dialogs_messages_seen(user: User, dialog_id=None, message_id=None, **kwargs) -> t.Optional[dict]:
         """
         Метод делает сообщение прочитанным
         :param user: Пользователь, который загрузил чат
@@ -122,7 +125,7 @@ class DialogEvent(EmailNotificationMixin):
 
         dialog = Dialog.objects.filter(id=dialog_id).first()
         dialog_users = dialog.users.all()
-        if not dialog or user not in dialog_users:
+        if (not dialog or user not in dialog_users) and not user.is_support:
             return {'to': user, 'data': 'Диалог не принадлежит пользователю', 'exception': True}
 
         message = DialogMessage.objects.get(id=message_id)
@@ -134,7 +137,7 @@ class DialogEvent(EmailNotificationMixin):
         return {'data': message, 'to': dialog_users}
 
     def _dialogs_messages_create(
-            self, user: User, dialog_id=None, body=None, file_id=None, **kwargs) -> typing.Optional[dict]:
+            self, user: User, dialog_id=None, body=None, file_id=None, lesson_id=None, **kwargs) -> t.Optional[dict]:
         """
         Создание сообщения
         Так же уведомляются все пользователи, которые есть в диалоге
@@ -142,11 +145,14 @@ class DialogEvent(EmailNotificationMixin):
         :param dialog_id: ID диалога
         :param body: Тело сообщения
         :param file_id: ID файла
+        :param lesson_id: ID урока, в котором задали вопрос
         :param kwargs: Дополнительные аргументы для создания сообщения
         :return: typing.Optional[dict]
         """
         dialog = Dialog.objects.filter(id=dialog_id).first()
-        if not dialog or user not in dialog.users.all():
+        dialog_users = dialog.users.all()
+
+        if (not dialog or user not in dialog_users) and not user.is_support:
             return {'to': user, 'data': 'Диалог не принадлежит пользователю', 'exception': True}
 
         if isinstance(file_id, int):
@@ -154,13 +160,20 @@ class DialogEvent(EmailNotificationMixin):
             if file.user != user:
                 return {'to': user, 'data': 'Файл не принадлежит пользователю', 'exception': True}
 
-        message = DialogMessage.objects.create(dialog_id=dialog_id, user=user, body=body, file_id=file_id)
+        message = DialogMessage.objects.create(
+            dialog_id=dialog_id, user=user, body=body, file_id=file_id, lesson_id=lesson_id
+        )
 
         context = {'user': user, 'base_url': kwargs.get('base_url')}
         message = DefaultDialogMessageSerializers(message, context=context).data
 
-        users_to_notification = set(dialog.users.all())
+        users_to_notification = set(dialog_users)
         users_to_email_notification = users_to_notification - {user}
+
+        # Если пользователь, который отправил сообщение прошел валидацию и его нет в диалогах, то это суппорт
+        # —> мы должны отправить в сокет дубликат сообщения
+        if user not in dialog_users:
+            users_to_notification |= {user}
 
         context = {**message, **model_to_dict(user), 'base_url': kwargs.get('base_url')}
 

@@ -2,6 +2,7 @@ from urllib.parse import urljoin
 
 from django.conf import settings
 from django.contrib.auth.tokens import default_token_generator
+from django.db import transaction
 from django.utils.encoding import force_bytes
 from django.utils.encoding import force_text
 from django.utils.http import urlsafe_base64_decode as uid_decoder
@@ -14,7 +15,7 @@ from sorl.thumbnail import get_thumbnail
 
 from courses.models import Course
 from courses_access.models import Access
-from dialogs.models import Dialog
+from dialogs.models import Dialog, DialogMessage
 from providers.tinkoff.contrib import Tinkoff
 from providers.tinkoff_credit.contrib import TinkoffCredit
 from users.models import User
@@ -61,7 +62,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
         Получение диалога с ревьюером. Если запрашиваемый юзер — работник сервиса, то возвращать ничего не нужно
         :param obj: Пользователь
         """
-        if obj.is_staff:
+        if obj.in_stuff_groups:
             return None
 
         dialog = obj.dialog_users_set.first()
@@ -123,7 +124,6 @@ class UserDialogSmallDetailSerializer(UserDetailSerializer):
 
     def to_representation(self, instance: User):
         data = super().to_representation(instance)
-
         # Пробрасываем корректный base_url из сокета
         data['avatar'] = '/'.join([
             item.lstrip('/') for item in [self.context.get('base_url'), data['avatar']]
@@ -255,24 +255,36 @@ class RegisterSerializer(rest_auth_registration_serializers.RegisterSerializer):
             1. Предоставление триал-версии к первому курсу
             2. Приставлен ревьюер-педагог
             3. Создан диалог с педагогом
+            4. Создан диалог с поддержкой
         :param request: Объект запроса
         """
-        user = super().save(request)
+        with transaction.atomic():
+            user = super().save(request)
 
-        course = Course.objects.order_by('id').first()
-        if course:
-            access, created = Access.objects.get_or_create(
-                user=user, course=course, status=Access.COURSE_ACCESS_TYPE_TRIAL
-            )
-            if created:
-                access.set_trial()
+            course = Course.objects.order_by('id').first()
+            if course:
+                access, created = Access.objects.get_or_create(
+                    user=user, course=course, status=Access.COURSE_ACCESS_TYPE_TRIAL
+                )
+                if created:
+                    access.set_trial()
 
-        educator = User.reviewers.get_less_busy_educator()
-        user.reviewer = educator
-        user.save()
+            educator = User.reviewers.get_less_busy_educator()
+            user.reviewer = educator
 
-        dialog = Dialog.objects.create()
-        dialog.users.add(user, educator)
-        dialog.save()
+            support = User.supports.get_less_busy_support()
+            user.support = support
+            user.save()
+
+            dialog_with_educator = Dialog.objects.create()
+            dialog_with_educator.users.add(user, educator)
+            dialog_with_educator.save()
+
+            dialog_with_support = Dialog.objects.create()
+            dialog_with_support.users.add(user, support)
+            dialog_with_support.save()
+
+            DialogMessage.objects.create_hello(dialog_with_educator, from_user=educator, student=user)
+            DialogMessage.objects.create_hello(dialog_with_support, from_user=support, student=user)
 
         return user
