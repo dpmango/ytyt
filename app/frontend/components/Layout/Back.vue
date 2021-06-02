@@ -36,7 +36,7 @@ export default {
     margin-right: 8px;
   }
   &:hover {
-    color: $fontColor;
+    color: $colorPrimaryHover;
   }
 }
 </style>
