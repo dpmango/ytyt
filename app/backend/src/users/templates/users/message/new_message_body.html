@@ -92,7 +92,7 @@
 						<tr>
 							<td align="center" valign="top" style="padding: 28px 0 28px;">
 								<a href="#" target="_blank" style="text-decoration: none;">
-									<img src="{{ base_url }}{% static 'template_images/logo.png' %}" width="121" height="50" border="0" alt="Logo" style="vertical-align: top; margin: 0; padding: 0; border: none; line-height: 100%; outline: none; text-decoration: none;" />
+									<img src="{{ base_url }}{% static 'template_images/logo.svg' %}" width="121" height="50" border="0" alt="Logo" style="vertical-align: top; margin: 0; padding: 0; border: none; line-height: 100%; outline: none; text-decoration: none;" />
 								</a>
 							</td>
 						</tr>
@@ -112,7 +112,7 @@
 															<tr>
 																<td width="480" align="center" valign="top">
 																	<div style="font-size: 28px; line-height: 38px; font-family: 'Roboto', Arial, sans-serif; color: #171818; font-weight: 700;">
-																		Получено новое сообщение от&nbsp;<span>{{ first_name }} {{ last_name }}</span>
+																		Получено новое сообщение от&nbsp;<span>{{ from.first_name }} {{ from.last_name }}</span>
 																	</div>
 																</td>
 															</tr>
@@ -124,7 +124,7 @@
 												<tr>
 													<td align="center" valign="top" style="padding: 0 0 24px;">
 														<div style="font-size: 18px; line-height: 27px; font-family: 'Roboto', Arial, sans-serif; color: #171818; font-weight: 400;">
-															{{ body }}
+															{{ message.body }}
 														</div>
 													</td>
 												</tr>
