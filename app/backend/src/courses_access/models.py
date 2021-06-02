@@ -534,6 +534,22 @@ class Access(models.Model):
             self._struct_to_object(**item) for item in to_struct if item['status'] in self.AVAILABLE_STATUSES
         ]
 
+    def get_objects(self, to_struct: str) -> list:
+        """
+        Метод вернет все объекты указанной структуры
+        Доступыне стурктуры:
+            - Course
+            - CourseTheme
+            - CourseLesson
+            - LessonFragment
+        :param to_struct: Название структуры
+        """
+        to_struct = to_snake_case(to_struct)
+
+        if to_struct == 'course':
+            return [self]
+        return [self._struct_to_object(**item) for item in getattr(self, to_struct, [])]
+
     @force_int_pk
     def get_status(self, to_struct: str, pk: int) -> int:
         """

@@ -13,15 +13,18 @@ class Command(BaseCommand):
         groups_sync = getattr(permissions, 'GROUPS_SYNC_DEFAULTS_EMAILS')
 
         for group_id, default_email in groups_sync.items():
-            logger.info('sync default group_id=%s, email=%s' % (group_id, default_email))
+            group = Group.objects.get(id=group_id)
+            logger.info('sync default group_id=%s, group_name=%s, email=%s' % (group_id, group, default_email))
 
-            if User.objects.filter(groups__in=[Group.objects.get(id=group_id)]).exists():
+            if User.objects.filter(groups__in=[group]).exists():
                 continue
 
-            user = User.objects.create(
+            user, is_created = User.objects.get_or_create(
                 email=default_email,
                 is_staff=True,
                 is_active=True
             )
-            user.set_password(default_email.split('@')[0])
-            user.save()
+            if is_created:
+                user.set_password(default_email.split('@')[0])
+                user.groups.add(group)
+                user.save()

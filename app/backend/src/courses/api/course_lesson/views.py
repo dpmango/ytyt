@@ -1,16 +1,23 @@
 from rest_framework import viewsets
 
 from api.mixins import (
-    FlexibleSerializerModelViewSetMixin, ParamsAutoFilterModelViewSetMixin
+    FlexibleSerializerModelViewSetMixin,
+    ParamsAutoFilterModelViewSetMixin,
+    PermissionsByActionModelViewSetMixin,
 )
 from courses.api.course_lesson.serializers import (
     DefaultCourseLessonSerializers, DetailCourseLessonSerializers
 )
 from courses.models import CourseLesson
-from courses_access.permissions import CourseLessonAccessPermissions
+from courses_access.permissions import (
+    CourseLessonAccessPermissions,
+    CourseThemeAccessPermissions,
+    IsInStuffGroups,
+)
 
 
 class CourseLessonViewSet(FlexibleSerializerModelViewSetMixin,
+                          PermissionsByActionModelViewSetMixin,
                           ParamsAutoFilterModelViewSetMixin,
                           viewsets.ReadOnlyModelViewSet):
     lookup_mapping = {
@@ -18,7 +25,11 @@ class CourseLessonViewSet(FlexibleSerializerModelViewSetMixin,
     }
 
     queryset = CourseLesson.objects.all()
-    permission_classes = (CourseLessonAccessPermissions, )
+    permission_classes = (IsInStuffGroups | CourseLessonAccessPermissions, )
+    permission_classes_by_action = {
+        'list': (IsInStuffGroups | CourseThemeAccessPermissions, ),
+        'retrieve': (IsInStuffGroups | CourseLessonAccessPermissions, )
+    }
 
     serializers = {
         'default': DefaultCourseLessonSerializers,

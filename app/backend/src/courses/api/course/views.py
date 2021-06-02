@@ -1,5 +1,5 @@
 from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticated
 
 from api.mixins import FlexibleSerializerModelViewSetMixin
 from courses.api.course.serializers import (
@@ -13,7 +13,7 @@ class CourseViewSet(FlexibleSerializerModelViewSetMixin,
                     viewsets.ReadOnlyModelViewSet):
 
     queryset = Course.objects.all()
-    permission_classes = (IsAuthenticatedOrReadOnly, )
+    permission_classes = (IsAuthenticated, )
 
     serializers = {
         'default': DefaultCourseSerializers,

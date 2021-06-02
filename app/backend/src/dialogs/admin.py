@@ -9,5 +9,5 @@ class DialogAdmin(admin.ModelAdmin):
 
 @admin.register(DialogMessage)
 class DialogMessageAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('user', 'dialog', 'lesson', 'body',)
 

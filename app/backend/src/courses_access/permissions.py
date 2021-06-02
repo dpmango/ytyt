@@ -5,29 +5,39 @@ from courses.models import Course, CourseTheme, CourseLesson, LessonFragment
 from courses_access.models import Access
 
 
-class CourseLessonAccessPermissions(perm.BasePermission):
-    
+class IsInStuffGroups(perm.BasePermission):
     def has_permission(self, request, view) -> bool:
         """
-        Проверка доступа юзера к уроку
-        Этапы проверки:
-            1. Проверка на суперюзера/админа
-            2. Проверка на детализацию (Если не запрашивают детализацию урока, то все ок)
-            3. Наличие авторизации юзера
-            4. Проверка доступа к курсу
-            5. Проверка доступа к теме курса
-            6. Проверка доступа к уроку
+        Метод проверяет наличие пользователя в одной из доверенных групп
+        is_staff=True у пользователя НЕ является обязательным
         :param request: Объект запроса
         :param view: Вьюха соответсвующая запросу
         """
         user = request.user
-        if user and (user.is_mentor or user.is_educator or user.is_support or user.is_superuser):
+        is_authenticated = bool(user and user.is_authenticated)
+
+        if not is_authenticated:
+            raise exceptions.PermissionDenied('Для доступа необходимо быть авторизованным')
+
+        if user and user.in_stuff_groups:
             return True
 
-        is_detail = view.detail
-        if not is_detail and request.method in perm.SAFE_METHODS:
-            return True
+        return False
 
+
+class CourseThemeAccessPermissions(perm.BasePermission):
+    def has_permission(self, request, view) -> bool:
+        """
+        Проверка доступа юзера к теме
+        Этапы проверки:
+            1. Проверка на суперюзера/админа
+            2. Наличие авторизации юзера
+            3. Проверка доступа к курсу
+            4. Проверка доступа к теме курса
+        :param request: Объект запроса
+        :param view: Вьюха соответсвующая запросу
+        """
+        user = request.user
         is_authenticated = bool(user and user.is_authenticated)
         if not is_authenticated:
             raise exceptions.PermissionDenied('Для доступа необходимо быть авторизованным')
@@ -49,6 +59,24 @@ class CourseLessonAccessPermissions(perm.BasePermission):
 
             detail = 'У вас нет доступа к теме `%s`' % CourseTheme.objects.get(pk=course_theme_id).title
             raise exceptions.PermissionDenied({'detail': detail, **access.get_block_reason()})
+        return True
+
+
+class CourseLessonAccessPermissions(CourseThemeAccessPermissions):
+    def has_permission(self, request, view) -> bool:
+        """
+        Проверка доступа юзера к уроку
+        Этапы проверки:
+            1-4. Проверки из класса `CourseThemeAccessPermissions`
+            5. Проверка доступа к уроку
+        :param request: Объект запроса
+        :param view: Вьюха соответсвующая запросу
+        """
+        super().has_permission(request, view)
+        user = request.user
+
+        course_id = view.kwargs.get('course_id')
+        access = Access.objects.filter(course_id=course_id, user=user).first()
 
         course_lesson_id = view.kwargs.get('pk')
         course_lesson_permission = access.check_course_lesson_permission(pk=course_lesson_id)
@@ -59,26 +87,21 @@ class CourseLessonAccessPermissions(perm.BasePermission):
 
             detail = 'У вас нет доступа к уроку `%s`' % CourseLesson.objects.get(pk=course_lesson_id).title
             raise exceptions.PermissionDenied({'detail': detail, **access.get_block_reason()})
-
         return True
 
 
 class LessonFragmentAccessPermissions(CourseLessonAccessPermissions):
-
     def has_permission(self, request, view) -> bool:
         """
         Проверка доступа юзера к фрагменту урока
         Этапы проверки:
-            1-6. Проверки из класса `CourseLessonAccessPermissions`
-            7. Проверка доступа к фрагменту
+            1-5. Проверки из класса `CourseLessonAccessPermissions`
+            6. Проверка доступа к фрагменту
         :param request: Объект запроса
         :param view: Вьюха соответсвующая запросу
         :return:
         """
         user = request.user
-        if user and (user.is_mentor or user.is_educator or user.is_support or user.is_superuser):
-            return True
-
         lesson_fragment_id = view.kwargs.get('pk')
 
         lesson_fragment = LessonFragment.objects.get(pk=lesson_fragment_id)

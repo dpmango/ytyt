@@ -19,6 +19,8 @@ class AccessBaseSerializers(serializers.ModelSerializer):
         :param obj: Объект из courses-app
         """
         user = self.context.get('user')
+        if user.in_stuff_groups:
+            return Access.STATUS_AVAILABLE
 
         to_struct = obj.__class__.__name__
         course_id = get_course_from_struct(obj)
