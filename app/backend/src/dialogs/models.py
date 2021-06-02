@@ -19,6 +19,9 @@ class Dialog(models.Model):
         related_query_name="dialog_users",
     )
 
+    def __str__(self) -> str:
+        return ' | '.join(map(lambda user: '(%s)%s' % (user.id, user.email), self.users.all()))
+
 
 class DialogMessageManager(models.Manager):
 

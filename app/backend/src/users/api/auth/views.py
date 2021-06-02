@@ -12,7 +12,6 @@ from rest_framework import exceptions
 from providers.mailgun.mixins import EmailNotificationMixin
 from users.models import User
 from users.serializers import PasswordResetSerializer
-from django.conf import settings
 
 sensitive_post_parameters_m = method_decorator(
     sensitive_post_parameters(
@@ -41,7 +40,6 @@ class PasswordResetView(GenericAPIView, EmailNotificationMixin):
             **super().get_serializer_context(),
             'domain': current_site.netloc,
             'protocol': current_site.scheme,
-            'base_front_url': settings.BASE_FRONT_URL,
         }
 
     def post(self, request, *args, **kwargs):

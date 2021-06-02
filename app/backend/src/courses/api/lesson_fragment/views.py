@@ -7,14 +7,14 @@ from api.mixins import FlexibleSerializerModelViewSetMixin
 from courses.api.lesson_fragment.serializers import DetailLessonFragmentSerializers
 from courses.models import CourseTheme, LessonFragment
 from courses_access.models import Access
-from courses_access.permissions import LessonFragmentAccessPermissions
+from courses_access.permissions import LessonFragmentAccessPermissions, IsInStuffGroups
 
 
 class LessonFragmentViewSet(FlexibleSerializerModelViewSetMixin,
                             viewsets.GenericViewSet):
 
     queryset = LessonFragment.objects.all()
-    permission_classes = (LessonFragmentAccessPermissions, )
+    permission_classes = (IsInStuffGroups | LessonFragmentAccessPermissions, )
     serializers = {
         'default': DetailLessonFragmentSerializers,
     }

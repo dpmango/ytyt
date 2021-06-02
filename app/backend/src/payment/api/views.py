@@ -4,14 +4,16 @@ from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
-from api.mixins import FlexibleSerializerModelViewSetMixin
+from api.mixins import FlexibleSerializerModelViewSetMixin, PermissionsByActionModelViewSetMixin
 from payment.api.serializers import InitCreationSerializer, InitCreditCreationSerializer
 from payment.layout.tinkoff import PaymentLayout
 from payment.layout.tinkoff_credit import PaymentCreditLayout
 from payment.models import Payment
 
 
-class PaymentViewSet(FlexibleSerializerModelViewSetMixin, viewsets.GenericViewSet):
+class PaymentViewSet(PermissionsByActionModelViewSetMixin,
+                     FlexibleSerializerModelViewSetMixin,
+                     viewsets.GenericViewSet):
 
     queryset = Payment.objects.all()
 
@@ -90,9 +92,3 @@ class PaymentViewSet(FlexibleSerializerModelViewSetMixin, viewsets.GenericViewSe
             **super().get_serializer_context(),
             'user': self.request.user,
         }
-
-    def get_permissions(self):
-        try:
-            return [permission() for permission in self.permission_classes_by_action[self.action]]
-        except KeyError:
-            return [permission() for permission in self.permission_classes]

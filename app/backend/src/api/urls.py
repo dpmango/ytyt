@@ -27,7 +27,7 @@ router.register(r'lessons-fragments', LessonFragmentViewSet, basename='lessons-f
 
 
 urlpatterns = [
-    re_path('api/feedback/', feedback),
+    re_path('^api/feedback/', feedback, name='feedback'),
     path('api/', include(router.urls)),
 
     re_path(r'^rest-auth/token-refresh/$', refresh_jwt_token),
