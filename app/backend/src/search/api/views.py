@@ -1,5 +1,5 @@
 from django.db.models import Q
-from drf_yasg.openapi import Parameter, IN_QUERY, TYPE_STRING, TYPE_INTEGER
+from drf_yasg.openapi import Parameter, IN_QUERY, TYPE_STRING
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated
@@ -29,7 +29,6 @@ class SearchViewSet(FlexibleSerializerModelViewSetMixin,
     @swagger_auto_schema(
         manual_parameters=[
             Parameter('text', IN_QUERY, type=TYPE_STRING),
-            Parameter('limit', IN_QUERY, type=TYPE_INTEGER),
         ]
     )
     def list(self, request, *args, **kwargs):
@@ -46,7 +45,6 @@ class SearchViewSet(FlexibleSerializerModelViewSetMixin,
                 {'detail': 'Нет доступов к курсу. Отсутствует access-модель'}, status=status.HTTP_400_BAD_REQUEST
             )
 
-        limit = request.query_params.get('limit') or 5
         query_text = request.query_params.get('text', '')
 
         if len(query_text) == 0:
@@ -80,4 +78,4 @@ class SearchViewSet(FlexibleSerializerModelViewSetMixin,
         queryset = queryset.select_related(
             'course_lesson', 'course_lesson__course_theme', 'course_lesson__course_theme__course'
         )
-        return Response(self.get_serializer(queryset[:limit], many=True).data, status=status.HTTP_200_OK)
+        return Response(self.get_serializer(queryset, many=True).data, status=status.HTTP_200_OK)
