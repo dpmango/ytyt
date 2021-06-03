@@ -1,8 +1,9 @@
 from django.conf import settings
 from django.template import loader
-
-from providers.tasks import send_mail, send_file
 from loguru import logger
+
+from constants.context import base_custom_context
+from providers.tasks import send_mail, send_file
 
 
 class EmailNotificationMixin:
@@ -30,6 +31,7 @@ class EmailNotificationMixin:
         logger.debug('[send_mail] to=%s, context=%s ' % (to, context,))
 
         to = to if to is not None else settings.DEFAULT_ADMIN_EMAIL
+        context = {**(context or {}), **base_custom_context()}
         kwargs = {}
 
         if self.subject_template_name:
