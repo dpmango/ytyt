@@ -19,11 +19,23 @@
 
 <script>
 export default {
-  data() {
-    return {
-      paymentStart: false,
-      paymentModal: false,
-    };
+  computed: {
+    paymentStart: {
+      get() {
+        return this.$store.state.ui.modalPaymentStart;
+      },
+      set(value) {
+        this.$store.commit('ui/setModalPaymentStart', value);
+      },
+    },
+    paymentModal: {
+      get() {
+        return this.$store.state.ui.modalPaymentModal;
+      },
+      set(value) {
+        this.$store.commit('ui/setModalPaymentModal', value);
+      },
+    },
   },
   methods: {
     // modalClosed() {

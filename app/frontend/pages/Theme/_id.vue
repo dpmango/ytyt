@@ -9,8 +9,7 @@ export default {
     const handleError = (err) => {
       if (err.code === 403) {
         context.redirect('/course');
-        console.log(context);
-        // context.$modal.show('paymentStart');
+        store.commit('ui/setModalPaymentStart', true);
       }
     };
 
