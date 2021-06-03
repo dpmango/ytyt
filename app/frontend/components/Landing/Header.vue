@@ -2,8 +2,7 @@
   <header class="header hero__header">
     <div class="header__container container">
       <div class="header__logo">
-        <img src="~assets/landing/img/logo.svg" alt="YTYT Logo" />
-        <img src="~assets/landing/img/logo-mobile.png" class="mobile" alt="YTYT Logo" />
+        <img src="~assets/landing/img/logo.png" srcset="~assets/landing/img/logo@2x.png 2x" alt="YTYT Logo" />
       </div>
       <div class="header__menu menu">
         <div class="menu__icon">
@@ -17,7 +16,7 @@
             <li class="menu__item"><a data-goto=".price" href="#" class="menu__link">Стоимость</a></li>
             <li class="menu__item"><a data-goto=".footer" href="#" class="menu__link">Контакты</a></li>
             <li class="menu__item">
-              <NuxtLink to="/auth/signup" class="menu__link">
+              <NuxtLink to="/auth/login" class="menu__link">
                 <UiSvgIcon name="login" />
                 <span>Войти</span>
               </NuxtLink>
@@ -85,9 +84,6 @@ export default {
 
   &__logo {
     z-index: 5;
-    .mobile {
-      display: none;
-    }
   }
 }
 
@@ -141,10 +137,7 @@ export default {
     padding-top: 15px;
     &__logo {
       img {
-        display: none;
-      }
-      .mobile {
-        display: block;
+        max-width: 70px;
       }
     }
   }

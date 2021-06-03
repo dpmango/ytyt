@@ -242,6 +242,9 @@ body._lock {
     &.swiper-button-disabled {
       opacity: 0.3;
     }
+    &:hover {
+      filter: brightness(87%);
+    }
   }
   .slider-button-next {
     background-image: url('~assets/landing/img/arrow-right.svg');
@@ -251,6 +254,9 @@ body._lock {
     transition: 0.2s;
     &.swiper-button-disabled {
       opacity: 0.3;
+    }
+    &:hover {
+      filter: brightness(87%);
     }
   }
   @keyframes button-shadow {

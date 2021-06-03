@@ -55,11 +55,13 @@
     padding-left: 28px;
     box-shadow: 0 0 0 72px rgba($colorPrimary, 0.6), 0 0 0 48px rgba($colorPrimary, 0.7),
       0 0 0 24px rgba($colorPrimary, 0.8);
+    animation-name: end-shadow;
+    animation-duration: 0.8s;
+    animation-direction: alternate;
+    animation-fill-mode: both;
     &:hover {
       animation-name: start-shadow;
-      animation-duration: 0.8s;
       animation-iteration-count: infinite;
-      animation-direction: alternate;
       @include r($lg) {
         animation-name: none;
       }
@@ -137,6 +139,17 @@
   100% {
     box-shadow: 0 0 0 78px rgba($colorPrimary, 0.4), 0 0 0 54px rgba($colorPrimary, 0.5),
       0 0 0 30px rgba($colorPrimary, 0.6);
+  }
+}
+
+@keyframes end-shadow {
+  0% {
+    box-shadow: 0 0 0 78px rgba($colorPrimary, 0.4), 0 0 0 54px rgba($colorPrimary, 0.5),
+      0 0 0 30px rgba($colorPrimary, 0.6);
+  }
+  100% {
+    box-shadow: 0 0 0 72px rgba($colorPrimary, 0.6), 0 0 0 48px rgba($colorPrimary, 0.7),
+      0 0 0 24px rgba($colorPrimary, 0.8);
   }
 }
 </style>
