@@ -6,7 +6,12 @@
     :class="[isIncoming ? 'message--incoming' : 'message--outcoming']"
   >
     <div class="message__wrapper">
-      <div ref="content" class="message__content markdown-body" :class="[isIncoming && 'dark']" v-html="message.body" />
+      <div
+        ref="content"
+        class="message__content markdown-body"
+        :class="[isIncoming && 'dark', isSingleLine && 'is-single-line']"
+        v-html="message.body"
+      />
       <div class="message__meta">
         <div class="message__time">{{ timestamp }}</div>
         <div v-if="message.date_read" class="message__seen">
@@ -33,6 +38,9 @@ export default {
     timestamp() {
       return timeToTimeStamp(this.message.date_created);
     },
+    isSingleLine() {
+      return this.message.body && this.message.body.length <= 45;
+    },
     ...mapGetters('auth', ['user']),
   },
   mounted() {
@@ -51,14 +59,18 @@ export default {
   display: flex;
   &__wrapper {
     position: relative;
-    padding: 14px 16px;
-    max-width: 600px;
+    padding: 14px 16px 7px;
+    max-width: 440px;
     background: #fff;
     box-shadow: 0 6px 24px -4px rgba(23, 24, 24, 0.1);
     border-radius: 8px;
   }
   &__content {
     font-size: 15px;
+    &.is-single-line {
+      padding-right: 44px;
+      margin-bottom: -14px;
+    }
     ::v-deep code {
       border-radius: 8px;
     }

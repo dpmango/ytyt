@@ -27,7 +27,7 @@
               <div class="card__description">{{ lesson.description }}</div>
             </div>
             <div class="card__status">
-              <CoursePartStatus :status="lesson.status" />
+              <CoursePartStatus :is-theme="true" :status="lesson.status" />
             </div>
           </NuxtLink>
         </div>

@@ -24,7 +24,7 @@ export default {
 .back {
   display: inline-flex;
   align-items: center;
-  font-size: 14px;
+  font-size: 15px;
   color: $colorPrimary;
   cursor: pointer;
   transition: color 0.25s $ease;

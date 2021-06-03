@@ -26,10 +26,10 @@ body, html {
   -moz-osx-font-smoothing: grayscale;
 }
 
-::selection {
-  color: white;
-  background: $colorPrimary;
-}
+// ::selection {
+//   color: white;
+//   background: $colorPrimary;
+// }
 
 .is-ios {
   cursor: pointer;

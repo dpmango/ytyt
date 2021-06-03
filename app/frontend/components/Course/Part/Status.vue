@@ -30,9 +30,16 @@ import { mapGetters } from 'vuex';
 export default {
   props: {
     status: Number,
+    isTheme: Boolean,
   },
   computed: {
     constant() {
+      if (this.isTheme && this.status === 1) {
+        return {
+          ...this.getConstantById(this.status),
+          ...{ title: 'Доступно' },
+        };
+      }
       return this.getConstantById(this.status);
     },
     ...mapGetters('constants', ['getConstantById']),

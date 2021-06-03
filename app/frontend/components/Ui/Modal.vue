@@ -46,9 +46,6 @@ export default {
   &.narrow {
     max-width: 420px;
     padding: 32px 30px;
-    .modal__close {
-      display: none;
-    }
   }
 }
 

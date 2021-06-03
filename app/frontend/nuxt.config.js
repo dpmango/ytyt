@@ -85,7 +85,7 @@ export default {
   },
 
   toast: {
-    position: 'bottom-right',
+    position: 'top-right',
   },
 
   router: {

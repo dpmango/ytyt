@@ -43,9 +43,7 @@
 
                   <div class="lesson__actions">
                     <UiButton @click.prevent="setNextFragment">Продолжить</UiButton>
-                    <UiButton v-if="user.dialog" theme="outline" @click="handleQuestionClick">
-                      Задать вопрос куратору
-                    </UiButton>
+                    <UiButton v-if="user.dialog" theme="outline" @click="handleQuestionClick"> Задать вопрос </UiButton>
                   </div>
                 </div>
               </template>
@@ -279,7 +277,7 @@ export default {
       }
     },
     handleQuestionClick() {
-      this.isChatOpened = true;
+      this.isChatOpened = !this.isChatOpened;
       // this.$router.push(`/messages?id=${this.user.dialog.id}`);
     },
     handleClickBack() {
@@ -324,6 +322,9 @@ export default {
   }
   &__body {
     padding: 20px;
+  }
+  &__body > ::v-deep * {
+    max-width: 640px;
   }
   &__actions {
     padding: 20px;

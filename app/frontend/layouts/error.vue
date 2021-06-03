@@ -13,7 +13,7 @@
           </template>
 
           <div class="error__cta">
-            <NuxtLink to="/">
+            <NuxtLink to="/course">
               <UiButton theme="primary">Вернуться на главную</UiButton>
             </NuxtLink>
           </div>

@@ -335,7 +335,7 @@ export default {
 // mini chat
 .chat.is-mini {
   position: fixed;
-  z-index: 9;
+  z-index: 999;
   top: 0;
   right: 0;
   bottom: 0;
@@ -360,8 +360,8 @@ export default {
       flex-basis: 100%;
       max-width: 100%;
       height: 100vh;
-      padding-top: 56px;
-      background: #eef0f2;
+      padding-top: 0;
+      background: #fafafa;
       .messages {
         padding-left: 16px;
         padding-right: 16px;

@@ -88,7 +88,7 @@ export default {
 }
 
 .CodeMirror {
-  padding: 8px 16px 8px 16px;
+  padding: 8px 16px 8px 0;
   border: 0;
 }
 
