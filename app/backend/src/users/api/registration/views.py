@@ -1,5 +1,3 @@
-from urllib.parse import urlparse
-
 from allauth.account import app_settings as allauth_settings
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
@@ -67,12 +65,3 @@ class VerifyEmailView(CreateAPIView, UpdateAPIView, EmailNotificationMixin):
 
         data = {'detail': 'Email подтвержден'}
         return Response(data, status=status.HTTP_200_OK)
-
-    def get_serializer_context(self):
-        current_site = urlparse(self.request.build_absolute_uri(''))
-
-        return {
-            **super().get_serializer_context(),
-            'domain': current_site.netloc,
-            'protocol': current_site.scheme,
-        }

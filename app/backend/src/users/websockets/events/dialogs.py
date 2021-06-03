@@ -176,7 +176,7 @@ class DialogEvent(EmailNotificationMixin):
             users_to_notification |= {user}
 
         email_to = list(users_to_email_notification)[0].email if len(users_to_email_notification) == 1 else 'None@admin'
-        context = {'message': message, 'from': user, 'email': email_to, 'base_url': kwargs.get('base_url')}
+        context = {'message': message, 'from': user, 'email': email_to}
 
         for _user in users_to_email_notification:
             if _user.email_notifications:

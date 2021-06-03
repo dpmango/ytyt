@@ -171,10 +171,7 @@ class PasswordResetSerializer(serializers.Serializer):
         context = {
             'email': user.email,
             'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-            'user': user,
             'token': default_token_generator.make_token(user),
-            'domain': self.context['domain'],
-            'protocol': self.context['protocol'],
         }
 
         return {'to': user.email, 'context': context}
@@ -202,11 +199,9 @@ class VerifyEmailSerializer(serializers.Serializer):
     def to_representation(self, instance: User):
         context = {
             'email': instance.email,
+            'first_name': instance.first_name,
             'uid': urlsafe_base64_encode(force_bytes(instance.pk)),
-            'user': instance,
             'token': default_token_generator.make_token(instance),
-            'domain': self.context['domain'],
-            'protocol': self.context['protocol'],
         }
 
         return {'to': instance.email, 'context': context}

@@ -1,5 +1,3 @@
-from urllib.parse import urlparse
-
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.debug import sensitive_post_parameters
@@ -32,15 +30,6 @@ class PasswordResetView(GenericAPIView, EmailNotificationMixin):
 
     subject_template_name = 'users/password/password_reset_subject.txt'
     email_template_name = 'users/password/password_reset_body.html'
-
-    def get_serializer_context(self):
-        current_site = urlparse(self.request.build_absolute_uri(''))
-
-        return {
-            **super().get_serializer_context(),
-            'domain': current_site.netloc,
-            'protocol': current_site.scheme,
-        }
 
     def post(self, request, *args, **kwargs):
         """
