@@ -110,6 +110,7 @@ export default {
     @include text-overflow;
   }
   &__indicator {
+    flex: 0 0 auto;
     width: 20px;
     height: 20px;
     display: flex;
