@@ -1,12 +1,17 @@
 from django.utils.decorators import method_decorator
-from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.debug import sensitive_post_parameters
-from rest_auth.views import UserDetailsView as UserDetailsViewBase
+from rest_auth.views import (
+    UserDetailsView as UserDetailsViewBase,
+    PasswordResetConfirmView,
+    PasswordChangeView,
+    LoginView
+)
+from rest_framework import exceptions
 from rest_framework import status
 from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from rest_framework import exceptions
+
 from providers.mailgun.mixins import EmailNotificationMixin
 from users.models import User
 from users.serializers import PasswordResetSerializer
@@ -40,9 +45,10 @@ class PasswordResetView(GenericAPIView, EmailNotificationMixin):
         serializer.is_valid(raise_exception=True)
 
         self.send_mail(**serializer.save())
+        email = serializer.validated_data.get('email')
 
         return Response(
-            {"detail": _("Password reset e-mail has been sent.")},
+            {"detail": f'Ссылка для восстановления пароля отправлена на {email}.'},
             status=status.HTTP_200_OK
         )
 
@@ -57,4 +63,24 @@ class UserDetailsView(UserDetailsViewBase):
         try:
             return self.queryset.get(pk=self.request.user.pk)
         except User.DoesNotExist:
-            raise exceptions.NotFound('такого пользователя не существует')
+            raise exceptions.NotFound('Такого пользователя не существует.')
+
+
+class PasswordResetConfirmViewCustom(PasswordResetConfirmView):
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response({'detail': 'Пароль изменён на новый.'})
+
+
+class PasswordChangeViewCustom(PasswordChangeView):
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response({'detail': 'Новый пароль сохранён.'})
+
+
+class LoginViewCustom(LoginView):
+    pass

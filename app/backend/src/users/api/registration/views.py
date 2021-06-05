@@ -52,7 +52,7 @@ class VerifyEmailView(CreateAPIView, UpdateAPIView, EmailNotificationMixin):
         serializer = self.get_serializer(request.user)
         self.send_mail(**serializer.data)
 
-        data = {'detail': 'Письмо для подтверждения email выслано'}
+        data = {'detail': f'Письмо с подтверждением отправлено на {request.user.email}.'}
         return Response(data, status=status.HTTP_200_OK)
 
     def patch(self, request, *args, **kwargs):
