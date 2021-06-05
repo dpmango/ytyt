@@ -14,8 +14,17 @@
       />
       <div class="message__meta">
         <div class="message__time">{{ timestamp }}</div>
-        <div v-if="message.date_read" class="message__seen">
+        <!-- <div v-if="message.date_read" class="message__seen">
           <UiSvgIcon name="checkmark" />
+        </div> -->
+      </div>
+      <div class="message__more">
+        <div class="message__more-trigger" @click="handleExpandedClick">
+          <UiSvgIcon name="more-dots" />
+        </div>
+        <div class="message__more-actions" :class="[isMoreExpanded && 'is-active']">
+          <a @click="handleReplyClick">Ответить</a>
+          <a @click="handleCopyClick">Скопировать</a>
         </div>
       </div>
     </div>
@@ -24,19 +33,24 @@
 
 <script>
 import { mapGetters } from 'vuex';
-import { timeToTimeStamp } from '~/helpers/Date';
+import { timeToHHMM } from '~/helpers/Date';
 
 export default {
   name: 'ChatMessages',
   props: {
     message: Object,
   },
+  data() {
+    return {
+      isMoreExpanded: false,
+    };
+  },
   computed: {
     isIncoming() {
       return this.message.user.id === this.user.id;
     },
     timestamp() {
-      return timeToTimeStamp(this.message.date_created);
+      return timeToHHMM(this.message.date_created);
     },
     isSingleLine() {
       return this.message.body && this.message.body.length <= 45;
@@ -50,12 +64,39 @@ export default {
       });
     }
   },
+  methods: {
+    handleExpandedClick(e) {
+      this.isMoreExpanded = !this.isMoreExpanded;
+    },
+    handleReplyClick() {},
+    handleCopyClick() {
+      const textArea = document.createElement('textarea');
+      textArea.value = this.message.body;
+      textArea.style.opacity = '0';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+
+      try {
+        const successful = document.execCommand('copy');
+        if (successful) {
+          this.$toast.global.default({ message: 'Сообщение успешно скопировано ' });
+        } else {
+          this.$toast.global.error({ message: 'Ошибка! Сообщение не скопировано ' });
+        }
+      } catch (err) {
+        this.$toast.global.error({ message: `Ошибка! ${err.message}` });
+      }
+
+      document.body.removeChild(textArea);
+    },
+  },
 };
 </script>
 
 <style lang="scss" scoped>
 .message {
-  margin: 4px 0;
+  margin: 8px 0;
   display: flex;
   &__wrapper {
     position: relative;
@@ -69,6 +110,7 @@ export default {
     font-size: 15px;
     &.is-single-line {
       padding-right: 44px;
+      // padding-right: 60px;
       margin-bottom: -14px;
     }
     ::v-deep code {
@@ -94,17 +136,70 @@ export default {
       font-size: 8px;
     }
   }
+  &__more {
+    position: absolute;
+    right: 4px;
+    top: 8px;
+    opacity: 0;
+    transition: opacity 0.25s $ease;
+  }
+  &__more-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    min-height: 20px;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  &__more-actions {
+    position: absolute;
+    left: 0;
+    top: 100%;
+    z-index: 2;
+    background: #fff;
+    border-radius: 8px;
+    padding: 8px;
+    color: $fontColor;
+    box-shadow: 0 6px 24px -4px rgba(23, 24, 24, 0.04);
+    opacity: 0;
+    will-change: opacity;
+    transition: opacity 0.25s $ease;
+    &.is-active {
+      opacity: 1;
+    }
+    a {
+      display: block;
+      padding: 8px;
+      font-size: 15px;
+      cursor: pointer;
+      transition: color 0.25s $ease;
+      &:hover {
+        color: $colorPrimary;
+      }
+    }
+  }
+  &:hover {
+    .message {
+      &__more {
+        opacity: 1;
+      }
+    }
+  }
   &--incoming {
-    justify-content: flex-end;
-    padding-left: 24px;
+    justify-content: flex-start;
+    padding-right: 24px;
     .message__wrapper {
-      background: #1e88e5;
+      background: $colorPrimary;
       color: white;
     }
   }
   &--outcoming {
     justify-content: flex-start;
     padding-right: 24px;
+    .message__more-trigger {
+      color: $colorPrimary;
+    }
   }
 }
 </style>

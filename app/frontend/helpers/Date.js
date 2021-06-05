@@ -22,7 +22,7 @@ export const timeToTimeStamp = (time) => {
 };
 
 export const timeToHHMM = (time) => {
-  return djs(time * 1000).format('HH:mm');
+  return djs(time).format('HH:mm');
 };
 
 export const HHMMtoSeconds = (str) => {
