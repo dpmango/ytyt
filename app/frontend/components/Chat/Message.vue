@@ -47,6 +47,15 @@ export default {
   },
   computed: {
     isIncoming() {
+      const isSupportMessage = this.message.user.is_support && this.user.is_support;
+
+      if (this.user.is_support) {
+        if (isSupportMessage) {
+          return true;
+        }
+        return false;
+      }
+
       return this.message.user.id === this.user.id;
     },
     timestamp() {
