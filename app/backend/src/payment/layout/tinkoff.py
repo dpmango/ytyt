@@ -10,6 +10,7 @@ from courses_access.models import Access
 from payment.layout.core import Layout
 from payment.models import Payment
 from providers.tinkoff.contrib import Tinkoff, tinkoff_client
+from users.shortcuts import replace_educator_to_reviewer
 
 __all__ = ('PaymentLayout', )
 
@@ -150,7 +151,7 @@ class PaymentLayout(Layout):
             payment.save(update_fields=['status', 'date_updated', 'date_payment'])
 
             # Переназначаем ревьюера
-            payment.user.re_elect_reviewer()
+            replace_educator_to_reviewer(payment.user)
 
             # Предоставляем доступ к курсу
             access = payment.user.access_set.filter(course=payment.course).first()

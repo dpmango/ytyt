@@ -10,6 +10,7 @@ from payment.layout.core import Layout
 from payment.models import PaymentCredit
 from providers.mailgun.mixins import EmailNotification
 from providers.tinkoff_credit.contrib import tinkoff_credit_client, TinkoffCredit
+from users.shortcuts import replace_educator_to_reviewer
 
 __all__ = ('PaymentCreditLayout', )
 
@@ -59,7 +60,7 @@ class PaymentCreditLayout(Layout):
             payment_credit.save(update_fields=['status', 'date_updated', 'date_approval'])
 
             # Переназначаем ревьюера
-            payment_credit.user.re_elect_reviewer()
+            replace_educator_to_reviewer(payment_credit.user)
 
             # Предоставляем доступ к курсу
             access = payment_credit.user.access_set.filter(course=payment_credit.course).first()

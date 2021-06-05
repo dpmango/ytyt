@@ -75,7 +75,11 @@ class UserConsumer(JsonWebsocketConsumer, ConsumerEvents):
             self.user.ws_key, self.channel_name
         )
 
-    def push(self, to: t.Union[t.Set[User], User] = None, data: t.Union[dict, list] = None, **kwargs) -> None:
+    def push(self,
+             to: t.Union[t.Set[User], User] = None,
+             data: t.Union[dict, list] = None,
+             mute: dict = None,
+             **kwargs) -> None:
         """
         Непосредственная отправка данных в сокет.
         Момент отправки данных в сокет генерирует доплнительные события:
@@ -83,6 +87,7 @@ class UserConsumer(JsonWebsocketConsumer, ConsumerEvents):
 
         Дополнительно закрываем сокет, если данные для отправления и пользователь не существуют по какой-то причине
         :param to: Набор пользователей, которым нужно разослать в сокет данные
+        :param mute: Структура с информацией о том, какие события и для каких пользователей мьютить
         :param data: Данные для отправки
         """
         content = kwargs.pop('content', None) or {}
@@ -97,20 +102,32 @@ class UserConsumer(JsonWebsocketConsumer, ConsumerEvents):
 
         else:
             to = {to} if isinstance(to, User) else to
+            mute = mute or {}
             for user in to:
                 # Отправляем в сокет данные по основному событию
                 async_to_sync(self.channel_layer.group_send)(user.ws_key, {'type': 'ws_send', 'data': data, **kwargs})
 
-                if kwargs.get('event') in self.get_generating_notifications_events():
+                if kwargs.get('event') not in self.get_generating_notifications_events():
+                    continue
 
-                    # Порождаем дополнительное событие — количество диалогов с непрочитанными сообщениями
+                # Порождаем дополнительное событие — количество диалогов с непрочитанными сообщениями
+                # Если пользователь в мьюте для этого события, то ничего не нужно отправлять
+                event_func = self.events.notifications.get_dialogs_count
+                if user not in (mute.get(event_func.event_name) or set()):
                     async_to_sync(self.channel_layer.group_send)(
-                        user.ws_key, {'type': 'ws_send', **self.events.notifications.get_dialogs_count(user)}
+                        user.ws_key, {
+                            'type': 'ws_send', **event_func(user)
+                        }
                     )
 
-                    # Порождаем дополнительное событие — количество непрочитанных сообщений для каждого диалога
-                    messages_count = self.events.notifications.get_dialog_messages_count(user, **content)
-                    async_to_sync(self.channel_layer.group_send)(user.ws_key, {'type': 'ws_send', **messages_count})
+                # Порождаем дополнительное событие — количество непрочитанных сообщений для каждого диалога
+                event_func = self.events.notifications.get_dialog_messages_count
+                if user not in (mute.get(event_func.event_name) or set()):
+                    async_to_sync(self.channel_layer.group_send)(
+                        user.ws_key, {
+                            'type': 'ws_send', **event_func(user, **content)
+                        }
+                    )
 
     def ws_send(self, event: dict) -> None:
         """

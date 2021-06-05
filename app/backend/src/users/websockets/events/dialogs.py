@@ -1,12 +1,13 @@
 import typing as t
+from collections import defaultdict
 
-from django.forms.models import model_to_dict
 from django.utils import timezone
 
 from dialogs.api.serializers import DialogWithLastMessageSerializers, DefaultDialogMessageSerializers
 from dialogs.models import DialogMessage, Dialog
 from files.models import File
 from providers.mailgun.mixins import EmailNotificationMixin
+from users import permissions
 from users.models import User
 
 
@@ -54,34 +55,20 @@ class DialogEvent(EmailNotificationMixin):
         limit = limit or 20
 
         if user.is_support:
-            dialogs_qs = Dialog.objects.filter(users__in=User.supports.all())
-        else:
-            dialogs_qs = user.dialog_users_set.all()
+            kw = dict(is_support=True, with_role=permissions.GROUP_SUPPORT, limit_=limit, offset_=offset)
 
-        dialogs_qs = dialogs_qs.order_by('id').prefetch_related('dialogmessage_set').distinct('id')
-        dialogs = dialogs_qs[offset:limit]
+            dialogs = Dialog.objects.order_by_last_unread_message(**kw)
+            count = Dialog.objects.count_with_order_by(**kw)
+        else:
+            kw = dict(user_id_=user.id, limit_=limit, offset_=offset)
+
+            dialogs = Dialog.objects.order_by_last_unread_message(**kw)
+            count = Dialog.objects.count_with_order_by(**kw)
 
         context = {'user': user, 'base_url': kwargs.get('base_url')}
         dialogs = DialogWithLastMessageSerializers(dialogs, many=True, context=context).data
 
-        dialogs_with_unread_message = []
-        dialogs_without_unread_message = []
-
-        for _dialog in dialogs:
-            last_message = _dialog.get('last_message') or {}
-
-            if last_message.get('user') or {}.get('id') != user.id or last_message.get('date_read') is not None:
-                dialogs_without_unread_message.append(_dialog)
-            else:
-                dialogs_with_unread_message.append(_dialog)
-
-        sorted_func = lambda dialog: (dialog.get('last_message') or {}).get('date_created') or '2222-01-01'
-
-        dialogs_with_unread_message = sorted(dialogs_with_unread_message, key=sorted_func)
-        dialogs_without_unread_message = sorted(dialogs_without_unread_message, key=sorted_func)
-
-        dialogs = dialogs_with_unread_message + dialogs_without_unread_message
-        return {'data': dialogs, 'to': user, **self.generate_meta(limit, offset, dialogs_qs.count())}
+        return {'data': dialogs, 'to': user, **self.generate_meta(limit, offset, count)}
 
     def _dialogs_messages_load(self, user: User, dialog_id=None, limit=None, offset=None, **kwargs) -> t.Optional[dict]:
         """
@@ -166,14 +153,20 @@ class DialogEvent(EmailNotificationMixin):
 
         context = {'user': user, 'base_url': kwargs.get('base_url')}
         message = DefaultDialogMessageSerializers(message, context=context).data
+        mute = defaultdict(list)
 
         users_to_notification = set(dialog_users)
         users_to_email_notification = users_to_notification - {user}
 
-        # Если пользователь, который отправил сообщение прошел валидацию и его нет в диалогах, то это суппорт
-        # —> мы должны отправить в сокет дубликат сообщения
-        if user not in dialog_users:
-            users_to_notification |= {user}
+        #  Если диалог с поддержкой, то уведомлять всех суппортов
+        if dialog.with_support():
+            supports = User.supports.all()
+            users_to_notification |= set(supports)
+
+            # Если отправитель суппорт, то обновлять количество непрочитанных сообщений у других суппортов не нужно
+            if user.is_support:
+                mute['notifications.dialogs.count'] = supports
+                mute['notifications.dialogs.messages.count'] = supports
 
         email_to = list(users_to_email_notification)[0].email if len(users_to_email_notification) == 1 else 'None@admin'
         context = {'message': message, 'from': user, 'email': email_to}
@@ -182,7 +175,7 @@ class DialogEvent(EmailNotificationMixin):
             if _user.email_notifications:
                 self.send_mail(context, _user.email)
 
-        return {'data': message, 'to': users_to_notification}
+        return {'data': message, 'to': users_to_notification, 'mute': mute}
 
     subject_template_name = 'users/message/new_message_subject.txt'
     email_template_name = 'users/message/new_message_body.html'

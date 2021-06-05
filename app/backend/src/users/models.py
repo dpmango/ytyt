@@ -204,14 +204,6 @@ class User(AbstractBaseUser,
         self.save()
         return self
 
-    def re_elect_reviewer(self):
-        self.remove_reviewer()
-        reviewer = self.__class__.reviewers.get_less_busy()
-
-        self.reviewer = reviewer
-        self.save()
-        return self
-
     @property
     def ws_key(self) -> str:
         return 'users__%s' % self.id

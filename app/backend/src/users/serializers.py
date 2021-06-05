@@ -18,6 +18,7 @@ from courses_access.models import Access
 from dialogs.models import Dialog, DialogMessage
 from providers.tinkoff.contrib import Tinkoff
 from providers.tinkoff_credit.contrib import TinkoffCredit
+from users import permissions
 from users.models import User
 
 
@@ -26,6 +27,11 @@ class UserDetailSerializer(serializers.ModelSerializer):
     dialog = serializers.SerializerMethodField()
     payment = serializers.SerializerMethodField()
     installment_available = serializers.SerializerMethodField()
+    is_support = serializers.SerializerMethodField()
+
+    @staticmethod
+    def get_is_support(obj: User) -> bool:
+        return obj.is_support
 
     @staticmethod
     def get_installment_available(obj: User) -> bool:
@@ -106,6 +112,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
             'dialog',
             'payment',
             'installment_available',
+            'is_support',
         )
         read_only_fields = ('email', 'id')
 
@@ -152,6 +159,7 @@ class UserDialogSmallDetailSerializer(UserDetailSerializer):
             'avatar',
             'thumbnail_avatar',
             'status_online',
+            'is_support',
         )
 
 
@@ -162,7 +170,7 @@ class PasswordResetSerializer(serializers.Serializer):
         attrs['user'] = User.objects.filter(email=attrs.get('email')).first()
 
         if attrs['user'] is None:
-            raise exceptions.NotFound({'email': 'Пользователя с таким email не существует'})
+            raise exceptions.NotFound({'detail': 'Пользователя с таким email не существует'})
         return attrs
 
     def save(self):
@@ -268,14 +276,16 @@ class RegisterSerializer(rest_auth_registration_serializers.RegisterSerializer):
             user.save()
 
             dialog_with_educator = Dialog.objects.create()
+            dialog_with_educator.with_role = permissions.GROUP_EDUCATOR
             dialog_with_educator.users.add(user, educator)
             dialog_with_educator.save()
 
             dialog_with_support = Dialog.objects.create()
+            dialog_with_support.with_role = permissions.GROUP_SUPPORT
             dialog_with_support.users.add(user, support)
             dialog_with_support.save()
 
-            DialogMessage.objects.create_hello(dialog_with_educator, from_user=educator, student=user)
-            DialogMessage.objects.create_hello(dialog_with_support, from_user=support, student=user)
+            DialogMessage.objects.create_hello_educator(dialog_with_educator, from_user=educator, student=user)
+            DialogMessage.objects.create_hello_support(dialog_with_support, from_user=support, student=user)
 
         return user

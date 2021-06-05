@@ -238,6 +238,45 @@ class Access(models.Model):
                     return None
         return None
 
+    def get_direction_obj(self, to_struct: str, pk: int, direction) -> typing.Optional[object]:
+        """
+        Метод вернет предыдущий/следующий объект для нужной структуры по ее id
+        Доступыне стурктуры:
+            - CourseTheme
+            - CourseLesson
+            - LessonFragment
+        :param to_struct: Название структуры
+        :param direction: Направление: next or prev
+        :param pk: Уникальный id структуры
+        """
+        to_struct = to_snake_case(to_struct)
+
+        if to_struct == 'course':
+            return None
+
+        to_struct = getattr(self, to_struct, [])
+
+        for idx, _course_lesson in enumerate(to_struct):
+            if _course_lesson['pk'] == pk:
+
+                try:
+                    if direction == 'prev':
+                        need_idx = idx - 1
+
+                        if need_idx < 0:
+                            return None
+
+                    elif direction == 'next':
+                        need_idx = idx + 1
+
+                    else:
+                        return None
+
+                    return self._struct_to_object(**to_struct[need_idx])
+                except IndexError:
+                    return None
+        return None
+
     @force_int_pk
     def set_completed_lesson_fragment(self, pk: int = None) -> None:
         """
