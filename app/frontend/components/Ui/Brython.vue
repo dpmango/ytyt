@@ -23,7 +23,7 @@
 
       <script type="text/python3">
         from browser import document as doc, window
-        from brython.editor import EditorCodeBlocks
+        from editor import EditorCodeBlocks
 
         EditorCodeBlocks(doc, window).declare()
       </script>
@@ -40,7 +40,7 @@ export default {
   watch: {
     ready(newVal, oldVal) {
       if (newVal) {
-        // window.brython();
+        window.brython();
       }
     },
   },
