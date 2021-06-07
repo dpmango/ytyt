@@ -65,12 +65,19 @@ class CreateDialogMessageSerializers(serializers.Serializer):
 class DefaultDialogMessageSerializers(serializers.ModelSerializer):
     user = UserDialogSmallDetailSerializer()
     body = serializers.SerializerMethodField(required=False)
+    text_body = serializers.SerializerMethodField(read_only=True)
     file = DefaultFileSerializer(required=False)
 
     @staticmethod
     def get_body(obj: DialogMessage):
         if obj.body is not None:
             return obj.get_body()
+        return None
+
+    @staticmethod
+    def get_text_body(obj: DialogMessage):
+        if obj.body is not None:
+            return obj.get_text_body()
         return None
 
     class Meta:

@@ -173,13 +173,13 @@ class DialogEvent:
         if file is None:
             email_template_name = 'dialogs/message/index.html'
         else:
-            if file.is_image():
+            if file.type == File.TYPE_IMAGE:
                 email_template_name = 'dialogs/message-image/index.html'
             else:
                 email_template_name = 'dialogs/message-file/index.html'
 
             context = {
-                **context, 'file_url': file.url(kwargs.get('base_url')), 'file_name': file.file_name
+                **context, 'file_url': file.generate_url(kwargs.get('base_url')), 'file_name': file.file_name
             }
 
         mailgun = EmailNotification(
