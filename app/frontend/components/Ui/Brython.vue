@@ -40,7 +40,7 @@ export default {
   watch: {
     ready(newVal, oldVal) {
       if (newVal) {
-        window.brython();
+        // window.brython();
       }
     },
   },
@@ -50,6 +50,7 @@ export default {
 <style lang="scss" scoped>
 .brython {
   position: relative;
+  margin: 1em 0;
   .loader {
     position: absolute;
     background: rgba(white, 0.5);

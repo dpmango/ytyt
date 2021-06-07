@@ -37,9 +37,9 @@
                   class="lesson__section"
                   :class="[fragment.id === activeSection && 'is-active']"
                 >
-                  <UiBrython :id="`${fragment.id}`" :ready="brythonReady" />
-
                   <div class="lesson__body markdown-body" v-html="fragment.content"></div>
+                  {{ data.meta }}
+                  <UiBrython :id="`${fragment.id}`" :ready="brythonReady" />
 
                   <div class="lesson__actions">
                     <UiButton @click.prevent="setNextFragment">Продолжить</UiButton>
@@ -105,7 +105,17 @@ export default {
       return this.nextSectionId;
     },
     isPrevAvailable() {
-      return this.prevSectionId;
+      const { course_lesson: lesson, course_theme: theme } = this.data.meta;
+
+      if (this.prevSectionId) {
+        return this.prevSectionId;
+      } else if (lesson.prev.pk && [1, 2, 3].includes(lesson.prev.status)) {
+        return 1;
+      } else if (theme.prev.pk && [1, 2, 3].includes(theme.prev.status)) {
+        return 1;
+      }
+
+      return null;
     },
     fragmentVisible() {
       return this.data.accessible_lesson_fragments;
@@ -188,6 +198,8 @@ export default {
   },
   methods: {
     async setNextFragment() {
+      const { course_lesson: lesson, course_theme: theme } = this.data.meta;
+
       let shouldFetch = true;
       const curIndex = this.sections.findIndex((x) => x.id === this.activeSection);
 
@@ -196,6 +208,12 @@ export default {
         if (nextSection && [1, 2, 3].includes(nextSection.status)) {
           shouldFetch = false;
           this.activeSection = nextSection.id;
+        } else if (lesson.next.pk && [1, 2, 3].includes(lesson.next.status)) {
+          shouldFetch = false;
+          this.$router.push(`/theme/${theme.next.pk}/${lesson.next.pk}`);
+        } else if (theme.next.pk && [1, 2, 3].includes(theme.next.status)) {
+          shouldFetch = false;
+          this.$router.push(`/theme/${theme.next.pk}`);
         }
       }
 
@@ -220,8 +238,16 @@ export default {
       }
     },
     setPrevFragment() {
+      const { course_lesson: lesson, course_theme: theme } = this.data.meta;
+
       if (this.isPrevAvailable) {
-        this.setFragment(this.prevSectionId, 2);
+        if (lesson.prev.pk && [1, 2, 3].includes(lesson.prev.status)) {
+          this.$router.push(`/theme/${theme.prev.pk}/${lesson.prev.pk}`);
+        } else if (theme.prev.pk && [1, 2, 3].includes(theme.prev.status)) {
+          this.$router.push(`/theme/${theme.prev.pk}`);
+        } else {
+          this.setFragment(this.prevSectionId, 2);
+        }
       }
     },
     highlightSyntax() {
