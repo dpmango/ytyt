@@ -87,7 +87,7 @@ export default {
           const sizeInMb = bytesToMegaBytes(file.size);
 
           if (sizeInMb > this.maxSize) {
-            this.$toast.global.error({ message: `Размер изображения превышает ${this.maxSize}Мб` });
+            this.$toast.global.error({ message: `Размер файла превышает ${this.maxSize}Мб` });
             return false;
           }
         }
