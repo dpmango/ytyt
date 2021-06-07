@@ -505,7 +505,7 @@ class CmdLineTest(unittest.TestCase):
         self.assertEqual(out.strip(), b'1 1 1')
         with support.temp_cwd() as tmpdir:
             fake = os.path.join(tmpdir, "uuid.py")
-            main = os.path.join(tmpdir, "main.py")
+            main = os.path.join(tmpdir, "core.py")
             with open(fake, "w") as f:
                 f.write("raise RuntimeError('isolated mode test')\n")
             with open(main, "w") as f:

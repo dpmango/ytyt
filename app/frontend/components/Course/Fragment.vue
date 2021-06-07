@@ -37,7 +37,7 @@
                   class="lesson__section"
                   :class="[fragment.id === activeSection && 'is-active']"
                 >
-                  <UiBrython :id="`${fragment.id}`" />
+                  <UiBrython :id="`${fragment.id}`" :ready="brythonReady" />
 
                   <div class="lesson__body markdown-body" v-html="fragment.content"></div>
 
@@ -79,109 +79,10 @@ export default {
     return {
       isChatOpened: false,
       activeSection: 0,
+      brythonReady: false,
     };
   },
-  head() {
-    return {
-      script: [
-        {
-          src: '/brython/src/brython_builtins.js',
-        },
-        {
-          src: '/brython/src/version_info.js',
-        },
-        {
-          src: '/brython/src/py2js.js',
-        },
-        {
-          src: '/brython/src/loaders.js',
-        },
-        {
-          src: '/brython/src/py_object.js',
-        },
-        {
-          src: '/brython/src/py_type.js',
-        },
-        {
-          src: '/brython/src/py_utils.js',
-        },
-        {
-          src: '/brython/src/py_sort.js',
-        },
-        {
-          src: '/brython/src/py_builtin_functions.js',
-        },
-        {
-          src: '/brython/src/py_exceptions.js',
-        },
-        {
-          src: '/brython/src/py_range_slice.js',
-        },
-        {
-          src: '/brython/src/py_bytes.js',
-        },
-        {
-          src: '/brython/src/py_set.js',
-        },
-        {
-          src: '/brython/src/js_objects.js',
-        },
-        {
-          src: '/brython/src/stdlib_paths.js',
-        },
-        {
-          src: '/brython/src/py_import.js',
-        },
 
-        {
-          src: '/brython/src/unicode_data.js',
-        },
-        {
-          src: '/brython/src/py_string.js',
-        },
-        {
-          src: '/brython/src/py_int.js',
-        },
-        {
-          src: '/brython/src/py_long_int.js',
-        },
-        {
-          src: '/brython/src/py_float.js',
-        },
-        {
-          src: '/brython/src/py_complex.js',
-        },
-        {
-          src: '/brython/src/py_dict.js',
-        },
-        {
-          src: '/brython/src/py_list.js',
-        },
-        {
-          src: '/brython/src/py_generator.js',
-        },
-        {
-          src: '/brython/src/py_dom.js',
-        },
-
-        {
-          src: '/brython/src/builtin_modules.js',
-        },
-        {
-          src: '/brython/src/async.js',
-        },
-        {
-          src: '/brython/src/brython_stdlib.js',
-        },
-        {
-          src: '/brython/ace/ace.js',
-        },
-        {
-          src: '/brython/ace/ext-language_tools.js',
-        },
-      ],
-    };
-  },
   computed: {
     sections() {
       return this.data.lesson_fragments;
@@ -229,7 +130,61 @@ export default {
     }
   },
   mounted() {
-    // this.highlightSyntax();
+    const scripts = [
+      '/brython/src/brython_builtins.js',
+      '/brython/src/version_info.js',
+      '/brython/src/py2js.js',
+      '/brython/src/loaders.js',
+      '/brython/src/py_object.js',
+      '/brython/src/py_type.js',
+      '/brython/src/py_utils.js',
+      '/brython/src/py_sort.js',
+      '/brython/src/py_builtin_functions.js',
+      '/brython/src/py_exceptions.js',
+      '/brython/src/py_range_slice.js',
+      '/brython/src/py_bytes.js',
+      '/brython/src/py_set.js',
+      '/brython/src/js_objects.js',
+      '/brython/src/stdlib_paths.js',
+      '/brython/src/py_import.js',
+      '/brython/src/unicode_data.js',
+      '/brython/src/py_string.js',
+      '/brython/src/py_int.js',
+      '/brython/src/py_long_int.js',
+      '/brython/src/py_float.js',
+      '/brython/src/py_complex.js',
+      '/brython/src/py_dict.js',
+      '/brython/src/py_list.js',
+      '/brython/src/py_generator.js',
+      '/brython/src/py_dom.js',
+      '/brython/src/builtin_modules.js',
+      '/brython/src/async.js',
+      '/brython/src/brython_stdlib.js',
+      '/brython/ace/ace.js',
+      '/brython/ace/ext-language_tools.js',
+    ];
+
+    const loadScripts = (scripts) => {
+      const script = scripts.shift();
+      const el = document.createElement('script');
+
+      document.head.append(el);
+
+      el.onload = (script) => {
+        if (scripts.length) {
+          loadScripts(scripts);
+        } else {
+          document.body.classList.add('brython-ready');
+          this.brythonReady = true;
+        }
+      };
+
+      el.src = script;
+    };
+
+    if (!document.body.classList.value.includes('brython-ready')) {
+      loadScripts(scripts);
+    }
   },
   methods: {
     async setNextFragment() {
