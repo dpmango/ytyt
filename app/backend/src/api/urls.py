@@ -38,7 +38,7 @@ urlpatterns = [
     path('api/', include(router.urls)),
 
     re_path(r'^rest-auth/token-refresh/$', refresh_jwt_token),
-    re_path(r'^rest-auth/password/reset/confirm$', PasswordResetConfirmViewCustom.as_view()),
+    re_path(r'^rest-auth/password/reset/confirm/$', PasswordResetConfirmViewCustom.as_view()),
     re_path(r'^rest-auth/password/reset/$', PasswordResetView.as_view()),
     re_path(r'^rest-auth/password/change/$', PasswordChangeViewCustom.as_view()),
     re_path(r'^rest-auth/logout/$', LogoutViewCustom.as_view()),
