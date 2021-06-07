@@ -14,7 +14,7 @@ class File(models.Model):
     content = models.FileField('Файл', upload_to=upload_path)
 
     def is_image(self) -> bool:
-        if self.file_name:
+        if self.content:
             if os.path.splitext(self.file_name)[1] in ('.jpg', '.jpeg', '.png', '.svg'):
                 return True
         return False
@@ -26,4 +26,4 @@ class File(models.Model):
 
     @property
     def file_name(self):
-        return self.content.file.name
+        return os.path.split(self.content.file.name)[1]
