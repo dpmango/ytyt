@@ -43,6 +43,7 @@ export default {
   data() {
     return {
       isMoreExpanded: false,
+      isSingleLine: false,
     };
   },
   computed: {
@@ -61,9 +62,6 @@ export default {
     timestamp() {
       return timeToHHMM(this.message.date_created);
     },
-    isSingleLine() {
-      return this.message.body && this.message.body.length <= 45;
-    },
     ...mapGetters('auth', ['user']),
   },
   mounted() {
@@ -71,6 +69,12 @@ export default {
       this.$refs.content.querySelectorAll('code').forEach((block) => {
         window.hljs.highlightElement(block);
       });
+
+      // if (/\r|\n/.exec(this.message.body)) {
+      //   this.isSingleLine = false;
+      // }
+
+      this.isSingleLine = this.$refs.content.offsetHeight < 25;
     }
   },
   methods: {

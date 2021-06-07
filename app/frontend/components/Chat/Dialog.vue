@@ -135,6 +135,9 @@ export default {
   &__description {
     font-size: 14px;
     color: rgba($fontColor, 0.7);
+    ::v-deep br {
+      display: none;
+    }
     @include text-overflow;
     ::v-deep > * {
       display: none;
