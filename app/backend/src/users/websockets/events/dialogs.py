@@ -6,12 +6,12 @@ from django.utils import timezone
 from dialogs.api.serializers import DialogWithLastMessageSerializers, DefaultDialogMessageSerializers
 from dialogs.models import DialogMessage, Dialog
 from files.models import File
-from providers.mailgun.mixins import EmailNotificationMixin
+from providers.mailgun.mixins import EmailNotification
 from users import permissions
 from users.models import User
 
 
-class DialogEvent(EmailNotificationMixin):
+class DialogEvent:
     EVENT_DIALOG_LOAD = 'dialogs.load'
     EVENT_DIALOG_MESSAGES_LOAD = 'dialogs.messages.load'
     EVENT_DIALOG_MESSAGES_CREATE = 'dialogs.messages.create'
@@ -142,6 +142,7 @@ class DialogEvent(EmailNotificationMixin):
         if (not dialog or user not in dialog_users) and not user.is_support:
             return {'to': user, 'data': 'Диалог не принадлежит пользователю', 'exception': True}
 
+        file = None
         if isinstance(file_id, int):
             file = File.objects.filter(id=file_id).first()
             if file.user != user:
@@ -171,11 +172,26 @@ class DialogEvent(EmailNotificationMixin):
         email_to = list(users_to_email_notification)[0].email if len(users_to_email_notification) == 1 else 'None@admin'
         context = {'message': message, 'from': user, 'email': email_to}
 
+        if file is None:
+            email_template_name = 'users/message/index.html'
+        else:
+            if file.is_image():
+                email_template_name = 'users/message-image/index.html'
+            else:
+                email_template_name = 'users/message-file/index.html'
+
+            context = {
+                **context, 'file_url': file.url(kwargs.get('base_url')), 'file_name': file.file_name
+            }
+
+        mailgun = EmailNotification(
+            subject_template_raw='Новое сообщение от %s' % user.email,
+            email_template_name=email_template_name
+        )
+
         for _user in users_to_email_notification:
             if _user.email_notifications:
-                self.send_mail(context, _user.email)
+                mailgun.send_mail(context, _user.email)
 
         return {'data': message, 'to': users_to_notification, 'mute': mute}
 
-    subject_template_name = 'users/message/new_message_subject.txt'
-    email_template_name = 'users/message/new_message_body.html'

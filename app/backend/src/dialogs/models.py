@@ -130,6 +130,9 @@ class Dialog(models.Model):
     def __str__(self) -> str:
         return '{%s}' % self.id + ' | '.join(map(lambda user: '(%s)%s' % (user.id, user.email), self.users.all()))
 
+    def with_support(self) -> bool:
+        return self.with_role == permissions.GROUP_SUPPORT
+
 
 class DialogMessageManager(models.Manager):
 

@@ -112,7 +112,7 @@
 															<tr>
 																<td width="480" align="center" valign="top">
 																	<div style="font-size: 28px; line-height: 38px; font-family: 'Roboto', Arial, sans-serif; color: #171818; font-weight: 700;">
-																		Вы запросили восстановление пароля на&nbsp;YtYt.ru
+																		Получено новое сообщение от&nbsp;<span>{{ from.first_name }} {{ from.last_name }}</span>
 																	</div>
 																</td>
 															</tr>
@@ -123,20 +123,30 @@
 												<!-- Text -->
 												<tr>
 													<td align="center" valign="top" style="padding: 0 0 24px;">
-														<div style="font-size: 18px; line-height: 27px; font-family: 'Roboto', Arial, sans-serif; color: #171818; font-weight: 400;">
-															Для продолжения нажмите на кнопку "Изменить пароль". Откроется страница, на которой
-															нужно будет ввести новый&nbsp;пароль.
-														</div>
+                            <table cellpadding="0" cellspacing="0" border="0">
+                              <tbody>
+                                <tr>
+                                  <td align="center" valign="center" style="padding: 0 12px 0 0;">
+                                    <img src="{{ file_url }}" width="32" height="32" border="0" alt="file icon" style="vertical-align: top; margin: 0; padding: 0; border: none; line-height: 100%; outline: none; text-decoration: none;" />
+                                  </td>
+                                  <td align="center" valign="center" style="padding: 0;">
+                                    <div style="font-size: 18px; line-height: 27px; font-family: 'Roboto', Arial, sans-serif; color: #171818; font-weight: 400;">
+                                        {{ file_name }}
+                                    </div>
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
 													</td>
 												</tr>
 
 												<!-- Button -->
 												<tr>
-													<td valign="top" align="center" style="padding: 0 0 12px;">
+													<td valign="top" align="center" style="padding: 0 0 34px;">
 														<table border="0" cellspacing="0" cellpadding="0">
 															<tr>
 																<td width="530" valign="middle" align="center" style="background-color: #1e88e5; border-radius: 8px; box-shadow: 0 6px 24px rgba(23, 24, 24, 0.1);">
-																	<a href="{{ base_front_url }}/auth/reset/confirm?token={{ token }}&uid={{ uid }}" target="_blank"
+																	<a href="{{ base_front_url }}/messages" target="_blank"
 																		style="text-decoration: none;
 																			width: 100%;
 																			font-size: 17px;
@@ -150,21 +160,12 @@
 																			display: block;
 																			font-family: 'Roboto', Arial, sans-serif;">
 																				<span style="color: #fff;">
-																					Изменить пароль
+																					Ответить
 																				</span>
 																	</a>
 																</td>
 															</tr>
 														</table>
-													</td>
-												</tr>
-
-												<!-- Text -->
-												<tr>
-													<td align="center" valign="top" style="padding: 0 0 34px;">
-														<div style="font-size: 14px; line-height: 20px; font-family: 'Roboto', Arial, sans-serif; color: #8b8c8c; font-weight: 400;">
-															Если вы не запрашивали восстановление пароля или вдруг передумали - просто проигнорируйте это письмо, старый пароль не&nbsp;изменится
-														</div>
 													</td>
 												</tr>
 
