@@ -42,50 +42,53 @@
         </div>
         <div class="price__join join-price">
           <h2 class="join-price__title">Записаться на курс или получить бесплатную консультацию</h2>
-          <ValidationObserver
-            ref="form"
-            v-slot="{ invalid }"
-            tag="form"
-            class="join-price__form form"
-            @submit.prevent="handleSubmit"
-          >
-            <UiError :error="error" />
+          <client-only>
+            <ValidationObserver
+              ref="form"
+              v-slot="{ invalid }"
+              tag="form"
+              class="join-price__form form"
+              @submit.prevent="handleSubmit"
+            >
+              <UiError :error="error" />
 
-            <ValidationProvider v-slot="{ errors }" class="ui-group" rules="required">
-              <UiInput
-                :value="name"
-                theme="dynamic"
-                label="Имя"
-                type="text"
-                :error="errors[0]"
-                @onChange="(v) => (name = v)"
-              />
-            </ValidationProvider>
+              <ValidationProvider v-slot="{ errors }" class="ui-group" rules="required">
+                <UiInput
+                  :value="name"
+                  theme="dynamic"
+                  label="Имя"
+                  type="text"
+                  :error="errors[0]"
+                  @onChange="(v) => (name = v)"
+                />
+              </ValidationProvider>
 
-            <ValidationProvider v-slot="{ errors }" class="ui-group" rules="email|required">
-              <UiInput
-                :value="email"
-                theme="dynamic"
-                label="Email"
-                type="email"
-                :error="errors[0]"
-                @onChange="(v) => (email = v)"
-              />
-            </ValidationProvider>
+              <ValidationProvider v-slot="{ errors }" class="ui-group" rules="email|required">
+                <UiInput
+                  :value="email"
+                  theme="dynamic"
+                  label="Email"
+                  type="email"
+                  :error="errors[0]"
+                  @onChange="(v) => (email = v)"
+                />
+              </ValidationProvider>
 
-            <ValidationProvider v-slot="{ errors }" class="ui-group" rules="required">
-              <UiInput
-                :value="phone"
-                theme="dynamic"
-                label="Телефон"
-                type="tel"
-                :error="errors[0]"
-                @onChange="(v) => (phone = v)"
-              />
-            </ValidationProvider>
+              <ValidationProvider v-slot="{ errors }" class="ui-group" rules="required">
+                <UiInput
+                  v-mask="'+7 (###) ###-####'"
+                  :value="phone"
+                  theme="dynamic"
+                  label="Телефон"
+                  type="tel"
+                  :error="errors[0]"
+                  @onChange="(v) => (phone = v)"
+                />
+              </ValidationProvider>
 
-            <UiButton type="submit" block>Отправить заявку</UiButton>
-          </ValidationObserver>
+              <UiButton type="submit" block>Отправить заявку</UiButton>
+            </ValidationObserver>
+          </client-only>
 
           <p class="join-price__extra">
             Отправляя заявку, вы даете согласие на обработку своих персональных данных в соответствии с
@@ -139,21 +142,26 @@ export default {
       }
 
       const { name, email, phone } = this;
-      await this.login({ name, email, phone })
+      await this.feedback({ first_name: name, email, phone })
         .then((_res) => {
           this.error = null;
+          this.name = '';
+          this.email = '';
+          this.phone = '';
+
+          this.$toast.global.default({ message: _res.detail });
         })
         .catch((err) => {
           const { data, code } = err;
 
-          if (data && code === 401) {
+          if (data && code === 400) {
             Object.keys(data).forEach((key) => {
-              this.error = data[key];
+              this.error = data[key][0];
             });
           }
         });
     },
-    // ...mapActions('auth', ['login']),
+    ...mapActions('feedback', ['feedback']),
   },
 };
 </script>
@@ -339,6 +347,7 @@ export default {
     ::v-deep .input .input__input input {
       padding-top: 25px;
       padding-bottom: 12px;
+      background: white;
     }
     &:last-of-type {
       margin-bottom: 32px;
