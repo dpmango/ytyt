@@ -55,9 +55,12 @@ if($B.brython_path === undefined){
 
     var elts = this_url.split('/')
     elts.pop()
+
     // brython_path is the url of the directory holding brython core scripts
     // It is used to import modules of the standard library
-    $path = $B.brython_path = elts.join('/') + '/'
+    // $path = $B.brython_path = elts.join('/') + '/'
+    $path = $B.brython_path = _window.location.origin + '/brython/'
+
 }else{
     if(! $B.brython_path.endsWith("/")){
         $B.brython_path += "/"
@@ -67,10 +70,11 @@ if($B.brython_path === undefined){
 
 
 // Get the URL of the directory where the script stands
-var path = _window.location.origin + _window.location.pathname,
+var path = _window.location.origin + '/brython/',
     path_elts = path.split("/")
 path_elts.pop()
 var $script_dir = $B.script_dir = path_elts.join("/")
+
 
 // Populated in py2js.brython(), used for sys.argv
 $B.__ARGV = []
@@ -89,8 +93,7 @@ $B.file_cache = {}
 $B.$py_src = {}
 
 // __BRYTHON__.path is the list of paths where Python modules are searched
-$B.path = [$path + 'Lib', $path + 'libs', $script_dir,
-    $path + 'Lib/site-packages']
+$B.path = [$path + 'Lib', $path + 'libs', $script_dir, $path + 'Lib/site-packages']
 
 // for the time being, a flag will be used to know if we should
 // enable async functionality.

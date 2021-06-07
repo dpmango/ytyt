@@ -9,7 +9,7 @@
         <div class="brython__actions">
           <button :id="`run__${id}`" class="run_stdin brython__run">
             <UiSvgIcon name="run-code" />
-            <span>Воспрозвести код</span>
+            <span>Запустить</span>
           </button>
         </div>
 
@@ -23,7 +23,7 @@
 
       <script type="text/python3">
         from browser import document as doc, window
-        from brython.editor import EditorCodeBlocks
+        from editor import EditorCodeBlocks
 
         EditorCodeBlocks(doc, window).declare()
       </script>
@@ -40,7 +40,7 @@ export default {
   watch: {
     ready(newVal, oldVal) {
       if (newVal) {
-        // window.brython();
+        window.brython();
       }
     },
   },
@@ -50,7 +50,7 @@ export default {
 <style lang="scss" scoped>
 .brython {
   position: relative;
-  margin: 1em 0;
+  margin: 1em 20px;
   .loader {
     position: absolute;
     background: rgba(white, 0.5);
@@ -114,13 +114,13 @@ export default {
       width: 100%;
       height: auto;
       margin: 0;
-      padding: 12px;
-      font-size: 13px;
+      padding: 8px 16px;
+      font-size: 15px;
       border: 0;
       float: none;
-      background-color: #0a090c;
+      background-color: transparent;
       box-shadow: none;
-      color: white;
+      color: $fontColor;
       border-radius: 0;
       resize: none;
       &:focus,
@@ -137,7 +137,7 @@ export default {
     cursor: pointer;
     padding: 8px 16px;
     background: #38bff2;
-    border-radius: 0 6px 0 0;
+    border-radius: 6px 6px 0 0;
     color: white;
     transition: background 0.25s $ease;
     .svg-icon {

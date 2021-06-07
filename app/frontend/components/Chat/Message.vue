@@ -10,7 +10,7 @@
         ref="content"
         class="message__content markdown-body"
         :class="[isIncoming && 'dark', isSingleLine && 'is-single-line']"
-        v-html="message.body"
+        v-html="messageContent"
       />
       <div class="message__meta">
         <div class="message__time">{{ timestamp }}</div>
@@ -58,6 +58,9 @@ export default {
       }
 
       return this.message.user.id === this.user.id;
+    },
+    messageContent() {
+      return this.message.body;
     },
     timestamp() {
       return timeToHHMM(this.message.date_created);

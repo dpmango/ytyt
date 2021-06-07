@@ -38,7 +38,8 @@
                   :class="[fragment.id === activeSection && 'is-active']"
                 >
                   <div class="lesson__body markdown-body" v-html="fragment.content"></div>
-                  {{ data.meta }}
+                  Lesson: {{ data.meta.course_lesson }}<br />
+                  Theme: {{ data.meta.course_theme }}
                   <UiBrython :id="`${fragment.id}`" :ready="brythonReady" />
 
                   <div class="lesson__actions">
@@ -168,7 +169,7 @@ export default {
       '/brython/src/py_generator.js',
       '/brython/src/py_dom.js',
       '/brython/src/builtin_modules.js',
-      '/brython/src/async.js',
+      // '/brython/src/brython.js',
       '/brython/src/brython_stdlib.js',
       '/brython/ace/ace.js',
       '/brython/ace/ext-language_tools.js',
