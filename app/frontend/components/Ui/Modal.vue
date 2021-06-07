@@ -46,15 +46,27 @@ export default {
   &.narrow {
     max-width: 420px;
     padding: 32px 30px;
+    @include r($sm) {
+      max-width: 328px;
+      padding: 24px;
+      .modal__close {
+        top: 6px;
+        right: 6px;
+      }
+    }
   }
 }
 
 .modal__content {
+  position: relative;
+  z-index: 1;
   flex-grow: 1;
-  overflow-y: auto;
+  overflow: hidden;
+  border-radius: 8px;
 }
 .modal__close {
   position: absolute;
+  z-index: 3;
   top: 12px;
   right: 12px;
   width: 32px;

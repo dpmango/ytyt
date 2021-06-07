@@ -9,7 +9,7 @@ export default {
     const handleError = (err) => {
       if (err.code === 403) {
         context.redirect('/course');
-        store.commit('ui/setModalPaymentStart', true);
+        store.commit('ui/setModalPaymentStart2', true);
       }
     };
 

@@ -15,7 +15,7 @@ export default {
         if (err.code === 403) {
           // this.$toast.global.error({ message: err.data.detail });
           context.redirect('/course');
-          store.commit('ui/setModalPaymentStart', true);
+          store.commit('ui/setModalPaymentStart2', true);
         }
       });
 

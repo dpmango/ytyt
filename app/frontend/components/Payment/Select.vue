@@ -1,9 +1,39 @@
 <template>
   <div class="row">
     <div class="col col-6 col-md-12 payment__form-wrapper">
-      <div class="payment__form">
-        <div class="payment__form-title">Есть вопросы?</div>
-        <div class="payment__form-desc">Укажите номер телефона, менеджер свяжется с вами и ответит на все вопросы</div>
+      <div v-if="formSubmited" class="payment__form">
+        <div class="payment__form-status">
+          <UiSvgIcon name="status-success" />
+        </div>
+        <div class="payment__form-title">Спасибо за заявку</div>
+        <div class="payment__form-desc">Наш менеджер свяжется с вами в ближайшее время</div>
+      </div>
+
+      <div v-else-if="!user.installment_available && !failedInstallmentRequest" class="payment__form">
+        <div class="payment__form-status">
+          <UiSvgIcon name="status-cancel" />
+        </div>
+        <div class="payment__form-title">Банк отклонил заявку на рассрочку</div>
+        <div class="payment__form-desc">
+          Вы можете оплатить сумму целикомили оставить заявку для обсуждения других вариантов.
+        </div>
+        <div class="payment__form-cta">
+          <a href="#" @click.prevent="failedInstallmentRequest = true">Подберите другие варианты</a>
+        </div>
+      </div>
+
+      <div v-else class="payment__form">
+        <template v-if="failedInstallmentRequest">
+          <div class="payment__form-desc">
+            Укажите номер телефона, менеджер свяжется с вами для обсуждения вариантов оплаты
+          </div>
+        </template>
+        <template v-else>
+          <div class="payment__form-title">Есть вопросы?</div>
+          <div class="payment__form-desc">
+            Укажите номер телефона, менеджер свяжется с вами и ответит на все вопросы
+          </div>
+        </template>
         <ValidationObserver
           ref="form"
           v-slot="{ invalid }"
@@ -11,8 +41,17 @@
           class="profile__form"
           @submit.prevent="handleSubmit"
         >
+          <UiError :error="error" />
+
           <ValidationProvider v-slot="{ errors }">
-            <UiInput :value="phone" type="tel" :error="errors[0]" placeholder="+7" @onChange="(v) => (phone = v)" />
+            <UiInput
+              v-mask="'+7 (###) ###-####'"
+              :value="phone"
+              type="tel"
+              :error="errors[0]"
+              placeholder="+7"
+              @onChange="(v) => (phone = v)"
+            />
           </ValidationProvider>
           <UiButton theme="outline" block>Перезвоните мне</UiButton>
         </ValidationObserver>
@@ -20,13 +59,16 @@
     </div>
     <div class="col col-6 col-md-12">
       <div class="payment__options">
-        <h1 class="payment__title">Выберите удобный вариант оплаты</h1>
+        <h1 class="payment__title">Выберите удобный <br />вариант оплаты</h1>
         <div class="payment__list">
           <div
             v-for="option in options"
             :key="option.id"
             class="card"
-            :class="[activeVariant === option.id && 'is-active']"
+            :class="[
+              activeVariant === option.id && 'is-active',
+              option.id !== 1 && !user.installment_available && 'is-disabled',
+            ]"
             @click="() => selectPayment(option.id)"
           >
             <div class="card__checkbox"></div>
@@ -55,6 +97,9 @@ export default {
   data() {
     return {
       phone: '',
+      error: null,
+      formSubmited: false,
+      failedInstallmentRequest: false,
       activeVariant: 1,
       options: [
         { id: 1, title: 'Вся сумма целиком', installment: false, price: '54 000', priceOld: '60 000' },
@@ -64,9 +109,17 @@ export default {
       ],
     };
   },
+  computed: {
+    ...mapGetters('auth', ['user']),
+  },
   methods: {
     selectPayment(id) {
       this.activeVariant = id;
+    },
+    resetForm() {
+      this.phone = '';
+      // this.formSubmited = false;
+      this.activeVariant = 1;
     },
     async submitPayment() {
       if (this.activeVariant === 1) {
@@ -98,8 +151,24 @@ export default {
       }
 
       const { phone } = this;
+      await this.feedback({ phone })
+        .then((_res) => {
+          this.error = null;
+          this.phone = '';
+          this.formSubmited = true;
+        })
+        .catch((err) => {
+          const { data, code } = err;
+
+          if (data && code === 400) {
+            Object.keys(data).forEach((key) => {
+              this.error = data[key][0];
+            });
+          }
+        });
     },
     ...mapActions('payment', ['init', 'initInstallment']),
+    ...mapActions('feedback', ['feedback']),
   },
 };
 </script>
@@ -115,16 +184,25 @@ export default {
   &__form {
     padding: 20px 40px 50px 40px;
     text-align: center;
+    overflow: hidden;
     form {
       margin-top: 24px;
     }
     .button {
       margin-top: 12px;
     }
-    ::v-deep input {
-      padding-top: 20px;
-      padding-bottom: 20px;
+    ::v-deep .input__input input {
+      padding-top: 19px;
+      padding-bottom: 18px;
       background: white;
+    }
+  }
+  &__form-status {
+    font-size: 0;
+    color: $colorRed;
+    margin-bottom: 24px;
+    .svg-icon {
+      font-size: 100px;
     }
   }
   &__form-title {
@@ -136,6 +214,18 @@ export default {
     margin-top: 12px;
     font-size: 18px;
     line-height: 1.5;
+  }
+  &__form-cta {
+    margin-top: 12px;
+    a {
+      font-size: 18px;
+      line-height: 150%;
+      color: $colorPrimary;
+      transition: color 0.25s $ease;
+      &:hover {
+        color: $colorPrimaryHover;
+      }
+    }
   }
   &__title {
     font-weight: bold;
@@ -208,6 +298,10 @@ export default {
         transform: translate(-50%, -50%) scale(1);
       }
     }
+  }
+  &.is-disabled {
+    pointer-events: none;
+    opacity: 0.3;
   }
 }
 </style>

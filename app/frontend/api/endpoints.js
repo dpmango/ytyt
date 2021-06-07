@@ -31,4 +31,7 @@ export default {
     init: `${api}/payment/init/`,
     initInstallment: `${api}/payment/init-installment/`,
   },
+  feedback: {
+    base: `${api}/feedback/`,
+  },
 };

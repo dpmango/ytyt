@@ -28,6 +28,7 @@ export default {
     { src: '~plugins/legacy', mode: 'client' },
     { src: '~/plugins/markdown', mode: 'client' },
     { src: '~/plugins/toast', mode: 'client' },
+    { src: '~plugins/mask', mode: 'client' },
     { src: '~/plugins/socket', mode: 'client' },
     { src: '~/plugins/vee-validate', mode: 'client' },
     { src: '~/plugins/swiper', mode: 'client', ssr: false },
