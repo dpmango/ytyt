@@ -4,20 +4,23 @@ from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
-from api.mixins import FlexibleSerializerModelViewSetMixin
+from api.mixins import FlexibleSerializerModelViewSetMixin, PermissionsByActionModelViewSetMixin
 from payment.api.serializers import InitCreationSerializer, InitCreditCreationSerializer
-from payment.layout.tinkoff import payment_layout
-from payment.layout.tinkoff_credit import payment_credit_layout
+from payment.layout.tinkoff import PaymentLayout
+from payment.layout.tinkoff_credit import PaymentCreditLayout
 from payment.models import Payment
 
 
-class PaymentViewSet(FlexibleSerializerModelViewSetMixin, viewsets.GenericViewSet):
+class PaymentViewSet(PermissionsByActionModelViewSetMixin,
+                     FlexibleSerializerModelViewSetMixin,
+                     viewsets.GenericViewSet):
 
     queryset = Payment.objects.all()
 
     permission_classes = (IsAuthenticated, )
     permission_classes_by_action = {
-        'statuses': (AllowAny, )
+        'statuses': (AllowAny, ),
+        'statuses_installment': (AllowAny, ),
     }
 
     serializers = {
@@ -25,21 +28,23 @@ class PaymentViewSet(FlexibleSerializerModelViewSetMixin, viewsets.GenericViewSe
         'init_credit': InitCreditCreationSerializer,
     }
 
-    @action(methods=['POST'], detail=False, url_path='statuses')
+    @action(methods=['POST', 'PUT', 'GET'], detail=False, url_path='statuses')
     def statuses(self, request, *args, **kwargs):
         """
         Метод получает статусы по оплате в банке
         """
-        payment_layout.receive(request.data)
-        return HttpResponse('ОК', status=status.HTTP_200_OK)
+        if self.request.method in ('POST', 'PUT',):
+            PaymentLayout().receive(request.data)
+        return HttpResponse('OK', status=status.HTTP_200_OK, content_type='text')
 
-    @action(methods=['POST'], detail=False, url_path='statuses-installment')
+    @action(methods=['POST', 'PUT', 'GET'], detail=False, url_path='statuses-installment')
     def statuses_installment(self, request, *args, **kwargs):
         """
         Метод получает статусы по оплате в банке
         """
-        payment_credit_layout.receive(request.data)
-        return HttpResponse('ОК', status=status.HTTP_200_OK)
+        if self.request.method in ('POST', 'PUT',):
+            PaymentCreditLayout().receive(request.data)
+        return HttpResponse('OK', status=status.HTTP_200_OK, content_type='text')
 
     # Для особенных ХАКЕРОВ метод назван как рассрочка, чтоб не доматались
     @action(methods=['POST'], detail=False, url_path='init-installment')
@@ -54,6 +59,8 @@ class PaymentViewSet(FlexibleSerializerModelViewSetMixin, viewsets.GenericViewSe
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         payment_credit = serializer.save()
+
+        payment_credit_layout = PaymentCreditLayout()
 
         url = payment_credit_layout.create(payment_credit)
         payment_credit_layout.is_valid(raise_exception=True)
@@ -73,6 +80,8 @@ class PaymentViewSet(FlexibleSerializerModelViewSetMixin, viewsets.GenericViewSe
         serializer.is_valid(raise_exception=True)
         payment = serializer.save()
 
+        payment_layout = PaymentLayout()
+
         url = payment_layout.init(payment)
         payment_layout.is_valid(raise_exception=True)
 
@@ -83,9 +92,3 @@ class PaymentViewSet(FlexibleSerializerModelViewSetMixin, viewsets.GenericViewSe
             **super().get_serializer_context(),
             'user': self.request.user,
         }
-
-    def get_permissions(self):
-        try:
-            return [permission() for permission in self.permission_classes_by_action[self.action]]
-        except KeyError:
-            return [permission() for permission in self.permission_classes]

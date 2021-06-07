@@ -32,7 +32,10 @@ APP_MODE = env.str('APP_MODE', default='production')
 
 IS_PRODUCTION = APP_MODE == 'production'
 
-ALLOWED_HOSTS = ['*']  # 138.68.112.220
+BASE_FRONT_URL = env('BASE_FRONT_URL').rstrip('/')
+BASE_URL = env('BASE_URL').rstrip('/')
+
+ALLOWED_HOSTS = ['*']
 
 
 INSTALLED_APPS = [
@@ -102,6 +105,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'constants.context.url.base_url',
+                'constants.context.url.base_front_url',
             ],
         },
     },
@@ -204,6 +209,8 @@ AUTHENTICATION_BACKENDS = (
 )
 
 CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_ALL_ORIGINS = True
 
 SITE_ID = 1
 
@@ -220,6 +227,7 @@ LOGOUT_ON_PASSWORD_CHANGE = False
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
 DEFAULT_ADMIN_EMAIL = env('DEFAULT_ADMIN_EMAIL')
+DEFAULT_SUPPORT_EMAIL = env('DEFAULT_SUPPORT_EMAIL')
 
 MAILGUN_TOKEN = env('MAILGUN_TOKEN')
 MAILGUN_HOST = env('MAILGUN_HOST')

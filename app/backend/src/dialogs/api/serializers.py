@@ -1,6 +1,6 @@
 from django.db.models import Q
 from rest_framework import serializers, exceptions
-
+import typing as t
 from dialogs.models import Dialog, DialogMessage
 from files.api.serializers import DefaultFileSerializer
 from users.models import User
@@ -81,11 +81,13 @@ class DialogWithLastMessageSerializers(serializers.ModelSerializer):
     last_message = serializers.SerializerMethodField()
     user = serializers.SerializerMethodField()
 
-    def get_unread_messages_count(self, obj: Dialog) -> int:
+    def get_unread_messages_count(self, obj: Dialog) -> t.Optional[int]:
         """
         Метод вернет количество непрочитанных сообщений в диалоге
         :param obj: Объект диалога
         """
+        if self.context.get('user').is_support:
+            return None
         return obj.dialogmessage_set.filter(~Q(user=self.context.get('user')), date_read__isnull=True).count()
 
     def get_user(self, obj: Dialog) -> dict:

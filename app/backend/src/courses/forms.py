@@ -34,8 +34,6 @@ class CourseLessonCreationForm(forms.ModelForm):
         """
         obj = super().save(commit=False)
 
-        print(self.changed_data)
-
         if 'ipynb_file' in self.changed_data:
             ipynb_file = self.cleaned_data['ipynb_file']
 
@@ -57,7 +55,6 @@ class CourseLessonCreationForm(forms.ModelForm):
                         cell_source_lines.append('\n')
 
                     elif cell_type == 'code':
-                        # Добавляем обартный слэш для кода в md
                         cell_source_lines = ['```\n'] + cell_source_lines + ['\n```\n']
 
                     content.extend(cell_source_lines)

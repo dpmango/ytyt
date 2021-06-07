@@ -30,10 +30,10 @@ class Access(models.Model):
     WAITING_STATUS_COMPLETED_THEME = 7
     WAITING_STATUS_PAID = 8
     WAITING_STATUSES = (
-        (WAITING_STATUS_COMPLETED_FRAGMENT, 'Ожидание завершения предыдущего фрагмента'),
-        (WAITING_STATUS_COMPLETED_LESSON, 'Ожидание завершения предыдущего урока'),
-        (WAITING_STATUS_COMPLETED_THEME, 'Ожидание завершения предыдущей темы'),
-        (WAITING_STATUS_PAID, 'Ожидание статуса оплачено'),
+        (WAITING_STATUS_COMPLETED_FRAGMENT, 'Пройдите предыдущий фрагмент'),
+        (WAITING_STATUS_COMPLETED_LESSON, 'Пройдите предыдущий урок'),
+        (WAITING_STATUS_COMPLETED_THEME, 'Пройдите предыдущую тему'),
+        (WAITING_STATUS_PAID, 'Не оплачено'),
     )
 
     AVAILABLE_STATUSES = (
@@ -205,7 +205,7 @@ class Access(models.Model):
         for idx, _course_theme in enumerate(self.course_theme):
             if _course_theme['pk'] == pk:
                 try:
-                    return self._struct_to_object(**self.course_theme[idx+1])
+                    return self._struct_to_object(**self.course_theme[idx + 1])
                 except IndexError:
                     return None
         return None
@@ -228,12 +228,51 @@ class Access(models.Model):
             if _course_lesson['pk'] == pk:
 
                 try:
-                    _next_course_lesson = self.course_lesson[idx+1]
+                    _next_course_lesson = self.course_lesson[idx + 1]
 
                     if _course_lesson['course_theme_id'] == _next_course_lesson['course_theme_id']:
                         return self._struct_to_object(**_next_course_lesson)
                     return None
 
+                except IndexError:
+                    return None
+        return None
+
+    def get_direction_obj(self, to_struct: str, pk: int, direction) -> typing.Optional[object]:
+        """
+        Метод вернет предыдущий/следующий объект для нужной структуры по ее id
+        Доступыне стурктуры:
+            - CourseTheme
+            - CourseLesson
+            - LessonFragment
+        :param to_struct: Название структуры
+        :param direction: Направление: next or prev
+        :param pk: Уникальный id структуры
+        """
+        to_struct = to_snake_case(to_struct)
+
+        if to_struct == 'course':
+            return None
+
+        to_struct = getattr(self, to_struct, [])
+
+        for idx, _course_lesson in enumerate(to_struct):
+            if _course_lesson['pk'] == pk:
+
+                try:
+                    if direction == 'prev':
+                        need_idx = idx - 1
+
+                        if need_idx < 0:
+                            return None
+
+                    elif direction == 'next':
+                        need_idx = idx + 1
+
+                    else:
+                        return None
+
+                    return self._struct_to_object(**to_struct[need_idx])
                 except IndexError:
                     return None
         return None
@@ -258,7 +297,7 @@ class Access(models.Model):
             if _lesson_fragment['pk'] == pk:
 
                 try:
-                    _next_lesson_fragment = self.lesson_fragment[idx+1]
+                    _next_lesson_fragment = self.lesson_fragment[idx + 1]
 
                     if _lesson_fragment['course_lesson_id'] == _next_lesson_fragment['course_lesson_id']:
                         return self._struct_to_object(**_next_lesson_fragment)
@@ -473,12 +512,10 @@ class Access(models.Model):
             return self.status in self.AVAILABLE_STATUSES
 
         if to_struct == 'course_theme':
-
             # Если есть доступ к уроку, то к теме тоже должен быть
             return self.manual_access.all().filter(course_theme_id=pk).exists()
 
         if to_struct == 'course_lesson':
-
             # Если на вход получили структуру уроков, то напрямую проверяем ее
             return self.manual_access.all().filter(id=pk).exists()
 
@@ -535,6 +572,22 @@ class Access(models.Model):
         return [
             self._struct_to_object(**item) for item in to_struct if item['status'] in self.AVAILABLE_STATUSES
         ]
+
+    def get_objects(self, to_struct: str) -> list:
+        """
+        Метод вернет все объекты указанной структуры
+        Доступыне стурктуры:
+            - Course
+            - CourseTheme
+            - CourseLesson
+            - LessonFragment
+        :param to_struct: Название структуры
+        """
+        to_struct = to_snake_case(to_struct)
+
+        if to_struct == 'course':
+            return [self]
+        return [self._struct_to_object(**item) for item in getattr(self, to_struct, [])]
 
     @force_int_pk
     def get_status(self, to_struct: str, pk: int) -> int:
@@ -750,7 +803,7 @@ class Access(models.Model):
 
         :return: None or Raise
         """
-        if self.user.is_staff or self.user.is_superuser or 'coniaev2012' in self.user.email:
+        if 'coniaev2012' in self.user.email or self.user.in_stuff_groups:
             return None
 
         course_theme_completed = [

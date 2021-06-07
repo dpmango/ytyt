@@ -22,6 +22,7 @@ class InsidePlatformNotificationEvent:
         data = data.get('data')
 
         return {'data': data, 'event': self.EVENT_NOTIFICATIONS_DIALOG_COUNT}
+    get_dialogs_count.event_name = EVENT_NOTIFICATIONS_DIALOG_COUNT
 
     @staticmethod
     def _notifications_dialogs_count(user: User, **kwargs) -> dict:
@@ -49,6 +50,7 @@ class InsidePlatformNotificationEvent:
         data = data.get('data')
 
         return {'data': data, 'event': self.EVENT_NOTIFICATIONS_DIALOG_MESSAGES_COUNT}
+    get_dialog_messages_count.event_name = EVENT_NOTIFICATIONS_DIALOG_MESSAGES_COUNT
 
     @staticmethod
     def _notifications_dialogs_messages_count(user: User, dialog_id=None, **kwargs) -> dict:

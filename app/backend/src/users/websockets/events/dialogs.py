@@ -1,12 +1,13 @@
-import typing
+import typing as t
+from collections import defaultdict
 
-from django.forms.models import model_to_dict
 from django.utils import timezone
 
 from dialogs.api.serializers import DialogWithLastMessageSerializers, DefaultDialogMessageSerializers
 from dialogs.models import DialogMessage, Dialog
 from files.models import File
 from providers.mailgun.mixins import EmailNotificationMixin
+from users import permissions
 from users.models import User
 
 
@@ -53,34 +54,23 @@ class DialogEvent(EmailNotificationMixin):
         offset = offset or 0
         limit = limit or 20
 
-        dialogs = user.dialog_users_set.all().order_by('id').prefetch_related('dialogmessage_set')
-        dialogs = dialogs.distinct('id')[offset:limit]
+        if user.is_support:
+            kw = dict(is_support=True, with_role=permissions.GROUP_SUPPORT, limit_=limit, offset_=offset)
+
+            dialogs = Dialog.objects.order_by_last_unread_message(**kw)
+            count = Dialog.objects.count_with_order_by(**kw)
+        else:
+            kw = dict(user_id_=user.id, limit_=limit, offset_=offset)
+
+            dialogs = Dialog.objects.order_by_last_unread_message(**kw)
+            count = Dialog.objects.count_with_order_by(**kw)
 
         context = {'user': user, 'base_url': kwargs.get('base_url')}
         dialogs = DialogWithLastMessageSerializers(dialogs, many=True, context=context).data
 
-        dialogs_with_unread_message = []
-        dialogs_without_unread_message = []
+        return {'data': dialogs, 'to': user, **self.generate_meta(limit, offset, count)}
 
-        for _dialog in dialogs:
-            last_message = _dialog.get('last_message') or {}
-
-            if last_message.get('user') or {}.get('id') != user.id or last_message.get('date_read') is not None:
-                dialogs_without_unread_message.append(_dialog)
-            else:
-                dialogs_with_unread_message.append(_dialog)
-
-        sorted_func = lambda dialog: (dialog.get('last_message') or {}).get('date_created') or '2222-01-01'
-
-        dialogs_with_unread_message = sorted(dialogs_with_unread_message, key=sorted_func)
-        dialogs_without_unread_message = sorted(dialogs_without_unread_message, key=sorted_func)
-
-        dialogs = dialogs_with_unread_message + dialogs_without_unread_message
-        dialogs_count = user.dialog_users_set.count()
-        return {'data': dialogs, 'to': user, **self.generate_meta(limit, offset, dialogs_count)}
-
-    def _dialogs_messages_load(
-            self, user: User, dialog_id=None, limit=None, offset=None, **kwargs) -> typing.Optional[dict]:
+    def _dialogs_messages_load(self, user: User, dialog_id=None, limit=None, offset=None, **kwargs) -> t.Optional[dict]:
         """
         Получение всех сообщений диалога
         :param user: Пользователь, который загрузил чат
@@ -95,7 +85,7 @@ class DialogEvent(EmailNotificationMixin):
             return {'to': user, 'data': 'Не указан `dialog_id`', 'exception': True}
 
         dialog = Dialog.objects.filter(id=dialog_id).first()
-        if not dialog or user not in dialog.users.all():
+        if (not dialog or user not in dialog.users.all()) and not user.is_support:
             return {'to': user, 'data': 'Диалог не принадлежит пользователю', 'exception': True}
 
         messages = DialogMessage.objects.filter(dialog=dialog).order_by('-date_created')
@@ -110,7 +100,7 @@ class DialogEvent(EmailNotificationMixin):
         return {'data': messages, 'to': user, **self.generate_meta(limit, offset, messages_count)}
 
     @staticmethod
-    def _dialogs_messages_seen(user: User, dialog_id=None, message_id=None, **kwargs) -> typing.Optional[dict]:
+    def _dialogs_messages_seen(user: User, dialog_id=None, message_id=None, **kwargs) -> t.Optional[dict]:
         """
         Метод делает сообщение прочитанным
         :param user: Пользователь, который загрузил чат
@@ -122,7 +112,7 @@ class DialogEvent(EmailNotificationMixin):
 
         dialog = Dialog.objects.filter(id=dialog_id).first()
         dialog_users = dialog.users.all()
-        if not dialog or user not in dialog_users:
+        if (not dialog or user not in dialog_users) and not user.is_support:
             return {'to': user, 'data': 'Диалог не принадлежит пользователю', 'exception': True}
 
         message = DialogMessage.objects.get(id=message_id)
@@ -134,7 +124,7 @@ class DialogEvent(EmailNotificationMixin):
         return {'data': message, 'to': dialog_users}
 
     def _dialogs_messages_create(
-            self, user: User, dialog_id=None, body=None, file_id=None, **kwargs) -> typing.Optional[dict]:
+            self, user: User, dialog_id=None, body=None, file_id=None, lesson_id=None, **kwargs) -> t.Optional[dict]:
         """
         Создание сообщения
         Так же уведомляются все пользователи, которые есть в диалоге
@@ -142,11 +132,14 @@ class DialogEvent(EmailNotificationMixin):
         :param dialog_id: ID диалога
         :param body: Тело сообщения
         :param file_id: ID файла
+        :param lesson_id: ID урока, в котором задали вопрос
         :param kwargs: Дополнительные аргументы для создания сообщения
         :return: typing.Optional[dict]
         """
         dialog = Dialog.objects.filter(id=dialog_id).first()
-        if not dialog or user not in dialog.users.all():
+        dialog_users = dialog.users.all()
+
+        if (not dialog or user not in dialog_users) and not user.is_support:
             return {'to': user, 'data': 'Диалог не принадлежит пользователю', 'exception': True}
 
         if isinstance(file_id, int):
@@ -154,21 +147,35 @@ class DialogEvent(EmailNotificationMixin):
             if file.user != user:
                 return {'to': user, 'data': 'Файл не принадлежит пользователю', 'exception': True}
 
-        message = DialogMessage.objects.create(dialog_id=dialog_id, user=user, body=body, file_id=file_id)
+        message = DialogMessage.objects.create(
+            dialog_id=dialog_id, user=user, body=body, file_id=file_id, lesson_id=lesson_id
+        )
 
         context = {'user': user, 'base_url': kwargs.get('base_url')}
         message = DefaultDialogMessageSerializers(message, context=context).data
+        mute = defaultdict(list)
 
-        users_to_notification = set(dialog.users.all())
+        users_to_notification = set(dialog_users)
         users_to_email_notification = users_to_notification - {user}
 
-        context = {**message, **model_to_dict(user), 'base_url': kwargs.get('base_url')}
+        #  Если диалог с поддержкой, то уведомлять всех суппортов
+        if dialog.with_support():
+            supports = User.supports.all()
+            users_to_notification |= set(supports)
+
+            # Если отправитель суппорт, то обновлять количество непрочитанных сообщений у других суппортов не нужно
+            if user.is_support:
+                mute['notifications.dialogs.count'] = supports
+                mute['notifications.dialogs.messages.count'] = supports
+
+        email_to = list(users_to_email_notification)[0].email if len(users_to_email_notification) == 1 else 'None@admin'
+        context = {'message': message, 'from': user, 'email': email_to}
 
         for _user in users_to_email_notification:
             if _user.email_notifications:
                 self.send_mail(context, _user.email)
 
-        return {'data': message, 'to': users_to_notification}
+        return {'data': message, 'to': users_to_notification, 'mute': mute}
 
     subject_template_name = 'users/message/new_message_subject.txt'
     email_template_name = 'users/message/new_message_body.html'

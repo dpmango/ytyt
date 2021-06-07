@@ -10,11 +10,13 @@ from courses_access.models import Access
 from payment.layout.core import Layout
 from payment.models import Payment
 from providers.tinkoff.contrib import Tinkoff, tinkoff_client
+from users.shortcuts import replace_educator_to_reviewer
 
-__all__ = ('payment_layout', )
+__all__ = ('PaymentLayout', )
 
 
 class PaymentLayout(Layout):
+    _cli = tinkoff_client
 
     def receive(self, raw_payment: dict):
         super().receive(raw_payment)
@@ -66,7 +68,7 @@ class PaymentLayout(Layout):
             ),
             Receipt=dict(
                 Email=payment.user.email,
-                EmailCompany=settings.DEFAULT_ADMIN_EMAIL,
+                EmailCompany=settings.DEFAULT_SUPPORT_EMAIL,
                 Taxation=Tinkoff.TAXATION_USN_INCOME,
                 Items=[
                     dict(
@@ -74,8 +76,9 @@ class PaymentLayout(Layout):
                         Price=payment.amount,
                         Quantity=1.00,
                         Amount=payment.amount,
-                        PaymentMethod=Tinkoff.PAYMENT_METHOD_FULL_PAYMENT,
+                        PaymentMethod=Tinkoff.PAYMENT_METHOD_FULL_PREPAYMENT,
                         Tax=Tinkoff.TAX_NONE,
+                        PaymentObject=Tinkoff.PAYMENT_OBJECT_SERVICE,
                     ),
                 ],
             ),
@@ -127,12 +130,13 @@ class PaymentLayout(Layout):
             self.receive_confirmed(payment)
             return None
 
-        raise Exception({
+        self.errors = {
             'detail': 'У подтверждения пришел странный статус — %s' % (status,),
             'context': {
                 'confirm_data': confirm_data, 'payment': model_to_dict(payment),
             }
-        })
+        }
+        logger.info('[{_class}][confirm] {detail}, {error_code}'.format(_class=self._class, **self.errors))
 
     @staticmethod
     def receive_confirmed(payment: Payment, **kwargs) -> None:
@@ -147,14 +151,9 @@ class PaymentLayout(Layout):
             payment.save(update_fields=['status', 'date_updated', 'date_payment'])
 
             # Переназначаем ревьюера
-            payment.user.re_elect_reviewer()
+            replace_educator_to_reviewer(payment.user)
 
             # Предоставляем доступ к курсу
             access = payment.user.access_set.filter(course=payment.course).first()
             access.access_type = Access.COURSE_ACCESS_TYPE_FULL_PAID
             access.save()
-
-
-payment_layout = PaymentLayout(
-    cli=tinkoff_client
-)

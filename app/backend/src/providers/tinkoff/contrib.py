@@ -6,6 +6,12 @@ from providers.core import BaseProvider
 
 
 class Tinkoff(BaseProvider):
+
+    PAYMENT_OBJECT_SERVICE = 'service'
+    PAYMENT_OBJECTS = (
+        (PAYMENT_OBJECT_SERVICE, 'Услуга')
+    )
+
     PAYMENT_METHOD_FULL_PAYMENT = 'full_payment'
     PAYMENT_METHOD_FULL_PREPAYMENT = 'full_prepayment'
     PAYMENT_METHOD_PREPAYMENT = 'prepayment'

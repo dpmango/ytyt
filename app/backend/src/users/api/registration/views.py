@@ -1,5 +1,3 @@
-from urllib.parse import urlparse
-
 from allauth.account import app_settings as allauth_settings
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
@@ -12,8 +10,6 @@ from rest_framework.response import Response
 
 from providers.mailgun.mixins import EmailNotificationMixin
 from users.serializers import VerifyEmailSerializer
-from drf_yasg.openapi import Parameter, IN_QUERY, TYPE_STRING
-from drf_yasg.utils import swagger_auto_schema
 
 
 class RegisterView(RegisterViewBase):
@@ -56,7 +52,7 @@ class VerifyEmailView(CreateAPIView, UpdateAPIView, EmailNotificationMixin):
         serializer = self.get_serializer(request.user)
         self.send_mail(**serializer.data)
 
-        data = {'detail': 'Письмо для подтверждения email выслано'}
+        data = {'detail': f'Письмо с подтверждением отправлено на {request.user.email}.'}
         return Response(data, status=status.HTTP_200_OK)
 
     def patch(self, request, *args, **kwargs):
@@ -69,12 +65,3 @@ class VerifyEmailView(CreateAPIView, UpdateAPIView, EmailNotificationMixin):
 
         data = {'detail': 'Email подтвержден'}
         return Response(data, status=status.HTTP_200_OK)
-
-    def get_serializer_context(self):
-        current_site = urlparse(self.request.build_absolute_uri(''))
-
-        return {
-            **super().get_serializer_context(),
-            'domain': current_site.netloc,
-            'protocol': current_site.scheme,
-        }

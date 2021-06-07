@@ -232,7 +232,7 @@ class GenerateReport:
             time_answers = []
 
             for message in dialog.dialogmessage_set.all():
-                if prev_user is None and message.user.is_staff:
+                if prev_user is None and (message.user.is_mentor or message.user.is_educator):
                     continue
 
                 if message.user == prev_user:

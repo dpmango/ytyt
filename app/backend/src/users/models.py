@@ -13,7 +13,7 @@ from django.utils.translation import gettext_lazy as _
 from sorl.thumbnail import ImageField
 
 from users import permissions
-from users.mixins import ReviewersMixins
+from users.mixins import ReviewersMixins, SupportsMixins
 from users.utils import method_cache_key
 
 
@@ -102,7 +102,25 @@ class ReviewersManager(models.Manager):
         return random.choices(queryset, weights=queryset_weights)[0]
 
 
-class User(AbstractBaseUser, PermissionsMixin, ReviewersMixins):
+class SupportManager(models.Manager):
+
+    def get_less_busy_support(self) -> 'User':
+        """
+        Метод вернет случайного суппорта
+        """
+        random.seed(timezone.now())
+        supports = self.filter(groups=Group.objects.get(pk=permissions.GROUP_SUPPORT), is_active=True)
+
+        return random.choices(supports)[0]
+
+    def all(self) -> typing.List['User']:
+        return self.filter(groups=Group.objects.get(pk=permissions.GROUP_SUPPORT))
+
+
+class User(AbstractBaseUser,
+           PermissionsMixin,
+           ReviewersMixins,
+           SupportsMixins):
 
     GENDER_UNKNOWN = 0
     GENDER_FEMALE = 1
@@ -144,6 +162,7 @@ class User(AbstractBaseUser, PermissionsMixin, ReviewersMixins):
 
     objects = UserManager()
     reviewers = ReviewersManager()
+    supports = SupportManager()
 
     EMAIL_FIELD = 'email'
     USERNAME_FIELD = 'email'
@@ -185,14 +204,6 @@ class User(AbstractBaseUser, PermissionsMixin, ReviewersMixins):
         self.save()
         return self
 
-    def re_elect_reviewer(self):
-        self.remove_reviewer()
-        reviewer = self.__class__.reviewers.get_less_busy()
-
-        self.reviewer = reviewer
-        self.save()
-        return self
-
     @property
     def ws_key(self) -> str:
         return 'users__%s' % self.id
@@ -208,3 +219,27 @@ class User(AbstractBaseUser, PermissionsMixin, ReviewersMixins):
             fio.append(self.middle_name)
 
         return ' '.join(fio)
+
+    @property
+    def is_educator(self) -> bool:
+        return permissions.GROUP_EDUCATOR in self.groups.all().values_list('id', flat=True)
+
+    @property
+    def is_mentor(self) -> bool:
+        return permissions.GROUP_MENTOR in self.groups.all().values_list('id', flat=True)
+
+    @property
+    def is_support(self) -> bool:
+        return permissions.GROUP_SUPPORT in self.groups.all().values_list('id', flat=True)
+
+    @property
+    def in_stuff_groups(self) -> bool:
+        user_groups = self.groups.all().values_list('id', flat=True)
+        return any(
+            group in user_groups for group in (
+                permissions.GROUP_MENTOR,
+                permissions.GROUP_EDUCATOR,
+                permissions.GROUP_ADMINISTRATOR,
+                permissions.GROUP_SUPPORT,
+            )
+        )

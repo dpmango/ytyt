@@ -1,27 +1,34 @@
 import typing
 
 from django.db import transaction
+from django.forms import model_to_dict
 from django.utils import timezone
 from loguru import logger
 
 from courses_access.models import Access
 from payment.layout.core import Layout
 from payment.models import PaymentCredit
+from providers.mailgun.mixins import EmailNotification
 from providers.tinkoff_credit.contrib import tinkoff_credit_client, TinkoffCredit
+from users.shortcuts import replace_educator_to_reviewer
 
-__all__ = ('payment_credit_layout', )
+__all__ = ('PaymentCreditLayout', )
 
 
 class PaymentCreditLayout(Layout):
+    _cli = tinkoff_credit_client
 
     def receive(self, raw_payment_credit: dict):
         super().receive(raw_payment_credit)
 
-        _id = raw_payment_credit.get('id')
+        pk = raw_payment_credit.get('id')
         status = raw_payment_credit.get('status')
 
+        if not status or not pk:
+            return
+
         try:
-            payment_credit = PaymentCredit.objects.get(external_payment_id=_id)
+            payment_credit = PaymentCredit.objects.get(pk=pk)
         except PaymentCredit.DoesNotExist as e:
             logger.info('[%s][receive] err=%s' % (self._class, e,))
             return
@@ -32,11 +39,13 @@ class PaymentCreditLayout(Layout):
 
         with transaction.atomic():
             payment_credit.status = status
-            payment_credit.external_payment_id = _id
-            payment_credit.save(update_fields=['status', 'external_payment_id', 'date_updated'])
+            payment_credit.save(update_fields=['status', 'date_updated'])
 
-            if status.status == TinkoffCredit.STATUS_SIGNED:
+            if status == TinkoffCredit.STATUS_SIGNED:
                 self.receive_signed(payment_credit)
+
+            elif status == TinkoffCredit.STATUS_REJECTED:
+                self.receive_rejected(payment_credit)
 
     @staticmethod
     def receive_signed(payment_credit: PaymentCredit) -> None:
@@ -51,12 +60,24 @@ class PaymentCreditLayout(Layout):
             payment_credit.save(update_fields=['status', 'date_updated', 'date_approval'])
 
             # Переназначаем ревьюера
-            payment_credit.user.re_elect_reviewer()
+            replace_educator_to_reviewer(payment_credit.user)
 
             # Предоставляем доступ к курсу
             access = payment_credit.user.access_set.filter(course=payment_credit.course).first()
             access.access_type = Access.COURSE_ACCESS_TYPE_FULL_PAID
             access.save()
+
+    @staticmethod
+    def receive_rejected(payment_credit: PaymentCredit) -> None:
+        """
+        Метод уведомляет админа по отказу в рассрочке для пользователя
+        :param payment_credit: Объект займа
+        """
+        mailgun = EmailNotification(
+            subject_template_raw='Отказ в рассрочке',
+            email_template_raw='Пользователю отказали в рассрочке.\nID: {id},\nИмя: {first_name},\nEmail: {email}',
+        )
+        mailgun.send_mail(context=model_to_dict(payment_credit.user))
 
     def create(self, payment_credit: PaymentCredit) -> typing.Optional[str]:
         """
@@ -68,6 +89,7 @@ class PaymentCreditLayout(Layout):
             sum=payment_credit.amount,
             orderNumber=payment_credit.pk,
             promoCode=payment_credit.promo_code,
+            demoFlow="sms",
             items=[
                 dict(
                     name=payment_credit.course.title,
@@ -104,8 +126,3 @@ class PaymentCreditLayout(Layout):
         payment_credit.save(update_fields=['external_payment_id', 'date_updated'])
 
         return link
-
-
-payment_credit_layout = PaymentCreditLayout(
-    cli=tinkoff_credit_client
-)
