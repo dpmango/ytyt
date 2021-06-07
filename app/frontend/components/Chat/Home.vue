@@ -181,7 +181,7 @@ export default {
       const messages = this.$refs.dialogs.querySelectorAll('.message--outcoming[data-read="false"]');
 
       if (!messages) return;
-      if (!this.user.is_support) return;
+      if (this.user.is_support) return;
 
       messages.forEach((message) => {
         const rect = message.getBoundingClientRect();
