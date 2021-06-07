@@ -109,7 +109,7 @@ body._lock {
     border-radius: 8px;
     transition: 0.2s;
     &:hover {
-      background-color: #0d74cf;
+      background-color: $colorPrimaryHover;
     }
   }
 
@@ -128,7 +128,7 @@ body._lock {
       animation-duration: 0.8s;
       animation-iteration-count: infinite;
       animation-direction: alternate;
-      background-color: #0d74cf;
+      background-color: $colorPrimaryHover;
       transition: 0.2s;
     }
     @include r($md) {
@@ -242,6 +242,9 @@ body._lock {
     &.swiper-button-disabled {
       opacity: 0.3;
     }
+    &:hover {
+      filter: brightness(87%);
+    }
   }
   .slider-button-next {
     background-image: url('~assets/landing/img/arrow-right.svg');
@@ -251,6 +254,9 @@ body._lock {
     transition: 0.2s;
     &.swiper-button-disabled {
       opacity: 0.3;
+    }
+    &:hover {
+      filter: brightness(87%);
     }
   }
   @keyframes button-shadow {

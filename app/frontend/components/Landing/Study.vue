@@ -3,25 +3,29 @@
     <h2 class="visually-hidden">Формат обучения</h2>
     <div class="study__container container">
       <div class="study__video video-study">
-        <div class="video-study__preview">
+        <a class="video-study__preview" href="https://www.youtube.com/watch?v=Zv11L-ZfrSg" data-fancybox>
           <img src="~assets/landing/img/video__preview.png" class="video-study__bg" alt="" />
-          <a href="https://www.youtube.com/watch?v=Zv11L-ZfrSg" data-fancybox class="video-study__play button-play">
+          <span class="video-study__play button-play">
             <img src="~assets/landing/img/icon-play.svg" alt="" />
-          </a>
-        </div>
-        <p class="video-study__description">Процесс обучения на нашей платформе</p>
+          </span>
+        </a>
+        <p class="video-study__description">Процесс обучения на&nbsp;нашей платформе</p>
       </div>
       <ul class="study__features features-study">
         <li class="features-study__item">
-          <strong>Учитесь, когда вам удобно.</strong> Никаких «потоков», «групп» и временных рамок.
+          <strong>Учитесь, когда вам удобно.</strong> Никаких &laquo;потоков&raquo;, &laquo;групп&raquo;
+          и&nbsp;временных рамок.
         </li>
         <li class="features-study__item">
-          <strong>Занимайтесь с любого устройства</strong> – компьютер, планшет, телефон.
+          <strong>Занимайтесь с&nbsp;любого устройства</strong>&nbsp;&mdash; компьютер, планшет, телефон.
         </li>
         <li class="features-study__item">
-          <strong>От 30 минут в день</strong> – весь материал разбит на короткие структурированные уроки.
+          <strong>От&nbsp;30&nbsp;минут в&nbsp;день</strong>&nbsp;&mdash; весь материал разбит на&nbsp;короткие
+          структурированные уроки.
         </li>
-        <li class="features-study__item"><strong>Задавайте вопросы</strong> – наставник ответит вам в чате.</li>
+        <li class="features-study__item">
+          <strong>Задавайте вопросы</strong>&nbsp;&mdash; наставник ответит вам в&nbsp;чате.
+        </li>
       </ul>
     </div>
   </section>
@@ -53,11 +57,39 @@
 }
 .video-study {
   &__preview {
+    display: block;
     position: relative;
+    z-index: 1;
     border-radius: 8px;
     height: 358px;
     margin-bottom: 12px;
     overflow: hidden;
+    &::before {
+      display: inline-block;
+      content: ' ';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(black, 0.3);
+      opacity: 0;
+      will-change: opacity;
+      transition: opacity 0.25s $ease;
+    }
+    &:hover {
+      &::before {
+        opacity: 1;
+      }
+      .button-play {
+        animation-name: button-shadow;
+        animation-duration: 0.8s;
+        animation-iteration-count: infinite;
+        animation-direction: alternate;
+        background-color: $colorPrimaryHover;
+        transition: 0.2s;
+      }
+    }
     @include r($mobile-s) {
       height: 185px;
     }

@@ -33,7 +33,6 @@
             <span>
               Результатов по запросу <strong>{{ input }}</strong> не найдено
             </span>
-            <a href="#" @click="resetSearch">Сборсить поиск</a>
           </div>
         </template>
 
@@ -76,7 +75,7 @@ export default {
           if (err.code === 403) {
             this.isLoading = false;
             // this.$toast.global.error({ message: err.data.detail });
-            // this.$router.push('/payment');
+            this.$router.push('/course');
             this.$vfm.show('paymentStart');
           }
         });
@@ -100,16 +99,13 @@ export default {
     },
     handleFocus(e) {
       e.stopPropagation();
-
       this.active = true;
     },
     handleClose() {
       this.active = false;
       this.visible = false;
     },
-    resetSearch() {
-      this.input = '';
-    },
+
     clickOutside(e) {
       if (!e.target.closest('.header__search')) {
         this.handleClose();
@@ -202,9 +198,14 @@ export default {
     border-radius: 4px;
     pointer-events: none;
     min-height: 1px;
-    max-height: calc(100vh - 60px - 120px);
+    // height: calc(100vh - 60px - 120px);
+    max-height: 1px;
     overflow-y: auto;
+    opacity: 0;
+    transition: opacity 0.1s $ease, max-height 0.3s $ease;
     &.is-active {
+      opacity: 1;
+      max-height: 613px;
       pointer-events: all;
     }
   }
@@ -282,7 +283,7 @@ export default {
   position: relative;
   display: flex;
   flex-direction: column;
-  padding: 16px 13px;
+  padding: 12px 16px;
   transition: background 0.25s $ease;
   &::after {
     display: inline-block;
@@ -290,9 +291,12 @@ export default {
     position: absolute;
     bottom: 0;
     left: 0;
-    right: 115px;
+    right: 0;
     height: 1px;
     background: $borderColor;
+  }
+  &__content {
+    max-width: 420px;
   }
   &__course {
     font-size: 14px;

@@ -37,20 +37,62 @@
           </div>
           <div class="info-price__extra">
             <p>Рассрочка предоставляется банком Тинькофф</p>
-            <a href="#" class="info-price__link">Условия рассрочки</a>
+            <a href="landing/files/installment_terms.pdf" target="_blank" class="info-price__link">Условия рассрочки</a>
           </div>
         </div>
         <div class="price__join join-price">
           <h2 class="join-price__title">Записаться на курс или получить бесплатную консультацию</h2>
-          <form id="form" action="#" class="join-price__form form">
-            <input id="input-name" type="text" name="form-name" class="form__input _req" placeholder="Имя" />
-            <input id="input-email" type="email" name="form-email" class="form__input _req" placeholder="E-mail" />
-            <input id="input-phone" type="tel" name="form-phone" class="form__input _req" placeholder="Телефон" />
-            <button class="form__button button" type="submit">Отправить заявку</button>
-          </form>
+          <client-only>
+            <ValidationObserver
+              ref="form"
+              v-slot="{ invalid }"
+              tag="form"
+              class="join-price__form form"
+              @submit.prevent="handleSubmit"
+            >
+              <UiError :error="error" />
+
+              <ValidationProvider v-slot="{ errors }" class="ui-group" rules="required">
+                <UiInput
+                  :value="name"
+                  theme="dynamic"
+                  label="Имя"
+                  type="text"
+                  :error="errors[0]"
+                  @onChange="(v) => (name = v)"
+                />
+              </ValidationProvider>
+
+              <ValidationProvider v-slot="{ errors }" class="ui-group" rules="email|required">
+                <UiInput
+                  :value="email"
+                  theme="dynamic"
+                  label="Email"
+                  type="email"
+                  :error="errors[0]"
+                  @onChange="(v) => (email = v)"
+                />
+              </ValidationProvider>
+
+              <ValidationProvider v-slot="{ errors }" class="ui-group" rules="required">
+                <UiInput
+                  v-mask="'+7 (###) ###-####'"
+                  :value="phone"
+                  theme="dynamic"
+                  label="Телефон"
+                  type="tel"
+                  :error="errors[0]"
+                  @onChange="(v) => (phone = v)"
+                />
+              </ValidationProvider>
+
+              <UiButton type="submit" block>Отправить заявку</UiButton>
+            </ValidationObserver>
+          </client-only>
+
           <p class="join-price__extra">
             Отправляя заявку, вы даете согласие на обработку своих персональных данных в соответствии с
-            <a href="#">политикой конфиденциальности</a>
+            <a href="landing/files/confidentiality_policy.pdf" target="_blank">политикой конфиденциальности</a>
           </p>
         </div>
       </div>
@@ -59,15 +101,17 @@
 </template>
 
 <script>
+import { mapActions } from 'vuex';
+
 export default {
   data() {
     return {
-      activePrice: 3,
+      activePrice: 1,
       prices: [
         {
           id: 1,
-          title: '4 мес.',
-          price: '15 000',
+          title: '12 мес.',
+          price: '5 000',
         },
         {
           id: 2,
@@ -76,71 +120,48 @@ export default {
         },
         {
           id: 3,
-          title: '12 мес.',
-          price: '5 000',
+          title: '4 мес.',
+          price: '15 000',
         },
       ],
+      name: null,
+      email: null,
+      phone: null,
+      error: null,
     };
   },
-  mounted() {
-    // Валидация
-    const form = document.getElementById('form');
-    form.addEventListener('submit', formSend);
 
-    async function formSend(e) {
-      e.preventDefault();
-
-      const error = await formValidate(form);
-    }
-
-    function formValidate(form) {
-      let error = 0;
-      const formReq = document.querySelectorAll('._req');
-
-      for (let index = 0; index < formReq.length; index++) {
-        const input = formReq[index];
-        formRemoveError(input);
-
-        if (input.classList.contains('_email')) {
-          if (emailTest(input)) {
-            formAddError(input);
-            error++;
-          }
-        } else if (input.getAttribute('type') === 'checkbox' && input.checked === false) {
-          formAddError(input);
-          error++;
-        } else if (input.value === '') {
-          formAddError(input);
-          error++;
-        }
-      }
-      return error;
-    }
-    function formAddError(input) {
-      input.parentElement.classList.add('_error');
-      input.classList.add('_error');
-    }
-    function formRemoveError(input) {
-      input.parentElement.classList.remove('_error');
-      input.classList.remove('_error');
-    }
-
-    // Маска email
-    function emailTest(input) {
-      // eslint-disable-next-line no-useless-escape
-      return !/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,8})+$/.test(input.value);
-    }
-
-    // Маска телефона
-    // window.$('#input-phone').inputmask({
-    //   mask: '+7 (999) 999-99-99',
-    //   showMaskOnHover: false,
-    // });
-  },
   methods: {
     setTab(id) {
       this.activePrice = id;
     },
+    async handleSubmit() {
+      const isValid = await this.$refs.form.validate();
+      if (!isValid) {
+        return;
+      }
+
+      const { name, email, phone } = this;
+      await this.feedback({ first_name: name, email, phone })
+        .then((_res) => {
+          this.error = null;
+          this.name = '';
+          this.email = '';
+          this.phone = '';
+
+          this.$toast.global.default({ message: _res.detail });
+        })
+        .catch((err) => {
+          const { data, code } = err;
+
+          if (data && code === 400) {
+            Object.keys(data).forEach((key) => {
+              this.error = data[key][0];
+            });
+          }
+        });
+    },
+    ...mapActions('feedback', ['feedback']),
   },
 };
 </script>
@@ -288,7 +309,7 @@ export default {
   padding: 40px 100px;
   &__title {
     font-size: 32px;
-    margin-bottom: 21px;
+    margin-bottom: 32px;
   }
   &__form {
     margin-bottom: 16px;
@@ -321,20 +342,15 @@ export default {
 .form {
   display: flex;
   flex-direction: column;
-  &__input {
-    font-family: $baseFont;
-    color: $fontColor;
-    font-size: 18px;
-    background-color: #fff;
-    border-radius: 8px;
-    padding: 21px 16px;
-    margin-bottom: 18px;
-    border: 1px solid transparent;
+  .ui-group {
+    margin-bottom: 24px;
+    ::v-deep .input .input__input input {
+      padding-top: 25px;
+      padding-bottom: 12px;
+      background: white;
+    }
     &:last-of-type {
       margin-bottom: 32px;
-    }
-    &._error {
-      border-color: $colorRed;
     }
   }
   &__button {

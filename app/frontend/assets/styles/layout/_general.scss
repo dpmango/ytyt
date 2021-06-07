@@ -26,9 +26,28 @@ body, html {
   -moz-osx-font-smoothing: grayscale;
 }
 
-::selection {
-  color: white;
-  background: $colorPrimary;
+// ::-webkit-scrollbar{
+//   width: 8px;
+//   background-color: rgba(255,255,255,0);
+// }
+// ::-webkit-scrollbar-track,
+// ::-webkit-scrollbar-thumb{
+//   border-right: 4px solid rgba(255,255,255,0);
+// }
+// ::-webkit-scrollbar-thumb{
+//   background: rgba(#171818, 0.3);
+//   border-radius: 4px;
+//   background-clip: padding-box;
+// }
+
+::-webkit-scrollbar{
+  width: 4px;
+}
+
+::-webkit-scrollbar-thumb{
+  background: rgba(#171818, 0.3);
+  border-radius: 4px;
+  background-clip: padding-box;
 }
 
 .is-ios {

@@ -5,13 +5,9 @@
 <script>
 export default {
   layout: 'auth',
+  middleware: ['authenticated'],
   head: {
     title: 'Авторизация',
-  },
-  mounted() {
-    if (this.$store.getters['auth/isAuthenticated']) {
-      this.$router.push('/course');
-    }
   },
 };
 </script>

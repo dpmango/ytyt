@@ -1,137 +1,31 @@
 <template>
   <client-only>
-    <div class="brython">
-      <div :id="`container_${id}`" class="brython__editor">
+    <div class="brython" :class="[!ready && 'is-loading']">
+      <template v-if="!ready">
+        <UiLoader :loading="true" theme="block" />
+      </template>
+
+      <div :id="`container__${id}`" class="brython__editor">
         <div class="brython__actions">
-          <button :id="`run_${id}`" class="brython__run">▶</button>
-          <button :id="`show_console_${id}`" class="brython__show_console">Python</button>
+          <button :id="`run__${id}`" class="run_stdin brython__run">
+            <UiSvgIcon name="run-code" />
+            <span>Воспрозвести код</span>
+          </button>
         </div>
 
         <div class="brython__main">
-          <div :id="`editor_${id}`" class="brython__editor-main"></div>
+          <div :id="`editor__${id}`" class="editor__block brython__editor-main">print('WOW!')</div>
           <div class="brython__console">
-            <textarea :id="`console_${id}`" readonly autocomplete="off"></textarea>
+            <textarea :id="`console__${id}`" class="console__stdout" readonly autocomplete="off"></textarea>
           </div>
         </div>
       </div>
 
-      <script :id="`tests_editor_${id}`" type="text/python3">
-        import sys
-        import time
-        import binascii
+      <script type="text/python3">
+        from browser import document as doc, window
+        from brython.editor import EditorCodeBlocks
 
-        import tb as traceback
-        import javascript
-
-        from browser import document as doc, window, alert, bind, html
-        from browser.widgets import dialog
-
-        has_ace = True
-        try:
-            editor = window.ace.edit("editor_{{id}}")
-            editor.setTheme("ace/theme/solarized_light")
-            editor.session.setMode("ace/mode/python")
-            editor.focus()
-
-            editor.setOptions({
-             'enableLiveAutocompletion': True,
-             'highlightActiveLine': False,
-             'highlightSelectedWord': True
-            })
-        except:
-            editor = html.TEXTAREA(rows=20, cols=70)
-            doc["editor_{{id}}"] <= editor
-            def get_value(): return editor.value
-            def set_value(x): editor.value = x
-            editor.getValue = get_value
-            editor.setValue = set_value
-            has_ace = False
-
-        if hasattr(window, 'localStorage'):
-            from browser.local_storage import storage
-        else:
-            storage = None
-
-        def reset_src():
-            if "code" in doc.query:
-                code = doc.query.getlist("code")[0]
-                editor.setValue(code)
-            else:
-                if storage is not None and "py_src" in storage:
-                    editor.setValue(storage["py_src"])
-                else:
-                    editor.setValue('for i in range(10):\n\tprint(i)')
-            editor.scrollToRow(0)
-            editor.gotoLine(0)
-
-        def reset_src_area():
-            if storage and "py_src" in storage:
-                editor.value = storage["py_src"]
-            else:
-                editor.value = 'for i in range(10):\n\tprint(i)'
-
-
-        class cOutput:
-            encoding = 'utf-8'
-
-            def __init__(self):
-                self.cons = doc["console_{{id}}"]
-                self.buf = ''
-
-            def write(self, data):
-                self.buf += str(data)
-
-            def flush(self):
-                self.cons.value += self.buf
-                self.buf = ''
-
-            def __len__(self):
-                return len(self.buf)
-
-        if "console" in doc:
-            cOut = cOutput()
-            sys.stdout = cOut
-            sys.stderr = cOut
-
-        output = ''
-
-        def show_console(ev):
-            doc["console_{{id}}"].value = output
-            doc["console_{{id}}"].cols = 60
-
-        # load a Python script
-        def load_script(evt):
-            _name = evt.target.value + '?foo=%s' % time.time()
-            editor.setValue(open(_name).read())
-
-        # run a script, in global namespace if in_globals is True
-        def run(*args):
-            global output
-            doc["console_{{id}}"].value = ''
-            src = editor.getValue()
-            if storage is not None:
-               storage["py_src"] = src
-
-            t0 = time.perf_counter()
-            try:
-                ns = {'__name__':'__main__'}
-                exec(src, ns)
-                state = 1
-            except Exception as exc:
-                traceback.print_exc(file=sys.stderr)
-                state = 0
-            sys.stdout.flush()
-            output = doc["console_{{id}}"].value
-
-            return state
-
-        if has_ace:
-            reset_src()
-        else:
-            reset_src_area()
-
-        doc['run_{{id}}'].bind('click',lambda *args: run())
-        doc['show_console_{{id}}'].bind('click', show_console)
+        EditorCodeBlocks(doc, window).declare()
       </script>
     </div>
   </client-only>
@@ -140,18 +34,15 @@
 <script>
 export default {
   props: {
+    ready: Boolean,
     id: String,
   },
-  mounted() {
-    // TODO add method aka ready
-    // setTimeout(() => {
-    //   this.$refs.iframe.contentWindow.document.addEventListener('view.updated', () => {
-    //     window.resizeIframe(this.$refs.iframe);
-    //   });
-    // }, 500);
-    // window.resizeIframe = (obj) => {
-    //   obj.style.height = obj.contentWindow.document.documentElement.scrollHeight + 'px';
-    // };
+  watch: {
+    ready(newVal, oldVal) {
+      if (newVal) {
+        // window.brython();
+      }
+    },
   },
 };
 </script>
@@ -159,7 +50,18 @@ export default {
 <style lang="scss" scoped>
 .brython {
   position: relative;
-
+  margin: 1em 0;
+  .loader {
+    position: absolute;
+    background: rgba(white, 0.5);
+    align-items: center;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 5;
+    margin: 0 !important;
+  }
   &__editor {
     position: relative;
     height: 100%;
@@ -170,11 +72,7 @@ export default {
 
   &__actions {
     flex: 0 0 auto;
-    display: flex;
-    align-items: center;
-    background: #f3f3f3;
-    padding: 2px 8px;
-    border-bottom: 1px solid #c4c4c4;
+    display: block;
   }
 
   &__main {
@@ -233,12 +131,30 @@ export default {
   }
 
   &__run {
-    color: green;
     border: 0;
-    background: transparent;
+    display: flex;
+    align-items: center;
     cursor: pointer;
-    font-size: 20px;
-    padding: 5px;
+    padding: 8px 16px;
+    background: #38bff2;
+    border-radius: 0 6px 0 0;
+    color: white;
+    transition: background 0.25s $ease;
+    .svg-icon {
+      font-size: 24px;
+    }
+    span {
+      display: inline-block;
+      margin-left: 10px;
+    }
+    &:hover {
+      background: $colorPrimaryHover;
+    }
+  }
+  &.is-loading {
+    .brython__editor-main {
+      color: white;
+    }
   }
 }
 </style>

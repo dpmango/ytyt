@@ -4,6 +4,7 @@
 <head>
 <meta charset="utf-8">
 <title>Brython</title>
+<link rel="stylesheet" href="brython.css">
 
 <script type="text/javascript" src="src/brython_builtins.js"></script>
 <script type="text/javascript" src="src/version_info.js"></script>
@@ -41,33 +42,79 @@
 <script src="ace/ace.js" type="text/javascript" charset="utf-8"></script>
 <script src="ace/ext-language_tools.js" type="text/javascript" charset="utf-8"></script>
 
+
+
 <script type="text/python3" id="tests_editor">
   from browser import document as doc, window
-  from browser import html
-  import editor
+  from editor import EditorCodeBlocks
 
-  # next functions are defined in editor.py
-  # Create a lambda around editor.run() so that the event object is not passed to it
-  doc['run'].bind('click',lambda *args: editor.run())
-  doc['show_console'].bind('click', editor.show_console)
+  EditorCodeBlocks(doc, window).declare()
+
   </script>
 </head>
 
-  <body onload="brython()">
-    <div class="brython__editor" id="container">
+<body onload="brython()">
+
+    <div class="brython__editor" id="container__0">
       <div class="brython__actions">
-        <button id="run">▶</button>
-        <button id="show_console">Python</button>
+        <button class="run_stdin" id="run__0">▶</button>
       </div>
 
       <div class="brython__main">
-        <div id="editor"></div>
+        <div class="editor__block" id="editor__0">
+print('WOW!')
+        </div>
         <div class="brython__console">
-          <textarea readonly id="console" autocomplete="off"></textarea>
+          <textarea readonly class="console__stdout" id="console__0" autocomplete="off"></textarea>
         </div>
       </div>
-
     </div>
 
-  </body>
+    <div>
+      this true block without css
+    </div>
+
+    <div class="brython__editor" id="container__1">
+      <div class="brython__actions">
+        <button class="run_stdin" id="run__1">▶</button>
+      </div>
+
+      <div class="brython__main">
+        <div class="editor__block" id="editor__1">
+for i in range(7):
+    print('ytyt is cool')
+        </div>
+        <div class="brython__console">
+          <textarea readonly class="console__stdout" id="console__1" autocomplete="off"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      this true block without css 2
+    </div>
+
+    <div class="brython__editor" id="container__ASHDBJASHBDJASHBDJ198237">
+      <div class="brython__actions">
+        <button class="run_stdin" id="run__ASHDBJASHBDJASHBDJ198237">▶</button>
+      </div>
+
+      <div class="brython__main">
+        <div class="editor__block" id="editor__ASHDBJASHBDJASHBDJ198237">
+a = None
+b = None
+c = 1
+
+if a == b == c is None:
+    print(':((((((')
+else:
+    print('TEST!')
+        </div>
+        <div class="brython__console">
+          <textarea readonly class="console__stdout" id="console__ASHDBJASHBDJASHBDJ198237" autocomplete="off"></textarea>
+        </div>
+      </div>
+    </div>
+
+</body>
 </html>
