@@ -158,6 +158,7 @@ class DialogEvent:
 
         users_to_notification = set(dialog_users)
         users_to_email_notification = users_to_notification - {user}
+        context = {'message': message, 'from': user}
 
         #  Если диалог с поддержкой, то уведомлять всех суппортов
         if dialog.with_support():
@@ -169,16 +170,13 @@ class DialogEvent:
                 mute['notifications.dialogs.count'] = supports
                 mute['notifications.dialogs.messages.count'] = supports
 
-        email_to = list(users_to_email_notification)[0].email if len(users_to_email_notification) == 1 else 'None@admin'
-        context = {'message': message, 'from': user, 'email': email_to}
-
         if file is None:
-            email_template_name = 'users/message/index.html'
+            email_template_name = 'dialogs/message/index.html'
         else:
             if file.is_image():
-                email_template_name = 'users/message-image/index.html'
+                email_template_name = 'dialogs/message-image/index.html'
             else:
-                email_template_name = 'users/message-file/index.html'
+                email_template_name = 'dialogs/message-file/index.html'
 
             context = {
                 **context, 'file_url': file.url(kwargs.get('base_url')), 'file_name': file.file_name
@@ -186,12 +184,12 @@ class DialogEvent:
 
         mailgun = EmailNotification(
             subject_template_raw='Новое сообщение от %s' % user.email,
-            email_template_name=email_template_name
+            email_template_name=email_template_name,
         )
 
-        for _user in users_to_email_notification:
-            if _user.email_notifications:
-                mailgun.send_mail(context, _user.email)
+        for user_ in users_to_email_notification:
+            if user_.email_notifications:
+                mailgun.send_mail(context={**context, 'email': user_.email}, to=user_.email)
 
         return {'data': message, 'to': users_to_notification, 'mute': mute}
 

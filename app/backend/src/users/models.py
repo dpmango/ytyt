@@ -147,7 +147,7 @@ class User(AbstractBaseUser,
     )
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
     email_confirmed = models.BooleanField('Email подтвержден', default=False)
-    email_notifications = models.BooleanField('Уведомления на почту', default=False)
+    email_notifications = models.BooleanField('Уведомления на почту', default=True)
 
     avatar = ImageField('Фотография', upload_to='avatars', default='static/default_avatar.jpg')
     last_name = models.CharField('Фамилия', max_length=255, blank=False, null=True)
