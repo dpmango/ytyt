@@ -1005,11 +1005,11 @@ else:
 # Save the initial cwd
 SAVEDCWD = os.getcwd()
 
-# Set by libregrtest/main.py so we can skip tests that are not
+# Set by libregrtest/core.py so we can skip tests that are not
 # useful for PGO
 PGO = False
 
-# Set by libregrtest/main.py if we are running the extended (time consuming)
+# Set by libregrtest/core.py if we are running the extended (time consuming)
 # PGO task.  If this is True, PGO is also True.
 PGO_EXTENDED = False
 

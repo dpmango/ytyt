@@ -52,6 +52,7 @@
     }
     p {
       font-size: 20px;
+      line-height: 1.5;
     }
     @include r($sm) {
       padding: 20px 0;
@@ -100,6 +101,7 @@
 
   &__title {
     font-size: 20px;
+    line-height: 1.5;
     font-weight: normal;
   }
 }

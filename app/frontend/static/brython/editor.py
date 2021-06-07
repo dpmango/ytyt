@@ -1,72 +1,14 @@
 import sys
 import time
-import binascii
 
 import tb as traceback
-import javascript
-
-from browser import document as doc, window, alert, bind, html
-from browser.widgets import dialog
-
-# set height of container to 75% of screen
-_height = doc.documentElement.clientHeight
-_s = doc['container']
-# _s.style.height = '%spx' % int(_height * 0.85)
-
-has_ace = True
-try:
-    editor = window.ace.edit("editor")
-    editor.setTheme("ace/theme/solarized_light")
-    editor.session.setMode("ace/mode/python")
-    editor.focus()
-
-    editor.setOptions({
-     'enableLiveAutocompletion': True,
-     'highlightActiveLine': False,
-     'highlightSelectedWord': True
-    })
-except:
-    from browser import html
-    editor = html.TEXTAREA(rows=20, cols=70)
-    doc["editor"] <= editor
-    def get_value(): return editor.value
-    def set_value(x): editor.value = x
-    editor.getValue = get_value
-    editor.setValue = set_value
-    has_ace = False
-
-if hasattr(window, 'localStorage'):
-    from browser.local_storage import storage
-else:
-    storage = None
-
-if 'set_debug' in doc:
-    __BRYTHON__.debug = int(doc['set_debug'].checked)
-
-def reset_src():
-    if "code" in doc.query:
-        code = doc.query.getlist("code")[0]
-        editor.setValue(code)
-    else:
-        if storage is not None and "py_src" in storage:
-            editor.setValue(storage["py_src"])
-        else:
-            editor.setValue('for i in range(10):\n\tprint(i)')
-    editor.scrollToRow(0)
-    editor.gotoLine(0)
-
-def reset_src_area():
-    if storage and "py_src" in storage:
-        editor.value = storage["py_src"]
-    else:
-        editor.value = 'for i in range(10):\n\tprint(i)'
 
 
-class cOutput:
+class ConsoleOutput:
     encoding = 'utf-8'
 
-    def __init__(self):
-        self.cons = doc["console"]
+    def __init__(self, doc, console_id):
+        self.cons = doc[console_id]
         self.buf = ''
 
     def write(self, data):
@@ -79,60 +21,71 @@ class cOutput:
     def __len__(self):
         return len(self.buf)
 
-if "console" in doc:
-    cOut = cOutput()
-    sys.stdout = cOut
-    sys.stderr = cOut
 
+class EditorCodeBlocks:
 
-def to_str(xx):
-    return str(xx)
+    def __init__(self, doc, window):
+        self.doc = doc
+        self.window = window
+        self.editor_class_name = 'editor__block'
 
-info = sys.implementation.version
-version = '%s.%s.%s' % (info.major, info.minor, info.micro)
-if info.releaselevel == "rc":
-    version += f"rc{info.serial}"
-doc['version'].text = version
+    def declare(self):
+        editors = self.doc.getElementsByClassName(self.editor_class_name)
+        if len(editors) == 0:
+            return None
 
-output = ''
+        for editor in editors:
+            unique_id = self.get_unique_id(editor.id)
 
-def show_console(ev):
-    doc["console"].value = output
-    doc["console"].cols = 60
+            self.set_options_editor_by_id(unique_id)
+            self.bind_click_to_run_id(unique_id, self._run)
 
-# load a Python script
-def load_script(evt):
-    _name = evt.target.value + '?foo=%s' % time.time()
-    editor.setValue(open(_name).read())
+    def set_options_editor_by_id(self, unique_id):
+        ace_editor = self.get_ace_editor_by_id(unique_id)
+        ace_editor.setTheme('ace/theme/solarized_light')
+        ace_editor.session.setMode('ace/mode/python')
 
-# run a script, in global namespace if in_globals is True
-def run(*args):
-    global output
-    doc["console"].value = ''
-    src = editor.getValue()
-    if storage is not None:
-       storage["py_src"] = src
+        ace_editor.setOptions({
+            'enableLiveAutocompletion': True,
+            'highlightActiveLine': False,
+            'highlightSelectedWord': True
+        })
 
-    t0 = time.perf_counter()
-    try:
-        ns = {'__name__':'__main__'}
-        exec(src, ns)
-        state = 1
-    except Exception as exc:
-        traceback.print_exc(file=sys.stderr)
-        state = 0
-    sys.stdout.flush()
-    output = doc["console"].value
+    def bind_click_to_run_id(self, unique_id, func):
+        self.doc['run__%s' % unique_id].bind('click', func)
 
-    print('<completed in %6.2f ms>' % ((time.perf_counter() - t0) * 1000.0))
-    return state
+    def _run(self, event):
+        unique_id = self.get_unique_id(event.target.id)
+        ace_editor = self.get_ace_editor_by_id(unique_id)
 
-def show_js(ev):
-    src = editor.getValue()
-    doc["console"].value = javascript.py2js(src, '__main__')
+        self.clean_console_by_id(unique_id)
+        self.change_stdout_by_id(unique_id)
 
+        src = ace_editor.getValue()
+        time_start = time.perf_counter()
 
-if has_ace:
-    reset_src()
-else:
-    reset_src_area()
+        try:
+            ns = {'__name__': '__main__'}
+            exec(src, ns)
+            state = 1
+        except Exception:
+            traceback.print_exc(file=sys.stderr)
+            state = 0
+
+        sys.stdout.flush()
+        print('<completed in %6.2f ms>' % ((time.perf_counter() - time_start) * 1000.0))
+        return state
+
+    def change_stdout_by_id(self, unique_id):
+        console_output = ConsoleOutput(doc=self.doc, console_id='console__%s' % unique_id)
+        sys.stdout = console_output
+        sys.stderr = console_output
+
+    def clean_console_by_id(self, unique_id):
+        self.doc['console__%s' % unique_id].value = ''
+
+    def get_ace_editor_by_id(self, unique_id):
+        return self.window.ace.edit('editor__%s' % unique_id)
+
+    def get_unique_id(self, string):
+        return string.split('__')[-1]

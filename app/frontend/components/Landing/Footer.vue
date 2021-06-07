@@ -2,7 +2,7 @@
   <footer class="footer">
     <div class="footer__top container">
       <a href="#" class="footer__logo">
-        <img src="~assets/landing/img/logo.svg" alt="" />
+        <img src="~assets/landing/img/logo.png" srcset="~assets/landing/img/logo@2x.png 2x" alt="YTYT Logo" />
       </a>
       <div class="footer__information">
         <p>ИП Умаров Т. А.</p>
@@ -22,17 +22,17 @@
           </a>
         </li>
       </ul>
-      <ul class="footer__soc soc-footer">
+      <!-- <ul class="footer__soc soc-footer">
         <li v-for="social in socials" :key="social.id" class="soc-footer__item">
           <a :href="social.href" target="_blank" class="soc-footer__link">
             <img :src="social.icon" :alt="social.title" class="soc-footer__icon" />
           </a>
         </li>
-      </ul>
+      </ul> -->
     </div>
     <hr />
     <div class="footer__bottom container">
-      <span class="footer__copyright">© Онлайн-школа программирования</span>
+      <span class="footer__copyright">Онлайн-школа программирования YtYt</span>
       <div class="footer__links">
         <a href="landing/files/terms_of_service.pdf" target="_blank">Пользовательское соглашение</a>
         <a href="landing/files/confidentiality_policy.pdf" target="_blank">Политика конфиденциальности</a>
@@ -45,31 +45,31 @@
 export default {
   data() {
     return {
-      phone: '+7 (123) 456-78-90',
-      mail: 'info@ytyt.school',
+      phone: '+7 (499) 348-93-96',
+      mail: 'info@ytyt.ru',
       socials: [
         {
           id: 1,
           title: 'YouTube',
-          href: 'https://youtube.com/',
+          href: 'https://www.youtube.com/channel/UCj-OyxAtGEW4uERbY23VzrQ',
           icon: '/landing/img/soc-youtube.svg',
         },
         {
           id: 2,
           title: 'VK.com',
-          href: 'https://vk.com/',
+          href: 'https://vk.com/ytyt_programming',
           icon: '/landing/img/soc-vk.svg',
         },
         {
           id: 3,
           title: 'Facebook',
-          href: 'https://facebook.com/',
+          href: 'https://www.facebook.com/groups/ytyt.programming',
           icon: '/landing/img/soc-fb.svg',
         },
         {
           id: 4,
           title: 'Instagram',
-          href: 'https://instagram.com/',
+          href: 'https://www.instagram.com/ytyt_programming/',
           icon: '/landing/img/soc-instagram.svg',
         },
       ],
@@ -109,7 +109,8 @@ export default {
   }
 
   &__contacts {
-    margin: 0 auto;
+    // margin: 0 auto;
+    margin: 0 0 0 auto;
   }
 
   // &__soc {
@@ -125,6 +126,11 @@ export default {
 
   &__copyright {
     font-size: 14px;
+    line-height: 1.3;
+    color: rgba(#fff, 0.5);
+    &:hover {
+      color: white;
+    }
   }
 
   &__links {
@@ -203,16 +209,20 @@ export default {
     }
     &__logo {
       margin-right: 0;
-      margin-bottom: 30px;
+      // margin-bottom: 30px;
     }
     &__information {
-      flex: 0 0 50%;
+      // flex: 0 0 50%;
+      flex: 0 0 auto;
+      margin: 0 0 0 auto;
       order: 3;
     }
     &__contacts {
       margin: 0;
       order: 2;
-      margin-bottom: 30px;
+      // margin-bottom: 30px;
+      margin-bottom: 0;
+      padding-left: 30px;
     }
     &__soc {
       flex: 0 0 50%;
@@ -253,7 +263,7 @@ export default {
     }
     &__information {
       order: 3;
-      margin-bottom: 20px;
+      margin: 0 0 20px 0;
       text-align: center;
     }
     &__contacts {

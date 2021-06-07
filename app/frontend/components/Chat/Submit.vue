@@ -6,9 +6,11 @@
 
     <form class="chat-submit__form" @submit.prevent="handleSubmit">
       <div class="editor">
-        <div class="editor__attach" @click="handleAttachClick">
+        <input :id="_uid" ref="uploadInput" type="file" @change="handleUpload" />
+
+        <label :for="_uid" class="editor__attach" @click="handleAttachClick">
           <UiSvgIcon name="paper-clip" />
-        </div>
+        </label>
         <div class="editor__body">
           <vue-simplemde
             ref="markdownEditor"
@@ -25,12 +27,17 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex';
+import { bytesToMegaBytes } from '~/helpers/FormatBytes';
 
 export default {
   props: {},
   data() {
     return {
       text: '',
+      uploader: {
+        allowedMime: ['image'],
+        maxSize: '5',
+      },
       config: {
         autoDownloadFontAwesome: false,
         spellChecker: false,
@@ -69,9 +76,41 @@ export default {
         // this.simplemde.codemirror.refresh();
       }
     },
+    async handleUpload(e) {
+      const files = e.target.files;
 
+      if (files && files[0]) {
+        const file = files[0];
+
+        // limit size
+        if (this.uploader.maxSize) {
+          const sizeInMb = bytesToMegaBytes(file.size);
+
+          if (sizeInMb > this.maxSize) {
+            this.$toast.global.error({ message: `Размер файла превышает ${this.maxSize}Мб` });
+            return false;
+          }
+        }
+
+        if (file) {
+          const res = await this.uploadFile(file).catch((err) => {
+            this.$toast.global.error({ message: err.data });
+          });
+
+          this.sendMessage({ file_id: res.id, dialog_id: this.activeDialog });
+        }
+
+        // if (this.includeReader) {
+        //   const reader = new FileReader();
+        //   reader.onload = (ev) => {
+        //     this.setFileReaderValue(ev.target.result);
+        //   };
+        //   reader.readAsDataURL(file);
+        // }
+      }
+    },
     handleAttachClick() {
-      this.simplemde.drawImage();
+      // this.simplemde.drawImage();
     },
     ...mapActions('chat', ['sendMessage', 'uploadFile']),
   },
@@ -88,7 +127,7 @@ export default {
 }
 
 .CodeMirror {
-  padding: 8px 16px 8px 16px;
+  padding: 8px 16px 8px 0;
   border: 0;
 }
 
@@ -104,6 +143,15 @@ export default {
     display: flex;
     align-items: center;
     padding-right: 10px;
+    input {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 0.1px;
+      height: 0.1px;
+      opacity: 0;
+      visibility: hidden;
+    }
   }
 }
 

@@ -258,12 +258,13 @@ export const actions = {
       ...request,
     });
   },
-  async uploadFile({ commit }, request) {
-    const [err, result] = await filesService(this.$api, request);
+  async uploadFile({ commit }, file) {
+    const formData = new FormData();
+    formData.append('content', file);
+
+    const [err, result] = await filesService(this.$api, formData);
 
     if (err) throw err;
-
-    // commit('verifyUserEmail');
 
     return result;
   },

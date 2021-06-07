@@ -1,6 +1,5 @@
 <template>
   <PaymentHome />
-  <!-- <UiButton @click="$vfm.show('paymentModal')"> Открыть </UiButton> -->
 </template>
 
 <script>

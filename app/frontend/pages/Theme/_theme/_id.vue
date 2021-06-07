@@ -14,8 +14,8 @@ export default {
       .catch((err) => {
         if (err.code === 403) {
           // this.$toast.global.error({ message: err.data.detail });
-          // this.$router.push('/payment');
-          context.modal.show('paymentStart');
+          context.redirect('/course');
+          store.commit('ui/setModalPaymentStart2', true);
         }
       });
 
@@ -89,31 +89,12 @@ export default {
         .catch((err) => {
           if (err.code === 403) {
             // this.$toast.global.error({ message: err.data.detail });
-            // this.$router.push('/payment');
+            this.$router.push('/course');
             this.$vfm.show('paymentStart');
           }
         });
 
       return responce;
-    },
-    async getData() {
-      const { course, theme, id } = this.$route.params;
-
-      const lesson = await this.$store
-        .dispatch('courses/lesson', {
-          course_id: course,
-          theme_id: theme,
-          fragment_id: id,
-        })
-        .catch((err) => {
-          if (err.code === 403) {
-            // this.$toast.global.error({ message: err.data.detail });
-            // this.$router.push('/payment');
-            this.$vfm.show('paymentStart');
-          }
-        });
-
-      return { lesson };
     },
   },
 };

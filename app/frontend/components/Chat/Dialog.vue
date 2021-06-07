@@ -110,6 +110,7 @@ export default {
     @include text-overflow;
   }
   &__indicator {
+    flex: 0 0 auto;
     width: 20px;
     height: 20px;
     display: flex;
@@ -134,6 +135,9 @@ export default {
   &__description {
     font-size: 14px;
     color: rgba($fontColor, 0.7);
+    ::v-deep br {
+      display: none;
+    }
     @include text-overflow;
     ::v-deep > * {
       display: none;

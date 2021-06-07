@@ -11,7 +11,9 @@
       <div class="sidebar__progress">
         <div class="sidebar__progress-title">Твой прогресс</div>
         <div class="sidebar__progress-indicator">
-          <div class="sidebar__progress-number" :style="{ left: progressPercent }">{{ progressRounded }} %</div>
+          <div class="sidebar__progress-number" :style="{ left: progressPercent }">
+            <span>{{ progressRounded }} %</span>
+          </div>
           <div class="sidebar__progress-inner" :style="{ width: progressPercent }"></div>
         </div>
       </div>
@@ -41,7 +43,7 @@
         </a>
         <a v-if="user.dialog" href="#" @click.prevent="$emit('handleQuestionClick')">
           <UiSvgIcon name="question-filled" />
-          <span>Задать вопрос куратору</span>
+          <span>Задать вопрос</span>
         </a>
       </div>
     </div>
@@ -72,8 +74,8 @@ export default {
       return Math.round(this.progress);
     },
     progressPercent() {
-      if (this.progressRounded > 85) {
-        return `calc(${this.progressRounded}% - 30px)`;
+      if (this.progressRounded > 80) {
+        return `calc(${this.progressRounded}% - 40px)`;
       }
       return `${this.progressRounded}%`;
     },
@@ -110,11 +112,12 @@ export default {
   }
   &__progress-indicator {
     position: relative;
-    margin-top: 6px;
-    background: rgba(23, 24, 24, 0.08);
+    margin-top: 15px;
+    background: #ededed;
     border-radius: 12px;
     height: 10px;
     font-size: 0;
+    overflow: hidden;
   }
   &__progress-number {
     position: absolute;
@@ -127,6 +130,32 @@ export default {
     background: white;
     padding: 4px;
     transform: translateY(-50%);
+    span {
+      position: relative;
+      z-index: 4;
+    }
+    &::after,
+    &::before {
+      content: '';
+      position: absolute;
+      height: 11px;
+      width: 20px;
+      top: 8px;
+      z-index: 3;
+    }
+
+    &::before {
+      left: -20px;
+      border-radius: 0 10px 10px 0;
+      box-shadow: 5px 0 0 0 #fff;
+    }
+
+    &::after {
+      right: 6px;
+      width: 6px;
+      border-radius: 10px 0 0 10px;
+      box-shadow: 10px 0 0 0 #ededed;
+    }
   }
   &__progress-inner {
     position: absolute;

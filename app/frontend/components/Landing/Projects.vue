@@ -11,12 +11,12 @@
         </div>
         <div class="projects__slider swiper-wrapper">
           <div v-for="slide in slides" :key="slide.id" class="swiper-slide projects__slide slide-project slider__slide">
-            <div class="slide-project__preview">
+            <a :href="slide.video" data-fancybox class="slide-project__preview">
               <img :src="slide.image" alt="" class="slide-project__bg" />
-              <a :href="slide.video" data-fancybox class="slide-project__play button-play">
+              <span class="slide-project__play button-play">
                 <img src="~assets/landing/img/icon-play.svg" alt="" />
-              </a>
-            </div>
+              </span>
+            </a>
             <h3 class="slide-project__title">{{ slide.title }}</h3>
           </div>
         </div>
@@ -114,11 +114,38 @@ export default {
 }
 .slide-project {
   &__preview {
+    display: block;
     position: relative;
     height: 280px;
     border-radius: 8px;
     margin-bottom: 15px;
     overflow: hidden;
+    &::before {
+      display: inline-block;
+      content: ' ';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(black, 0.3);
+      opacity: 0;
+      will-change: opacity;
+      transition: opacity 0.25s $ease;
+    }
+    &:hover {
+      &::before {
+        opacity: 1;
+      }
+      .button-play {
+        animation-name: button-shadow;
+        animation-duration: 0.8s;
+        animation-iteration-count: infinite;
+        animation-direction: alternate;
+        background-color: $colorPrimaryHover;
+        transition: 0.2s;
+      }
+    }
   }
 
   &__bg {
@@ -136,6 +163,7 @@ export default {
 
   &__title {
     font-size: 20px;
+    line-height: 1.5;
     font-weight: normal;
   }
 }

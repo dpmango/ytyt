@@ -38,7 +38,6 @@ export default function ({ $axios, store, $config, redirect }, inject) {
     if (parseInt(error.response && error.response.status) === 401) {
       console.log('unauthorized, logging out ...');
       await store.dispatch('auth/logOut');
-      // redirect('/auth/login');
     }
 
     return Promise.reject(error.response);

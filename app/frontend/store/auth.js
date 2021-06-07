@@ -41,7 +41,6 @@ export const getters = {
 
 export const mutations = {
   logOut(state) {
-    console.log('logout mutation called');
     state.token = null;
     state.user = {
       email: null,
@@ -187,7 +186,7 @@ export const actions = {
 
     dispatch('chat/disconnect', null, { root: true });
 
-    this.$router.push('/auth/login');
+    this.$router.push('/');
 
     return result;
   },

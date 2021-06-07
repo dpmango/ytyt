@@ -1,34 +1,36 @@
 <template>
   <div class="chat" :class="[isMini && 'is-mini', isMiniOpened && 'is-mini-opened']">
-    <div class="chat__wrapper" :class="[activeDialog && 'is-dialog-active']">
-      <div ref="sidebar" class="chat__sidebar">
-        <div v-if="scrollDialogs.isLoading" class="chat__sidebar-loader">
-          <UiLoader theme="block" :loading="true" />
-        </div>
-        <ChatDialogs :dialogs="dialogs" :active-dialog="activeDialog" :set-dialog="setDialog" />
-      </div>
-
-      <div class="chat__content">
-        <div v-if="socket.error || socket.reconnectError" class="chat__error">
-          <p>{{ socket.error || 'Возникала ошибка. Попробуйте обновить' }}</p>
-          <UiButton size="small" theme="success" @click="rebuildSocket">Обновить</UiButton>
-        </div>
-        <div class="chat__head">
-          <ChatHead v-if="head" :click-back="handleClickBack" :click-back-mini="handleClickBackMini" :head="head" />
-        </div>
-        <div ref="dialogs" class="chat__dialog">
-          <div v-if="scrollMessages.isLoading" class="chat__dialog-loader">
+    <div class="container">
+      <div class="chat__wrapper" :class="[activeDialog && 'is-dialog-active']">
+        <div ref="sidebar" class="chat__sidebar">
+          <div v-if="scrollDialogs.isLoading" class="chat__sidebar-loader">
             <UiLoader theme="block" :loading="true" />
           </div>
-          <ChatMessages :messages="messages" />
+          <ChatDialogs :dialogs="dialogs" :active-dialog="activeDialog" :set-dialog="setDialog" />
         </div>
-        <div class="chat__submit">
-          <ChatSubmit v-if="head" @onSubmit="scrollDialogsToBottom" />
+
+        <div class="chat__content">
+          <div v-if="socket.error || socket.reconnectError" class="chat__error">
+            <p>{{ socket.error || 'Возникала ошибка. Попробуйте обновить' }}</p>
+            <UiButton size="small" theme="success" @click="rebuildSocket">Обновить</UiButton>
+          </div>
+          <div class="chat__head">
+            <ChatHead v-if="head" :click-back="handleClickBack" :click-back-mini="handleClickBackMini" :head="head" />
+          </div>
+          <div ref="dialogs" class="chat__dialog">
+            <div v-if="scrollMessages.isLoading" class="chat__dialog-loader">
+              <UiLoader theme="block" :loading="true" />
+            </div>
+            <ChatMessages :messages="messages" />
+          </div>
+          <div class="chat__submit">
+            <ChatSubmit v-if="head" @onSubmit="scrollDialogsToBottom" />
+          </div>
         </div>
       </div>
-    </div>
-    <div v-if="!isConnected" class="chat__loader">
-      <UiLoader theme="block" :loading="true" />
+      <div v-if="!isConnected" class="chat__loader">
+        <UiLoader theme="block" :loading="true" />
+      </div>
     </div>
   </div>
 </template>
@@ -179,6 +181,7 @@ export default {
       const messages = this.$refs.dialogs.querySelectorAll('.message--outcoming[data-read="false"]');
 
       if (!messages) return;
+      if (!this.user.is_support) return;
 
       messages.forEach((message) => {
         const rect = message.getBoundingClientRect();
@@ -335,7 +338,7 @@ export default {
 // mini chat
 .chat.is-mini {
   position: fixed;
-  z-index: 9;
+  z-index: 999;
   top: 0;
   right: 0;
   bottom: 0;
@@ -345,6 +348,10 @@ export default {
   transform: translate(100%, 0);
   pointer-events: none;
   transition: transform 0.25s $ease;
+  .container {
+    padding-left: 0;
+    padding-right: 0;
+  }
   &.is-mini-opened {
     transform: none;
     pointer-events: all;
@@ -360,8 +367,8 @@ export default {
       flex-basis: 100%;
       max-width: 100%;
       height: 100vh;
-      padding-top: 56px;
-      background: #eef0f2;
+      padding-top: 0;
+      background: #fafafa;
       .messages {
         padding-left: 16px;
         padding-right: 16px;
