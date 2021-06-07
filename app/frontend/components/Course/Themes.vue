@@ -21,5 +21,6 @@ export default {
 <style lang="scss" scoped>
 .list {
   padding-top: 24px;
+  padding-bottom: 24px;
 }
 </style>

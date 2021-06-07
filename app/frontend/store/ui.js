@@ -26,4 +26,9 @@ export const mutations = {
       state.modalPaymentStart2 = false;
     }
   },
+  resetModals(state) {
+    state.modalPaymentStart = false;
+    state.modalPaymentStart2 = false;
+    state.modalPaymentModal = false;
+  },
 };

@@ -1,15 +1,19 @@
 <template>
-  <div class="row">
-    <div class="col col-6 col-md-12 payment__form-wrapper">
+  <div class="row payment">
+    <div class="col col-6 col-md-12 payment__form-wrapper" :class="[!isMobileFormVisible && 'is-mobile-visible']">
       <div v-if="formSubmited" class="payment__form">
         <div class="payment__form-status">
           <UiSvgIcon name="status-success" />
         </div>
         <div class="payment__form-title">Спасибо за заявку</div>
         <div class="payment__form-desc">Наш менеджер свяжется с вами в ближайшее время</div>
+        <div class="payment__cta-mobile">
+          <UiButton block @click="isMobileFormVisible = true">Оплатить</UiButton>
+          <UiButton theme="outline" block @click="resetModals">Закрыть</UiButton>
+        </div>
       </div>
 
-      <div v-else-if="!user.installment_available && !failedInstallmentRequest" class="payment__form">
+      <div v-else-if="installmentRefused && !failedInstallmentRequest" class="payment__form">
         <div class="payment__form-status">
           <UiSvgIcon name="status-cancel" />
         </div>
@@ -19,6 +23,11 @@
         </div>
         <div class="payment__form-cta">
           <a href="#" @click.prevent="failedInstallmentRequest = true">Подберите другие варианты</a>
+        </div>
+        <div class="payment__cta-mobile">
+          <UiButton block @click="isMobileFormVisible = true">Оплатить целиком</UiButton>
+          <UiButton theme="outline" block @click="failedInstallmentRequest = true">Подберите другие варианты</UiButton>
+          <UiButton theme="outline" block @click="resetModals">Закрыть</UiButton>
         </div>
       </div>
 
@@ -53,11 +62,17 @@
               @onChange="(v) => (phone = v)"
             />
           </ValidationProvider>
-          <UiButton theme="outline" block>Перезвоните мне</UiButton>
+          <div class="payment__cta">
+            <UiButton type="submit" theme="outline" block>Перезвоните мне</UiButton>
+          </div>
+          <div class="payment__cta-mobile">
+            <UiButton type="submit" block>Перезвоните мне</UiButton>
+            <UiButton theme="outline" block @click="resetModals">Отмена</UiButton>
+          </div>
         </ValidationObserver>
       </div>
     </div>
-    <div class="col col-6 col-md-12">
+    <div class="col col-6 col-md-12" :class="[isMobileFormVisible && 'is-mobile-visible']">
       <div class="payment__options">
         <h1 class="payment__title">Выберите удобный <br />вариант оплаты</h1>
         <div class="payment__list">
@@ -67,7 +82,7 @@
             class="card"
             :class="[
               activeVariant === option.id && 'is-active',
-              option.id !== 1 && !user.installment_available && 'is-disabled',
+              option.id !== 1 && installmentRefused && 'is-disabled',
             ]"
             @click="() => selectPayment(option.id)"
           >
@@ -85,13 +100,18 @@
         <div class="payment__cta">
           <UiButton block @click="submitPayment">Оплатить</UiButton>
         </div>
+        <div class="payment__cta-mobile">
+          <UiButton block @click="submitPayment">Оплатить</UiButton>
+          <UiButton theme="outline" block @click="isMobileFormVisible = false">Нужна консультация</UiButton>
+          <UiButton theme="outline" block @click="resetModals">Отмена</UiButton>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { mapActions, mapGetters } from 'vuex';
+import { mapActions, mapMutations, mapGetters } from 'vuex';
 
 export default {
   data() {
@@ -100,6 +120,7 @@ export default {
       error: null,
       formSubmited: false,
       failedInstallmentRequest: false,
+      isMobileFormVisible: true,
       activeVariant: 1,
       options: [
         { id: 1, title: 'Вся сумма целиком', installment: false, price: '54 000', priceOld: '60 000' },
@@ -110,7 +131,15 @@ export default {
     };
   },
   computed: {
+    installmentRefused() {
+      return !this.user.installment_available;
+    },
     ...mapGetters('auth', ['user']),
+  },
+  mounted() {
+    if (this.installmentRefused) {
+      this.isMobileFormVisible = false;
+    }
   },
   methods: {
     selectPayment(id) {
@@ -169,6 +198,7 @@ export default {
     },
     ...mapActions('payment', ['init', 'initInstallment']),
     ...mapActions('feedback', ['feedback']),
+    ...mapMutations('ui', ['resetModals']),
   },
 };
 </script>
@@ -238,6 +268,21 @@ export default {
   &__options {
     padding: 30px 40px;
   }
+  // &__cta{
+
+  // }
+  &__cta-mobile {
+    display: none;
+    margin-top: 24px;
+    .button {
+      margin-bottom: 8px;
+      padding-top: 14px;
+      padding-bottom: 13px;
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
 }
 
 .card {
@@ -302,6 +347,68 @@ export default {
   &.is-disabled {
     pointer-events: none;
     opacity: 0.3;
+  }
+}
+
+@include r($md) {
+  .payment {
+    .col {
+      display: none;
+      &.is-mobile-visible {
+        display: block;
+      }
+    }
+    &__form-wrapper {
+      background: white;
+    }
+    &__form {
+      margin-top: 20px;
+      padding: 24px;
+      ::v-deep .input__input input {
+        padding-top: 13px;
+        padding-bottom: 12px;
+        background: #f2f2f2;
+      }
+    }
+    &__form-status {
+      margin-bottom: 20px;
+      .svg-icon {
+        font-size: 72px;
+      }
+    }
+    &__form-title {
+      font-size: 24px;
+    }
+    &__form-desc {
+      margin-top: 8px;
+      max-width: 280px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    &__form-cta {
+      display: none;
+    }
+    &__options {
+      padding: 24px;
+    }
+    &__list {
+      margin-bottom: 24px;
+    }
+    &__title {
+      font-size: 20px;
+    }
+    &__cta {
+      display: none;
+    }
+    &__cta-mobile {
+      display: block;
+    }
+  }
+
+  .card {
+    &__name {
+      font-size: 16px;
+    }
   }
 }
 </style>
