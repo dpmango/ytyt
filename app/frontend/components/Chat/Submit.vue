@@ -120,20 +120,22 @@ export default {
 <style lang="scss">
 @import 'simplemde/dist/simplemde.min.css';
 
-.CodeMirror,
-.CodeMirror-scroll {
-  min-height: 1px;
-  max-height: 300px;
-}
+.chat-submit {
+  .CodeMirror,
+  .CodeMirror-scroll {
+    min-height: 1px;
+    max-height: 300px;
+  }
 
-.CodeMirror {
-  padding: 8px 16px 8px 0;
-  border: 0;
-}
+  .CodeMirror {
+    padding: 8px 16px 8px 0;
+    border: 0;
+  }
 
-.CodeMirror-scroll {
-  margin-bottom: -50px;
-  padding-bottom: 50px;
+  .CodeMirror-scroll {
+    margin-bottom: -50px;
+    padding-bottom: 50px;
+  }
 }
 </style>
 
