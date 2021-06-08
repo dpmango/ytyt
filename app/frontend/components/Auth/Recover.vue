@@ -59,6 +59,9 @@ export default {
               this.error = data[key][0];
             });
           }
+          if (data && code === 404) {
+            this.error = data.detail;
+          }
         });
     },
     ...mapActions('auth', ['recover']),

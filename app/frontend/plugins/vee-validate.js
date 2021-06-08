@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import { extend, ValidationProvider, ValidationObserver } from 'vee-validate';
+import { extend, ValidationProvider, ValidationObserver, setInteractionMode } from 'vee-validate';
 import { required, email, alpha, confirmed, min, max } from 'vee-validate/dist/rules';
 
 extend('required', { ...required, message: 'Это поле не может быть пустым' });
@@ -20,3 +20,5 @@ extend('tel', {
 
 Vue.component('ValidationProvider', ValidationProvider);
 Vue.component('ValidationObserver', ValidationObserver);
+
+setInteractionMode('passive');

@@ -128,9 +128,6 @@ export default {
     font-size: 14px;
     line-height: 1.3;
     color: rgba(#fff, 0.5);
-    &:hover {
-      color: white;
-    }
   }
 
   &__links {

@@ -8,6 +8,7 @@
           <span>Начать бесплатно</span>
           <img src="~assets/landing/img/arrow-long.svg" alt="" />
         </NuxtLink>
+        <NuxtLink to="/auth/signup" class="button start__button--mobile">Начать бесплатно </NuxtLink>
       </div>
     </div>
   </section>
@@ -66,6 +67,9 @@
         animation-name: none;
       }
     }
+    &--mobile {
+      display: none;
+    }
     span {
       margin-right: 20px;
     }
@@ -89,28 +93,22 @@
     &__row {
       flex-direction: column;
       height: auto;
+      padding-left: 20px;
+      padding-right: 20px;
     }
     &__title {
-      padding: 40px 20px;
+      padding: 40px 0 16px 0;
       text-align: center;
     }
     &__button {
-      position: static;
-      transform: translateY(30px);
-      justify-content: center;
-      align-items: flex-start;
-      padding-top: 15px;
-      padding-left: 0;
+      display: none;
+    }
+    &__button--mobile {
       width: 100%;
-      height: 100px;
-      box-shadow: 0 0 0 30px rgba($colorPrimary, 0.6), 0 0 0 20px rgba($colorPrimary, 0.7),
-        0 0 0 10px rgba($colorPrimary, 0.8);
-      img {
-        display: block;
-      }
-      span {
-        margin-right: 0;
-      }
+      display: inline-flex;
+      max-width: 294px;
+      margin-bottom: 16px;
+      // height: 54px;
     }
   }
 }
@@ -120,13 +118,6 @@
     &__title {
       font-size: 20px;
       padding: 15px;
-    }
-    &__button {
-      font-size: 20px;
-      transform: translateY(40px);
-      img {
-        display: none;
-      }
     }
   }
 }
