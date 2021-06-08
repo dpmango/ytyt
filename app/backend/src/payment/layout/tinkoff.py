@@ -155,5 +155,4 @@ class PaymentLayout(Layout):
 
             # Предоставляем доступ к курсу
             access = payment.user.access_set.filter(course=payment.course).first()
-            access.access_type = Access.COURSE_ACCESS_TYPE_FULL_PAID
-            access.save()
+            access.set_access_full_paid()

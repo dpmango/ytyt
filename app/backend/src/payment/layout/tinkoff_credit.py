@@ -64,8 +64,7 @@ class PaymentCreditLayout(Layout):
 
             # Предоставляем доступ к курсу
             access = payment_credit.user.access_set.filter(course=payment_credit.course).first()
-            access.access_type = Access.COURSE_ACCESS_TYPE_FULL_PAID
-            access.save()
+            access.set_access_full_paid()
 
     @staticmethod
     def receive_rejected(payment_credit: PaymentCredit) -> None:
