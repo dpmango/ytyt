@@ -25,6 +25,7 @@ export default {
     '~/plugins/event-bus',
     '~/plugins/global-mixins',
     '~plugins/modal',
+    '~plugins/tooltip',
     { src: '~plugins/legacy', mode: 'client' },
     { src: '~/plugins/markdown', mode: 'client' },
     { src: '~/plugins/toast', mode: 'client' },

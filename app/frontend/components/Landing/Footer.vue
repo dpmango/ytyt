@@ -267,6 +267,7 @@ export default {
       margin: 0;
       order: 1;
       margin-bottom: 25px;
+      padding-left: 0;
     }
     &__soc {
       order: 2;

@@ -73,8 +73,8 @@ body._lock {
     padding-right: 20px;
     margin: 0 auto;
     @include r($md) {
-      padding-left: 15px;
-      padding-right: 15px;
+      padding-left: 16px;
+      padding-right: 16px;
     }
   }
   .visually-hidden {

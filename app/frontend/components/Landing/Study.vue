@@ -114,6 +114,7 @@
 
   &__description {
     color: #171818;
+    font-family: 'Roboto', sans-serif;
     opacity: 0.5;
     @include r($sm) {
       font-size: 14px;
