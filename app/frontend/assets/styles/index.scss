@@ -3,6 +3,11 @@
 @import 'vendor/normalize';
 @import 'vendor/hamburger';
 @import 'vendor/markdown';
+@import 'vendor/tooltips';
+.brython{
+  @import 'vendor/codemirror';
+}
+
 // @import 'highlight.js/styles/atom-one-dark.css';
 
 @import 'layout/font';

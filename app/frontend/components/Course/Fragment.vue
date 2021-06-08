@@ -65,6 +65,13 @@
     <template v-if="user.dialog">
       <ChatHome :is-mini="true" :is-mini-opened="isChatOpened" :handle-click-back-mini="handleClickBack" />
     </template>
+
+    <script type="text/python3">
+      from browser import document as doc, window
+      from editor import EditorCodeBlocks
+
+      EditorCodeBlocks(doc, window).declare()
+    </script>
   </div>
 </template>
 
@@ -171,8 +178,12 @@ export default {
       '/brython/src/builtin_modules.js',
       // '/brython/src/brython.js',
       '/brython/src/brython_stdlib.js',
-      '/brython/ace/ace.js',
-      '/brython/ace/ext-language_tools.js',
+      // '/brython/ace/ace.js',
+      // '/brython/ace/ext-language_tools.js',
+      '/brython/codemirror/codemirror.js',
+      '/brython/codemirror/runmode.js',
+      '/brython/codemirror/colorize.js',
+      '/brython/codemirror/mode/python/python.js',
     ];
 
     const loadScripts = (scripts) => {
@@ -187,6 +198,7 @@ export default {
         } else {
           document.body.classList.add('brython-ready');
           this.brythonReady = true;
+          window.brython();
         }
       };
 
@@ -268,6 +280,24 @@ export default {
   },
 };
 </script>
+
+<style lang="scss">
+.brython {
+  .CodeMirror,
+  .CodeMirror-scroll {
+    min-height: 1px;
+    height: 100%;
+    max-height: 300px;
+  }
+
+  .CodeMirror {
+    padding: 12px 16px;
+    border: 0;
+    background: #fafafa;
+    font-size: 15px;
+  }
+}
+</style>
 
 <style lang="scss" scoped>
 .lesson {

@@ -61,13 +61,14 @@
     position: relative;
     z-index: 1;
     border-radius: 8px;
-    height: 358px;
+    padding-bottom: 55.9%;
     margin-bottom: 12px;
     overflow: hidden;
     &::before {
       display: inline-block;
       content: ' ';
       position: absolute;
+      z-index: 2;
       top: 0;
       left: 0;
       right: 0;
@@ -77,21 +78,23 @@
       will-change: opacity;
       transition: opacity 0.25s $ease;
     }
+    > img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1;
+    }
     &:hover {
       &::before {
         opacity: 1;
       }
       .button-play {
-        animation-name: button-shadow;
-        animation-duration: 0.8s;
-        animation-iteration-count: infinite;
-        animation-direction: alternate;
+        animation-play-state: running;
+        // animation-name: button-shadow-start;
+        // animation-iteration-count: infinite;
         background-color: $colorPrimaryHover;
-        transition: 0.2s;
       }
-    }
-    @include r($mobile-s) {
-      height: 185px;
     }
   }
 
@@ -106,10 +109,12 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    z-index: 3;
   }
 
   &__description {
     color: #171818;
+    font-family: 'Roboto', sans-serif;
     opacity: 0.5;
     @include r($sm) {
       font-size: 14px;

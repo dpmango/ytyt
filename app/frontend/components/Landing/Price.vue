@@ -43,6 +43,10 @@
         <div class="price__join join-price">
           <h2 class="join-price__title">Записаться на курс или получить бесплатную консультацию</h2>
           <client-only>
+            <template slot="placeholder">
+              <UiLoader :loading="true" theme="block" />
+            </template>
+
             <ValidationObserver
               ref="form"
               v-slot="{ invalid }"
@@ -55,7 +59,7 @@
               <ValidationProvider v-slot="{ errors }" class="ui-group" rules="required">
                 <UiInput
                   :value="name"
-                  theme="dynamic"
+                  theme="dynamic-float"
                   label="Имя"
                   type="text"
                   :error="errors[0]"
@@ -66,7 +70,7 @@
               <ValidationProvider v-slot="{ errors }" class="ui-group" rules="email|required">
                 <UiInput
                   :value="email"
-                  theme="dynamic"
+                  theme="dynamic-float"
                   label="Email"
                   type="email"
                   :error="errors[0]"
@@ -78,11 +82,13 @@
                 <UiInput
                   v-mask="'+7 (###) ###-####'"
                   :value="phone"
-                  theme="dynamic"
+                  theme="dynamic-float"
                   label="Телефон"
                   type="tel"
                   :error="errors[0]"
                   @onChange="(v) => (phone = v)"
+                  @focus="handlePhoneFocus"
+                  @blur="handlePhoneBlur"
                 />
               </ValidationProvider>
 
@@ -134,6 +140,16 @@ export default {
   methods: {
     setTab(id) {
       this.activePrice = id;
+    },
+    handlePhoneFocus(e) {
+      if (!this.phone) {
+        this.phone = '+7';
+      }
+    },
+    handlePhoneBlur(e) {
+      // if (this.phone === '+7' || this.phone === '+7 (') {
+      //   this.phone = null;
+      // }
     },
     async handleSubmit() {
       const isValid = await this.$refs.form.validate();
@@ -309,6 +325,7 @@ export default {
   padding: 40px 100px;
   &__title {
     font-size: 32px;
+    line-height: 120%;
     margin-bottom: 32px;
   }
   &__form {
@@ -317,6 +334,7 @@ export default {
   &__extra {
     font-family: $baseFont;
     text-align: center;
+    font-size: 14px;
     line-height: 1.5;
     opacity: 0.5;
     margin: 0 auto;

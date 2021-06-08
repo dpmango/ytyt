@@ -12,6 +12,7 @@
           icon-position="left"
           type="search"
           clearable
+          autocomplete="off"
           @focus="handleFocus"
           @onChange="handleChange"
         />

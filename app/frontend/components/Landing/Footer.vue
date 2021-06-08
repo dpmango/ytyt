@@ -128,9 +128,6 @@ export default {
     font-size: 14px;
     line-height: 1.3;
     color: rgba(#fff, 0.5);
-    &:hover {
-      color: white;
-    }
   }
 
   &__links {
@@ -270,6 +267,7 @@ export default {
       margin: 0;
       order: 1;
       margin-bottom: 25px;
+      padding-left: 0;
     }
     &__soc {
       order: 2;

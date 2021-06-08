@@ -28,6 +28,7 @@ class EditorCodeBlocks:
         self.doc = doc
         self.window = window
         self.editor_class_name = 'editor__block'
+        self.codemirror = ''
 
     def declare(self):
         editors = self.doc.getElementsByClassName(self.editor_class_name)
@@ -41,27 +42,21 @@ class EditorCodeBlocks:
             self.bind_click_to_run_id(unique_id, self._run)
 
     def set_options_editor_by_id(self, unique_id):
-        ace_editor = self.get_ace_editor_by_id(unique_id)
-        ace_editor.setTheme('ace/theme/solarized_light')
-        ace_editor.session.setMode('ace/mode/python')
-
-        ace_editor.setOptions({
-            'enableLiveAutocompletion': True,
-            'highlightActiveLine': False,
-            'highlightSelectedWord': True
-        })
+        codemirror = self.get_ace_editor_by_id(unique_id)
+        codemirror.setOption('mode' "python")
+        self.codemirror = codemirror
 
     def bind_click_to_run_id(self, unique_id, func):
         self.doc['run__%s' % unique_id].bind('click', func)
 
     def _run(self, event):
         unique_id = self.get_unique_id(event.target.id)
-        ace_editor = self.get_ace_editor_by_id(unique_id)
+        codemirror = self.codemirror
 
         self.clean_console_by_id(unique_id)
         self.change_stdout_by_id(unique_id)
 
-        src = ace_editor.getValue()
+        src = codemirror.getValue()
         time_start = time.perf_counter()
 
         try:
@@ -85,7 +80,8 @@ class EditorCodeBlocks:
         self.doc['console__%s' % unique_id].value = ''
 
     def get_ace_editor_by_id(self, unique_id):
-        return self.window.ace.edit('editor__%s' % unique_id)
+        element = self.doc.getElementById('editor__%s' % unique_id)
+        return self.window.CodeMirror.fromTextArea(element);
 
     def get_unique_id(self, string):
         return string.split('__')[-1]

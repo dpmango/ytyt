@@ -14,19 +14,19 @@
         </div>
 
         <div class="brython__main">
-          <div :id="`editor__${id}`" class="editor__block brython__editor-main">print('WOW!')</div>
+          <textarea :id="`editor__${id}`" class="editor__block brython__editor-main">print('WOW!')</textarea>
           <div class="brython__console">
             <textarea :id="`console__${id}`" class="console__stdout" readonly autocomplete="off"></textarea>
           </div>
         </div>
       </div>
 
-      <script type="text/python3">
+      <!-- <script type="text/python3">
         from browser import document as doc, window
         from editor import EditorCodeBlocks
 
         EditorCodeBlocks(doc, window).declare()
-      </script>
+      </script> -->
     </div>
   </client-only>
 </template>
@@ -36,13 +36,6 @@ export default {
   props: {
     ready: Boolean,
     id: String,
-  },
-  watch: {
-    ready(newVal, oldVal) {
-      if (newVal) {
-        window.brython();
-      }
-    },
   },
 };
 </script>
@@ -85,8 +78,7 @@ export default {
   &__editor-main {
     flex: 0 0 auto;
     width: 100%;
-    min-height: 60px;
-    max-height: 400px;
+    border: 0;
   }
 
   &__console {

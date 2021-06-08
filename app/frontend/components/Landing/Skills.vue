@@ -19,6 +19,9 @@
       <p class="skills__description">
         Этот список - результат анализа 700+ реальных вакансий с hh.ru
         <span class="skills__help">
+          <div class="skills__help-wrapper">
+            <span class="skills__help-arrow"></span>
+          </div>
           <span class="skills__help-info">
             Вакансии по запросу «Junior Python» по всей РФ за период январь-март 2021 г.
           </span>
@@ -98,22 +101,39 @@
     transition: 0.2s;
     &:hover {
       opacity: 1;
-      .skills__help-info {
+      .skills__help-arrow {
         display: block;
+      }
+      .skills__help-info {
+        opacity: 1;
+        pointer-events: all;
       }
     }
     @include r($lg) {
       position: static;
     }
   }
+  &__help-wrapper {
+    position: relative;
+    height: 18px;
+  }
+  &__help-arrow {
+    display: none;
+    position: absolute;
+    top: calc(100% + 7px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: url('~assets/landing/img/help-polygon.svg') no-repeat 50% 50%;
+    width: 22px;
+    height: 14px;
+  }
 
   &__help-info {
-    display: none;
     font-family: $baseFont;
     position: absolute;
     top: 100%;
     right: 50%;
-    transform: translate(50%, 20px);
+    transform: translate(50%, 16px);
     background-color: #fff;
     color: #000;
     padding: 20px;
@@ -121,34 +141,17 @@
     width: 440px;
     text-align: left;
     z-index: 2;
-    &::before {
-      content: '';
-      position: absolute;
-      top: -10px;
-      right: 50%;
-      transform: translateX(50%);
-      background: url('~assets/landing/img/help-polygon.svg') no-repeat 50% 50%;
-      width: 22px;
-      height: 14px;
-    }
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
     @include r($lg) {
       width: 70%;
       box-shadow: 0 6px 24px -4px rgba(23, 24, 24, 0.1);
-      &::before {
-        right: 9%;
-        transform: translateX(0);
-      }
     }
     @include r($md) {
       width: 100%;
-      top: 85%;
-      &::before {
-        right: 12%;
-      }
+      // top: 85%;
     }
   }
-
-  // &__button {
-  // }
 }
 </style>
