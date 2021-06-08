@@ -7,11 +7,26 @@
   >
     <div class="message__wrapper">
       <div
+        v-if="message.body"
         ref="content"
         class="message__content markdown-body"
-        :class="[isIncoming && 'dark', isSingleLine && 'is-single-line']"
-        v-html="messageContent"
+        :class="[isIncoming && 'dark', isSingleLine && isFile && 'is-single-line']"
+        v-html="message.body"
       />
+
+      <div v-if="message.file" class="message__file" @click="handleFileClick">
+        <div v-if="message.file.type === 2" class="message__file-image">
+          <img :src="message.file.url" :alt="message.file.file_name" />
+        </div>
+        <div v-else class="message__file-icon">
+          <UiSvgIcon name="file" />
+        </div>
+        <div class="message__file-meta">
+          <div class="message__file-title">{{ message.file.file_name }}</div>
+          <div class="message__file-size"></div>
+        </div>
+      </div>
+
       <div class="message__meta">
         <div class="message__time">{{ timestamp }}</div>
         <!-- <div v-if="message.date_read" class="message__seen">
@@ -59,8 +74,8 @@ export default {
 
       return this.message.user.id === this.user.id;
     },
-    messageContent() {
-      return this.message.body;
+    isFile() {
+      return this.message.file;
     },
     timestamp() {
       return timeToHHMM(this.message.date_created);
@@ -106,6 +121,9 @@ export default {
 
       document.body.removeChild(textArea);
     },
+    handleFileClick() {
+      // if (this)
+    },
   },
 };
 </script>
@@ -132,6 +150,56 @@ export default {
     ::v-deep code {
       border-radius: 8px;
     }
+  }
+  &__file {
+    display: flex;
+    align-items: center;
+    padding-right: 44px;
+    margin-top: -4px;
+    margin-bottom: -18px;
+    cursor: pointer;
+    transition: opacity 0.25s $ease;
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+  &__file-image,
+  &__file-icon {
+    position: relative;
+    z-index: 1;
+    flex: 0 0 32px;
+    width: 32px;
+    height: 32px;
+    overflow: hidden;
+  }
+  &__file-image {
+    border-radius: 8px;
+    img {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+  &__file-icon {
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+
+    .svg-icon {
+      font-size: 16px;
+    }
+  }
+  &__file-meta {
+    padding-left: 8px;
+  }
+  &__file-title {
+    font-size: 15px;
+    line-height: 150%;
   }
   &__meta {
     margin-top: 2px;
