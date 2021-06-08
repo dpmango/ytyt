@@ -138,12 +138,10 @@ export default {
         opacity: 1;
       }
       .button-play {
-        animation-name: button-shadow;
-        animation-duration: 0.8s;
-        animation-iteration-count: infinite;
-        animation-direction: alternate;
+        // animation-name: button-shadow-start;
+        // animation-iteration-count: infinite;
+        animation-play-state: running;
         background-color: $colorPrimaryHover;
-        transition: 0.2s;
       }
     }
   }

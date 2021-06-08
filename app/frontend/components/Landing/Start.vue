@@ -56,13 +56,17 @@
     padding-left: 28px;
     box-shadow: 0 0 0 72px rgba($colorPrimary, 0.6), 0 0 0 48px rgba($colorPrimary, 0.7),
       0 0 0 24px rgba($colorPrimary, 0.8);
-    animation-name: end-shadow;
+    animation-name: start-shadow;
     animation-duration: 0.8s;
     animation-direction: alternate;
     animation-fill-mode: both;
+
+    animation-iteration-count: infinite;
+    animation-play-state: paused;
     &:hover {
-      animation-name: start-shadow;
-      animation-iteration-count: infinite;
+      animation-play-state: running;
+      // animation-name: start-shadow;
+      // animation-iteration-count: infinite;
       @include r($lg) {
         animation-name: none;
       }

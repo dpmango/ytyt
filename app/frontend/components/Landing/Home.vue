@@ -123,14 +123,20 @@ body._lock {
     background-color: $colorPrimary;
     box-shadow: 0 0 0 16px rgba($colorPrimary, 0.5), 0 0 0 8px rgba($colorPrimary, 0.5);
     transition: background-color 0.2s;
+    animation-name: button-shadow-start;
+    animation-duration: 0.8s;
+    animation-direction: alternate;
+    animation-fill-mode: both;
+
+    animation-iteration-count: infinite;
+    animation-play-state: paused;
     &:hover {
-      animation-name: button-shadow;
-      animation-duration: 0.8s;
-      animation-iteration-count: infinite;
-      animation-direction: alternate;
+      // animation-name: button-shadow-start;
+      // animation-iteration-count: infinite;
+      animation-play-state: running;
       background-color: $colorPrimaryHover;
-      transition: 0.2s;
     }
+
     @include r($md) {
       width: 52px;
       height: 52px;
@@ -259,12 +265,20 @@ body._lock {
       filter: brightness(87%);
     }
   }
-  @keyframes button-shadow {
+  @keyframes button-shadow-start {
     0% {
       box-shadow: 0 0 0 16px rgba($colorPrimary, 0.5), 0 0 0 8px rgba($colorPrimary, 0.5);
     }
     100% {
       box-shadow: 0 0 0 24px rgba($colorPrimary, 0.1), 0 0 0 12px rgba($colorPrimary, 0.1);
+    }
+  }
+  @keyframes button-shadow-end {
+    0% {
+      box-shadow: 0 0 0 24px rgba($colorPrimary, 0.1), 0 0 0 12px rgba($colorPrimary, 0.1);
+    }
+    100% {
+      box-shadow: 0 0 0 16px rgba($colorPrimary, 0.5), 0 0 0 8px rgba($colorPrimary, 0.5);
     }
   }
 }
