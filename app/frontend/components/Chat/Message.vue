@@ -104,7 +104,7 @@ export default {
     handleReplyClick() {},
     handleCopyClick() {
       const textArea = document.createElement('textarea');
-      textArea.value = this.message.body;
+      textArea.value = this.message.markdown_body;
       textArea.style.opacity = '0';
       document.body.appendChild(textArea);
       textArea.focus();

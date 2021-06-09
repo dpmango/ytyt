@@ -6,7 +6,7 @@
 export default {
   layout: 'auth',
   head: {
-    title: 'Верификация email',
+    title: 'Подтверждение email | YtYt - понятные уроки программирования',
   },
 };
 </script>

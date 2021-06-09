@@ -7,7 +7,7 @@ export default {
   layout: 'auth',
   middleware: ['authenticated'],
   head: {
-    title: 'Регистрация',
+    title: 'Регистрация | YtYt - понятные уроки программирования',
   },
 };
 </script>

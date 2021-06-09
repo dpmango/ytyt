@@ -165,7 +165,7 @@ export default {
           this.email = '';
           this.phone = '';
 
-          this.$toast.global.default({ message: _res.detail });
+          // this.$toast.global.default({ message: _res.detail });
         })
         .catch((err) => {
           const { data, code } = err;

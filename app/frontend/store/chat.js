@@ -24,7 +24,8 @@ const EVENTS = {
 
 export const state = () => ({
   activeDialog: null,
-  notificationCount: 0,
+  notificationDialogsCount: 0,
+  notificationMessageCount: 0,
   dialogs: [],
   messages: [],
   messagesMeta: {},
@@ -38,7 +39,8 @@ export const state = () => ({
 
 export const getters = {
   activeDialog: (state) => state.activeDialog,
-  notificationCount: (state) => state.notificationCount,
+  notificationDialogsCount: (state) => state.notificationDialogsCount,
+  notificationMessageCount: (state) => state.notificationMessageCount,
   dialogs: (state) => state.dialogs,
   messages: (state) => state.messages,
   dialogsMeta: (state) => state.dialogsMeta,
@@ -128,12 +130,13 @@ export const mutations = {
         break;
       }
       case EVENTS.NOTIFICATION_COUNT:
-        state.notificationCount = data;
+        state.notificationDialogsCount = data;
         break;
 
       case EVENTS.MESSAGES_COUNT: {
         const { count, dialog_id } = data;
 
+        state.notificationMessageCount = count;
         state.dialogs = [
           ...state.dialogs.map((x) =>
             x.id !== dialog_id

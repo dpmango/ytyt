@@ -6,7 +6,7 @@
 export default {
   layout: 'auth',
   head: {
-    title: 'Восстановление пароля',
+    title: 'Восстановление пароля | YtYt - понятные уроки программирования',
   },
 };
 </script>
