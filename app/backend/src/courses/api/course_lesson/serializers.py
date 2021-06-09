@@ -15,7 +15,13 @@ from courses_access.utils import get_course_from_struct
 class DefaultCourseLessonSerializers(AccessBaseSerializers):
     class Meta:
         model = CourseLesson
-        exclude = ('content', 'order', 'course_theme', 'date_updated', 'date_created', 'ipynb_file')
+        exclude = ('content', 'order', 'date_updated', 'date_created', 'ipynb_file')
+
+
+class CourseLessonInMessageSerializers(AccessBaseSerializers):
+    class Meta:
+        model = CourseLesson
+        fields = ('id', 'course_theme_id', 'title', 'status')
 
 
 class DetailCourseLessonSerializers(DefaultCourseLessonSerializers):
