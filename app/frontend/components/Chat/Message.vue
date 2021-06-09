@@ -34,12 +34,14 @@
         </div> -->
       </div>
       <div class="message__more">
-        <div class="message__more-trigger" @click="handleExpandedClick">
+        <div class="message__more-trigger">
           <UiSvgIcon name="more-dots" />
         </div>
-        <div class="message__more-actions" :class="[isMoreExpanded && 'is-active']">
-          <a @click="handleReplyClick">Ответить</a>
-          <a @click="handleCopyClick">Скопировать</a>
+        <div class="message__more-wrapper">
+          <div class="message__more-actions">
+            <a @click="handleReplyClick">Ответить</a>
+            <a @click="handleCopyClick">Скопировать</a>
+          </div>
         </div>
       </div>
     </div>
@@ -58,7 +60,6 @@ export default {
   },
   data() {
     return {
-      isMoreExpanded: false,
       isSingleLine: false,
     };
   },
@@ -100,9 +101,6 @@ export default {
     }
   },
   methods: {
-    handleExpandedClick(e) {
-      this.isMoreExpanded = !this.isMoreExpanded;
-    },
     handleReplyClick() {},
     handleCopyClick() {
       const textArea = document.createElement('textarea');
@@ -143,6 +141,13 @@ export default {
     background: #fff;
     box-shadow: 0 6px 24px -4px rgba(23, 24, 24, 0.1);
     border-radius: 8px;
+    &:hover {
+      .message {
+        &__more {
+          opacity: 1;
+        }
+      }
+    }
   }
   &__content {
     font-size: 15px;
@@ -230,10 +235,19 @@ export default {
   }
   &__more {
     position: absolute;
+    z-index: 2;
     right: 4px;
     top: 8px;
     opacity: 0;
+    will-change: opacity;
+    backface-visibility: hidden;
     transition: opacity 0.25s $ease;
+    &:hover {
+      .message__more-wrapper {
+        // opacity: 1;
+        display: block;
+      }
+    }
   }
   &__more-trigger {
     display: flex;
@@ -244,21 +258,30 @@ export default {
     font-size: 13px;
     cursor: pointer;
   }
-  &__more-actions {
+  &__more-wrapper {
     position: absolute;
-    left: 0;
+    left: -20px;
     top: 100%;
-    z-index: 2;
+    padding-top: 10px;
+    min-width: 160px;
+    display: none;
+  }
+  &__more-actions {
+    position: relative;
     background: #fff;
     border-radius: 8px;
     padding: 8px;
     color: $fontColor;
     box-shadow: 0 6px 24px -4px rgba(23, 24, 24, 0.04);
-    opacity: 0;
-    will-change: opacity;
-    transition: opacity 0.25s $ease;
-    &.is-active {
-      opacity: 1;
+    &::before {
+      display: inline-block;
+      content: '';
+      position: absolute;
+      top: -7px;
+      left: 19px;
+      background: url('~assets/landing/img/help-polygon.svg') no-repeat 50% 50%;
+      width: 22px;
+      height: 14px;
     }
     a {
       display: block;
@@ -268,13 +291,6 @@ export default {
       transition: color 0.25s $ease;
       &:hover {
         color: $colorPrimary;
-      }
-    }
-  }
-  &:hover {
-    .message {
-      &__more {
-        opacity: 1;
       }
     }
   }
@@ -295,6 +311,40 @@ export default {
     padding-right: 24px;
     .message__more-trigger {
       color: $colorPrimary;
+    }
+  }
+}
+
+.messages__group:last-child .message:last-child {
+  .message {
+    &__more-wrapper {
+      top: auto;
+      bottom: 100%;
+      padding-top: 0;
+      padding-bottom: 10px;
+    }
+    &__more-actions {
+      &::before {
+        top: auto;
+        bottom: -10px;
+        transform: rotate(180deg);
+      }
+    }
+  }
+}
+
+.chat.is-mini {
+  .message {
+    &__more-wrapper {
+      right: -20px;
+      left: auto;
+      min-width: 1px;
+    }
+    &__more-actions {
+      &::before {
+        left: auto;
+        right: 19px;
+      }
     }
   }
 }
