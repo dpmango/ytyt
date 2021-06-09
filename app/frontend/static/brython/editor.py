@@ -38,6 +38,7 @@ class EditorCodeBlocks:
         for editor in editors:
             unique_id = self.get_unique_id(editor.id)
 
+            print('editor in editors abracadabra__%s' % unique_id)
             self.set_options_editor_by_id(unique_id)
             self.bind_click_to_run_id(unique_id, self._run)
 
@@ -77,6 +78,7 @@ class EditorCodeBlocks:
         sys.stderr = console_output
 
     def clean_console_by_id(self, unique_id):
+        print('console__%s' % unique_id)
         self.doc['console__%s' % unique_id].value = ''
 
     def get_ace_editor_by_id(self, unique_id):

@@ -14,7 +14,7 @@
         v-html="message.body"
       />
 
-      <div v-if="message.file" class="message__file" @click="handleFileClick">
+      <div v-if="message.file" v-viewer class="message__file" @click="handleFileClick">
         <div v-if="message.file.type === 2" class="message__file-image">
           <img :src="message.file.url" :alt="message.file.file_name" />
         </div>
@@ -52,6 +52,7 @@ import { timeToHHMM } from '~/helpers/Date';
 
 export default {
   name: 'ChatMessages',
+
   props: {
     message: Object,
   },
