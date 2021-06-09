@@ -10,8 +10,8 @@
         v-if="message.body"
         ref="content"
         class="message__content markdown-body"
-        :class="[isIncoming && 'dark', isSingleLine && isFile && 'is-single-line']"
-        v-html="message.body"
+        :class="[isIncoming && 'dark', (isSingleLine || isFile) && 'is-single-line']"
+        v-html="messageBody"
       />
 
       <div v-if="message.file" v-viewer class="message__file" @click="handleFileClick">
@@ -63,6 +63,9 @@ export default {
     };
   },
   computed: {
+    messageBody() {
+      return this.message.body;
+    },
     isIncoming() {
       const isSupportMessage = this.message.user.is_support && this.user.is_support;
 
@@ -111,9 +114,7 @@ export default {
 
       try {
         const successful = document.execCommand('copy');
-        if (successful) {
-          this.$toast.global.default({ message: 'Сообщение успешно скопировано ' });
-        } else {
+        if (!successful) {
           this.$toast.global.error({ message: 'Ошибка! Сообщение не скопировано ' });
         }
       } catch (err) {
@@ -123,7 +124,9 @@ export default {
       document.body.removeChild(textArea);
     },
     handleFileClick() {
-      // if (this)
+      if (this.message.file.type !== 2) {
+        window.open(this.message.file.url);
+      }
     },
   },
 };
@@ -150,6 +153,9 @@ export default {
     }
     ::v-deep code {
       border-radius: 8px;
+    }
+    ::v-deep pre code {
+      border-radius: 0;
     }
   }
   &__file {
@@ -189,6 +195,7 @@ export default {
     display: flex;
     align-items: center;
     justify-content: center;
+    background: $colorPrimary;
     color: white;
 
     .svg-icon {
@@ -277,6 +284,10 @@ export default {
     .message__wrapper {
       background: $colorPrimary;
       color: white;
+    }
+    .message__file-icon {
+      background: white;
+      color: $colorPrimary;
     }
   }
   &--outcoming {

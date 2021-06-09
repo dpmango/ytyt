@@ -57,7 +57,12 @@ export default {
     if (this.simplemde) {
       this.simplemde.codemirror.on('keydown', (instance, event) => {
         if ((event.ctrlKey || event.shiftKey) && event.keyCode === 13) {
-          this.text += '\n';
+          const cursor = this.simplemde.codemirror.getCursor();
+
+          this.simplemde.codemirror.replaceRange('\n', {
+            line: cursor.line,
+            ch: cursor.ch,
+          });
         } else if (event.keyCode === 13) {
           event.preventDefault();
           this.handleSubmit();
@@ -68,7 +73,14 @@ export default {
   methods: {
     handleSubmit() {
       if (this.text.trim().length >= 1) {
-        this.sendMessage({ body: this.text, dialog_id: this.activeDialog });
+        const request = { body: this.text, dialog_id: this.activeDialog };
+
+        const loc = window.location.href.split('/');
+        if (loc.includes('theme')) {
+          request.lesson_id = parseInt(loc[loc.length - 1]);
+        }
+
+        this.sendMessage(request);
 
         this.text = '';
         this.simplemde.value('');

@@ -253,6 +253,7 @@ export const actions = {
     });
   },
   sendMessage({ commit }, request) {
+    console.log('sending message', request);
     this.$socket.sendObj({
       event: EVENTS.SEND_MESSAGE,
       ...request,
