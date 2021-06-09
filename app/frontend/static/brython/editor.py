@@ -28,7 +28,6 @@ class EditorCodeBlocks:
         self.doc = doc
         self.window = window
         self.editor_class_name = 'editor__block'
-        self.codemirror = ''
 
     def declare(self):
         editors = self.doc.getElementsByClassName(self.editor_class_name)
@@ -42,16 +41,15 @@ class EditorCodeBlocks:
             self.bind_click_to_run_id(unique_id, self._run)
 
     def set_options_editor_by_id(self, unique_id):
-        codemirror = self.get_ace_editor_by_id(unique_id)
+        codemirror = self.get_editor_from_text_area_by_id(unique_id)
         codemirror.setOption('mode' "python")
-        self.codemirror = codemirror
 
     def bind_click_to_run_id(self, unique_id, func):
         self.doc['run__%s' % unique_id].bind('click', func)
 
     def _run(self, event):
-        unique_id = self.get_unique_id(event.target.id)
-        codemirror = self.codemirror
+        unique_id = self.get_unique_id(event.currentTarget.id)
+        codemirror = self.get_editor_from_text_area_by_id(unique_id)
 
         self.clean_console_by_id(unique_id)
         self.change_stdout_by_id(unique_id)
@@ -79,9 +77,11 @@ class EditorCodeBlocks:
     def clean_console_by_id(self, unique_id):
         self.doc['console__%s' % unique_id].value = ''
 
-    def get_ace_editor_by_id(self, unique_id):
-        element = self.doc.getElementById('editor__%s' % unique_id)
-        return self.window.CodeMirror.fromTextArea(element);
+    def get_editor_from_text_area_by_id(self, unique_id):
+        return self.window.CodeMirror.fromTextArea(self.get_editor_by_id(unique_id))
+
+    def get_editor_by_id(self, unique_id):
+        return self.doc.getElementById('editor__%s' % unique_id)
 
     def get_unique_id(self, string):
         return string.split('__')[-1]

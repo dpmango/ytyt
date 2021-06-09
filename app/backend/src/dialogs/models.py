@@ -184,7 +184,9 @@ class DialogMessage(models.Model):
     lesson = models.ForeignKey(CourseLesson, on_delete=models.SET_NULL, null=True, blank=True)
 
     body = MarkdownxField('Сообщение', null=True, blank=True)
+    reply = models.ForeignKey('DialogMessage', on_delete=models.SET_NULL, null=True, blank=True)
     file = models.ForeignKey(File, on_delete=models.SET_NULL, null=True, blank=True)
+
     date_created = models.DateTimeField('Дата отправления', auto_now_add=True)
     date_read = models.DateTimeField('Дата прочтения', null=True, blank=True)
 

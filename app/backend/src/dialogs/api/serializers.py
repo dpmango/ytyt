@@ -82,6 +82,14 @@ class DefaultDialogMessageSerializers(serializers.ModelSerializer):
 
     class Meta:
         model = DialogMessage
+        exclude = ('reply', )
+
+
+class DefaultDialogMessageWithReplySerializers(DefaultDialogMessageSerializers):
+    reply = DefaultDialogMessageSerializers()
+
+    class Meta:
+        model = DialogMessage
         fields = '__all__'
 
 

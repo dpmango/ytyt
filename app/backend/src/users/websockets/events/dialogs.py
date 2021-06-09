@@ -3,7 +3,7 @@ from collections import defaultdict
 
 from django.utils import timezone
 
-from dialogs.api.serializers import DialogWithLastMessageSerializers, DefaultDialogMessageSerializers
+from dialogs.api.serializers import DialogWithLastMessageSerializers, DefaultDialogMessageWithReplySerializers
 from dialogs.models import DialogMessage, Dialog
 from files.models import File
 from providers.mailgun.mixins import EmailNotification
@@ -95,7 +95,7 @@ class DialogEvent:
 
         messages = sorted(messages, key=lambda message: message.date_created)
         context = {'user': user, 'base_url': kwargs.get('base_url')}
-        messages = DefaultDialogMessageSerializers(messages, many=True, context=context).data
+        messages = DefaultDialogMessageWithReplySerializers(messages, many=True, context=context).data
 
         return {'data': messages, 'to': user, **self.generate_meta(limit, offset, messages_count)}
 
@@ -120,11 +120,19 @@ class DialogEvent:
         message.save(update_fields=['date_read'])
 
         context = {'user': user, 'base_url': kwargs.get('base_url')}
-        message = DefaultDialogMessageSerializers(message, context=context).data
+        message = DefaultDialogMessageWithReplySerializers(message, context=context).data
         return {'data': message, 'to': dialog_users}
 
     def _dialogs_messages_create(
-            self, user: User, dialog_id=None, body=None, file_id=None, lesson_id=None, **kwargs) -> t.Optional[dict]:
+            self,
+            user: User,
+            dialog_id: int = None,
+            body: str = None,
+            file_id: int = None,
+            lesson_id: int = None,
+            reply_id: int = None,
+            **kwargs
+    ) -> t.Optional[dict]:
         """
         Создание сообщения
         Так же уведомляются все пользователи, которые есть в диалоге
@@ -148,12 +156,16 @@ class DialogEvent:
             if file.user != user:
                 return {'to': user, 'data': 'Файл не принадлежит пользователю', 'exception': True}
 
+        if reply_id is not None:
+            if not DialogMessage.objects.filter(reply_id=reply_id, dialog_id=dialog_id).exists():
+                return {'to': user, 'data': 'Сообщение не принадлежит диалогу', 'exception': True}
+
         message = DialogMessage.objects.create(
-            dialog_id=dialog_id, user=user, body=body, file_id=file_id, lesson_id=lesson_id
+            dialog_id=dialog_id, user=user, body=body, file_id=file_id, lesson_id=lesson_id, reply_id=reply_id
         )
 
         context = {'user': user, 'base_url': kwargs.get('base_url')}
-        message = DefaultDialogMessageSerializers(message, context=context).data
+        message = DefaultDialogMessageWithReplySerializers(message, context=context).data
         mute = defaultdict(list)
 
         users_to_notification = set(dialog_users)
@@ -192,4 +204,3 @@ class DialogEvent:
                 mailgun.send_mail(context={**context, 'email': user_.email}, to=user_.email)
 
         return {'data': message, 'to': users_to_notification, 'mute': mute}
-
