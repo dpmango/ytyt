@@ -40,3 +40,6 @@ class DetailAccessSerializer(serializers.Serializer):
 
         return Access.WAITING_STATUS_PAID
 
+
+class DetailAccessWithThemeSerializer(DetailAccessSerializer):
+    course_theme_id = serializers.IntegerField()

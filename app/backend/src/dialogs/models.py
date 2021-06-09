@@ -130,6 +130,9 @@ class Dialog(models.Model):
     def __str__(self) -> str:
         return '{%s}' % self.id + ' | '.join(map(lambda user: '(%s)%s' % (user.id, user.email), self.users.all()))
 
+    def with_support(self) -> bool:
+        return self.with_role == permissions.GROUP_SUPPORT
+
 
 class DialogMessageManager(models.Manager):
 
@@ -181,7 +184,9 @@ class DialogMessage(models.Model):
     lesson = models.ForeignKey(CourseLesson, on_delete=models.SET_NULL, null=True, blank=True)
 
     body = MarkdownxField('Сообщение', null=True, blank=True)
+    reply = models.ForeignKey('DialogMessage', on_delete=models.SET_NULL, null=True, blank=True)
     file = models.ForeignKey(File, on_delete=models.SET_NULL, null=True, blank=True)
+
     date_created = models.DateTimeField('Дата отправления', auto_now_add=True)
     date_read = models.DateTimeField('Дата прочтения', null=True, blank=True)
 

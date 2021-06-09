@@ -6,6 +6,7 @@ from courses_access.models import Access
 from users.models import User
 from users.websockets.events import DialogEvent, InsidePlatformNotificationEvent, UserEvent
 from providers.tinkoff_credit.contrib import TinkoffCredit
+from files.models import File
 
 
 class ConstantsViewSet(viewsets.ViewSet):
@@ -71,6 +72,7 @@ class ConstantsViewSet(viewsets.ViewSet):
             [Access, 'STATUS_', 'STATUSES'],
             [Access, 'COURSE_ACCESS_TYPE_', 'COURSE_ACCESS_TYPES'],
             [Access, 'WAITING_STATUS_', 'WAITING_STATUSES'],
+            [File, 'TYPE_', 'TYPES'],
             [TinkoffCredit, 'PROMO_CODE_', 'PROMO_CODES'],
             [User, 'GENDER_', 'GENDERS'],
             [UserEvent, 'EVENT_', 'EVENTS'],

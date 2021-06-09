@@ -2,7 +2,7 @@ import typing
 from datetime import timedelta
 
 from django.core.serializers.json import DjangoJSONEncoder
-from django.db import models
+from django.db import models, transaction
 from django.forms import model_to_dict
 from django.utils import timezone
 
@@ -106,6 +106,9 @@ class Access(models.Model):
         verbose_name = 'Доступ к учебным материалам'
         verbose_name_plural = 'Доступы к учебным материалам'
 
+    def __str__(self):
+        return '%s — %s' % (self.course_id, self.user.email)
+
     def set_empty_accesses(self) -> None:
         """
         Метод создает заблокированные доступы ко всем темам, урокам и фрагментам курса
@@ -172,6 +175,15 @@ class Access(models.Model):
                 break
 
         self.save(update_fields=['course_theme', 'course_lesson', 'lesson_fragment', 'date_updated'])
+
+    @transaction.atomic()
+    def set_access_full_paid(self) -> None:
+        """
+        Метод предоставляет статус полного доступа и открывает доступ к первой платной теме, если это необходимо
+        """
+        self.set_access_first_theme_after_free()
+        self.access_type = Access.COURSE_ACCESS_TYPE_FULL_PAID
+        self.save()
 
     def queryset_themes(self, **_filter):
         themes = self.course.coursetheme_set.filter(**_filter)
@@ -345,6 +357,23 @@ class Access(models.Model):
                 self.course_theme[idx].update({'status': status, 'date_updated': timezone.now(), **kwargs})
 
         self.save(update_fields=['course_theme', 'date_updated'])
+
+    def set_access_first_theme_after_free(self) -> None:
+        """
+        Метод предоставляет доступ к первой теме, первому уроку, первому фрагменту после последней беспалтной темы
+        Условие предоставление доступа:
+            — У пользователя все бесплатные темы завершены. Иначе — оставляем все как было.
+        """
+        for theme in self.course_theme:
+            if theme['free_access']:
+                if theme['status'] != self.STATUS_COMPLETED:
+                    return None
+                else:
+                    continue
+
+            # Первая платная тема должна быть обработана один раз
+            self.set__course_theme__course_lesson__lesson_fragment(pk=theme['pk'])
+            return None
 
     @force_int_pk
     def set__course_lesson__lesson_fragment(self, pk: int = None) -> None:

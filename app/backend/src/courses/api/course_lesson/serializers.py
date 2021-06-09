@@ -5,7 +5,7 @@ from courses.api.lesson_fragment.serializers import (
 )
 from courses.models import CourseLesson
 from courses.models import LessonFragment
-from courses_access.api.serializers import DetailAccessSerializer
+from courses_access.api.serializers import DetailAccessSerializer, DetailAccessWithThemeSerializer
 from collections import defaultdict
 from courses_access.common.serializers import AccessBaseSerializers
 from courses_access.models import Access
@@ -15,7 +15,13 @@ from courses_access.utils import get_course_from_struct
 class DefaultCourseLessonSerializers(AccessBaseSerializers):
     class Meta:
         model = CourseLesson
-        exclude = ('content', 'order', 'course_theme', 'date_updated', 'date_created', 'ipynb_file')
+        exclude = ('content', 'order', 'date_updated', 'date_created', 'ipynb_file')
+
+
+class CourseLessonInMessageSerializers(AccessBaseSerializers):
+    class Meta:
+        model = CourseLesson
+        fields = ('id', 'course_theme_id', 'title', 'status')
 
 
 class DetailCourseLessonSerializers(DefaultCourseLessonSerializers):
@@ -124,8 +130,8 @@ class DetailCourseLessonSerializers(DefaultCourseLessonSerializers):
         lesson_id = instance.id
 
         mapping = (
-            ('course_theme', theme_id),
-            ('course_lesson', lesson_id),
+            ('course_theme', DetailAccessSerializer, theme_id),
+            ('course_lesson', DetailAccessWithThemeSerializer, lesson_id),
         )
 
         access = Access.objects.filter(user=user, course_id=course_id).first()
@@ -133,18 +139,18 @@ class DetailCourseLessonSerializers(DefaultCourseLessonSerializers):
             return None
 
         meta = defaultdict(dict)
-        for struct, id_ in mapping:
+        for struct, serializer, id_ in mapping:
             context = {
                 **self.context, 'access': access, 'struct': struct, 'course_theme': course_theme,
             }
 
-            meta[struct]['current'] = DetailAccessSerializer(
+            meta[struct]['current'] = serializer(
                 access.get_object(struct, id_), context=context).data
 
-            meta[struct]['next'] = DetailAccessSerializer(
+            meta[struct]['next'] = serializer(
                 access.get_direction_obj(struct, id_, direction='next'), context=context).data
 
-            meta[struct]['prev'] = DetailAccessSerializer(
+            meta[struct]['prev'] = serializer(
                 access.get_direction_obj(struct, id_, direction='prev'), context=context).data
 
         return meta

@@ -3,15 +3,15 @@ from collections import defaultdict
 
 from django.utils import timezone
 
-from dialogs.api.serializers import DialogWithLastMessageSerializers, DefaultDialogMessageSerializers
+from dialogs.api.serializers import DialogWithLastMessageSerializers, DefaultDialogMessageWithReplySerializers
 from dialogs.models import DialogMessage, Dialog
 from files.models import File
-from providers.mailgun.mixins import EmailNotificationMixin
+from providers.mailgun.mixins import EmailNotification
 from users import permissions
 from users.models import User
 
 
-class DialogEvent(EmailNotificationMixin):
+class DialogEvent:
     EVENT_DIALOG_LOAD = 'dialogs.load'
     EVENT_DIALOG_MESSAGES_LOAD = 'dialogs.messages.load'
     EVENT_DIALOG_MESSAGES_CREATE = 'dialogs.messages.create'
@@ -95,7 +95,7 @@ class DialogEvent(EmailNotificationMixin):
 
         messages = sorted(messages, key=lambda message: message.date_created)
         context = {'user': user, 'base_url': kwargs.get('base_url')}
-        messages = DefaultDialogMessageSerializers(messages, many=True, context=context).data
+        messages = DefaultDialogMessageWithReplySerializers(messages, many=True, context=context).data
 
         return {'data': messages, 'to': user, **self.generate_meta(limit, offset, messages_count)}
 
@@ -120,11 +120,19 @@ class DialogEvent(EmailNotificationMixin):
         message.save(update_fields=['date_read'])
 
         context = {'user': user, 'base_url': kwargs.get('base_url')}
-        message = DefaultDialogMessageSerializers(message, context=context).data
+        message = DefaultDialogMessageWithReplySerializers(message, context=context).data
         return {'data': message, 'to': dialog_users}
 
     def _dialogs_messages_create(
-            self, user: User, dialog_id=None, body=None, file_id=None, lesson_id=None, **kwargs) -> t.Optional[dict]:
+            self,
+            user: User,
+            dialog_id: int = None,
+            body: str = None,
+            file_id: int = None,
+            lesson_id: int = None,
+            reply_id: int = None,
+            **kwargs
+    ) -> t.Optional[dict]:
         """
         Создание сообщения
         Так же уведомляются все пользователи, которые есть в диалоге
@@ -142,21 +150,27 @@ class DialogEvent(EmailNotificationMixin):
         if (not dialog or user not in dialog_users) and not user.is_support:
             return {'to': user, 'data': 'Диалог не принадлежит пользователю', 'exception': True}
 
+        file = None
         if isinstance(file_id, int):
             file = File.objects.filter(id=file_id).first()
             if file.user != user:
                 return {'to': user, 'data': 'Файл не принадлежит пользователю', 'exception': True}
 
+        if reply_id is not None:
+            if not DialogMessage.objects.filter(reply_id=reply_id, dialog_id=dialog_id).exists():
+                return {'to': user, 'data': 'Сообщение не принадлежит диалогу', 'exception': True}
+
         message = DialogMessage.objects.create(
-            dialog_id=dialog_id, user=user, body=body, file_id=file_id, lesson_id=lesson_id
+            dialog_id=dialog_id, user=user, body=body, file_id=file_id, lesson_id=lesson_id, reply_id=reply_id
         )
 
         context = {'user': user, 'base_url': kwargs.get('base_url')}
-        message = DefaultDialogMessageSerializers(message, context=context).data
+        message = DefaultDialogMessageWithReplySerializers(message, context=context).data
         mute = defaultdict(list)
 
         users_to_notification = set(dialog_users)
         users_to_email_notification = users_to_notification - {user}
+        context = {'message': message, 'from': user}
 
         #  Если диалог с поддержкой, то уведомлять всех суппортов
         if dialog.with_support():
@@ -168,14 +182,26 @@ class DialogEvent(EmailNotificationMixin):
                 mute['notifications.dialogs.count'] = supports
                 mute['notifications.dialogs.messages.count'] = supports
 
-        email_to = list(users_to_email_notification)[0].email if len(users_to_email_notification) == 1 else 'None@admin'
-        context = {'message': message, 'from': user, 'email': email_to}
+        if file is None:
+            email_template_name = 'dialogs/message/index.html'
+        else:
+            if file.type == File.TYPE_IMAGE:
+                email_template_name = 'dialogs/message-image/index.html'
+            else:
+                email_template_name = 'dialogs/message-file/index.html'
 
-        for _user in users_to_email_notification:
-            if _user.email_notifications:
-                self.send_mail(context, _user.email)
+            context = {
+                **context, 'file_url': file.generate_url(kwargs.get('base_url')), 'file_name': file.file_name
+            }
 
+        mailgun = EmailNotification(
+            subject_template_raw='Новое сообщение от %s' % user.email,
+            email_template_name=email_template_name,
+        )
+
+        for user_ in users_to_email_notification:
+            if user_.email_notifications:
+                mailgun.send_mail(context={**context, 'email': user_.email}, to=user_.email)
+
+        message.pop('text_body', None)
         return {'data': message, 'to': users_to_notification, 'mute': mute}
-
-    subject_template_name = 'users/message/new_message_subject.txt'
-    email_template_name = 'users/message/new_message_body.html'

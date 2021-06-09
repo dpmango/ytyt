@@ -1,6 +1,9 @@
+import typing as t
+
 from django.db.models import Q
 from rest_framework import serializers, exceptions
-import typing as t
+
+from courses.api.course_lesson.serializers import CourseLessonInMessageSerializers
 from dialogs.models import Dialog, DialogMessage
 from files.api.serializers import DefaultFileSerializer
 from users.models import User
@@ -64,12 +67,36 @@ class CreateDialogMessageSerializers(serializers.Serializer):
 
 class DefaultDialogMessageSerializers(serializers.ModelSerializer):
     user = UserDialogSmallDetailSerializer()
-    body = serializers.SerializerMethodField()
     file = DefaultFileSerializer(required=False)
+    lesson = CourseLessonInMessageSerializers(required=False)
+
+    body = serializers.SerializerMethodField(required=False)
+    text_body = serializers.SerializerMethodField(read_only=True)
+    markdown_body = serializers.SerializerMethodField(required=False)
+
+    @staticmethod
+    def get_markdown_body(obj):
+        return obj.body
 
     @staticmethod
     def get_body(obj: DialogMessage):
-        return obj.get_body()
+        if obj.body is not None:
+            return obj.get_body()
+        return None
+
+    @staticmethod
+    def get_text_body(obj: DialogMessage):
+        if obj.body is not None:
+            return obj.get_text_body()
+        return None
+
+    class Meta:
+        model = DialogMessage
+        exclude = ('reply', )
+
+
+class DefaultDialogMessageWithReplySerializers(DefaultDialogMessageSerializers):
+    reply = DefaultDialogMessageSerializers()
 
     class Meta:
         model = DialogMessage
