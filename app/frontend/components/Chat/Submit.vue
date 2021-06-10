@@ -116,6 +116,7 @@ export default {
         }
 
         if (file) {
+          await this.createMessageGhost({ file });
           const res = await this.uploadFile(file).catch((err) => {
             this.$toast.global.error({ message: err.data });
           });
@@ -138,7 +139,7 @@ export default {
     handleReplyDelete() {
       this.setReplyId(null);
     },
-    ...mapActions('chat', ['sendMessage', 'uploadFile']),
+    ...mapActions('chat', ['sendMessage', 'uploadFile', 'createMessageGhost']),
     ...mapMutations('chat', ['setReplyId']),
   },
 };

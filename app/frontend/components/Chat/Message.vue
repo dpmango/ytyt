@@ -3,12 +3,13 @@
     class="message"
     :data-id="message.id"
     :data-read="message.date_read ? 'true' : 'false'"
-    :class="[isIncoming ? 'message--incoming' : 'message--outcoming']"
+    :class="[isIncoming ? 'message--incoming' : 'message--outcoming', message.isGhost && 'is-ghost']"
   >
     <div class="message__wrapper" :class="[isFile && 'is-file']">
       <div v-if="message.lesson" class="message__lesson">
         <span>{{ message.lesson.title }}</span>
       </div>
+
       <div
         v-if="message.body"
         ref="content"
@@ -19,14 +20,14 @@
 
       <div v-if="message.file" class="message__file" @click="handleFileClick">
         <div v-if="message.file.type === 2" v-viewer class="message__file-image">
-          <img :src="message.file.url" :alt="message.file.file_name" />
+          <img :src="fileImageUrl" :alt="message.file.file_name" />
         </div>
         <div v-else class="message__file-icon">
           <UiSvgIcon name="file" />
         </div>
         <div class="message__file-meta">
           <div class="message__file-title">{{ message.file.file_name }}</div>
-          <div class="message__file-size"></div>
+          <div class="message__file-size">{{ fileSize }}</div>
         </div>
       </div>
 
@@ -54,6 +55,7 @@
 <script>
 import { mapMutations, mapGetters } from 'vuex';
 import { timeToHHMM } from '~/helpers/Date';
+import { formatBytes } from '~/helpers/FormatBytes';
 
 export default {
   name: 'ChatMessages',
@@ -84,6 +86,15 @@ export default {
     },
     isFile() {
       return this.message.file;
+    },
+    fileImageUrl() {
+      if (this.message.file.thumb) {
+        return this.message.file.thumb.size_100x100;
+      }
+      return this.message.file.url;
+    },
+    fileSize() {
+      return formatBytes(this.message.file.size);
     },
     timestamp() {
       return timeToHHMM(this.message.date_created);
@@ -254,7 +265,13 @@ export default {
   }
   &__file-title {
     font-size: 15px;
-    line-height: 150%;
+    line-height: 1.2;
+  }
+  &__file-size {
+    margin-top: 2px;
+    font-size: 13px;
+    line-height: 1.2;
+    opacity: 0.5;
   }
   &__meta {
     margin-top: 2px;
@@ -354,6 +371,10 @@ export default {
     .message__more-trigger {
       color: $colorPrimary;
     }
+  }
+  &.is-ghost {
+    opacity: 0.5;
+    pointer-events: none;
   }
 }
 

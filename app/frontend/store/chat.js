@@ -200,6 +200,12 @@ export const mutations = {
   setReplyId(state, id) {
     state.submit.reply = id;
   },
+  pushGhostMessage(state, message) {
+    state.messages.push(message);
+  },
+  clearGhostMessage(state) {
+    state.messages = state.messages.filter((x) => x.id !== 9999999);
+  },
 };
 
 export const actions = {
@@ -263,10 +269,29 @@ export const actions = {
     });
   },
   sendMessage({ commit }, request) {
-    console.log('sending message', request);
     this.$socket.sendObj({
       event: EVENTS.SEND_MESSAGE,
       ...request,
+    });
+  },
+  async createMessageGhost({ commit, rootGetters }, { file, ...request }) {
+    await commit('pushGhostMessage', {
+      isGhost: true,
+      id: 9999999,
+      user: rootGetters['auth/user'],
+      file: {
+        url: null,
+        size: file.size,
+        // type: file.type.split('/')[0] === 'image' ? 2 : 1,
+        type: 1,
+        file_name: file.name,
+      },
+      lesson: null,
+      body: null,
+      text_body: null,
+      markdown_body: null,
+      reply: null,
+      date_created: new Date(),
     });
   },
   async uploadFile({ commit }, file) {
@@ -276,6 +301,8 @@ export const actions = {
     const [err, result] = await filesService(this.$api, formData);
 
     if (err) throw err;
+
+    await commit('clearGhostMessage');
 
     return result;
   },
