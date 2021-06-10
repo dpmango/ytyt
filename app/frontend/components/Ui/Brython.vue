@@ -1,6 +1,7 @@
 <template>
   <client-only>
     <div class="brython" :class="[!ready && 'is-loading']">
+      {{ id }}
       <template v-if="!ready">
         <UiLoader :loading="true" theme="block" />
       </template>
