@@ -37,9 +37,12 @@
                   class="lesson__section"
                   :class="[fragment.id === activeSection && 'is-active']"
                 >
-                  <div class="lesson__body markdown-body" v-html="fragment.content"></div>
-
-                  <UiBrython :id="`${fragment.id}`" :ready="brythonReady" />
+                  <div class="lesson__body markdown-body">
+                    <span v-for="(block, idx) in fragmentContent(fragment.content)" :key="idx">
+                      <UiBrython v-if="block.type === 'code'" :code="block.content" :ready="brythonReady" />
+                      <span v-else v-html="block.content" />
+                    </span>
+                  </div>
 
                   <div class="lesson__actions">
                     <UiButton @click.prevent="setNextFragment">Продолжить</UiButton>
@@ -97,11 +100,12 @@ export default {
     sectionsCount() {
       return this.sections.length;
     },
+
     currentSectionIndex() {
       return this.sections.findIndex((s) => s.id === this.activeSection);
     },
     nextSectionId() {
-      const section = this.sections[this.currentSectionIndex + 11];
+      const section = this.sections[this.currentSectionIndex + 1];
       return section ? section.id : null;
     },
     prevSectionId() {
@@ -209,6 +213,27 @@ export default {
     }
   },
   methods: {
+    fragmentContent(content) {
+      const content2 =
+        '<h1 id="ytyt">Как работать с платформой YtYt?</h1>\n<p>Весь обучающий курс состоит из нескольких тем.<br/>\nКаждая тема - из нескольких уроков.<br/>\nКаждый урок - из нескольких блоков.  </p>\n<p>[Изображение]</p>\n<p>Уроки открываются по очереди - для получения доступа ко второму уроку вам необходимо полностью пройти первый.<br/>\nАналогично с темами - вторая тема откроется после того, как вы полностью пройдете все уроки из первой темы.  </p>\n<p>В конце каждого урока, в блоке “Практика”, вам нужно будет выполнить практическое задание и сдать его на проверку своему наставнику.<br/>\nНаставник в течение суток проверит его, укажет вам на ошибки и поможет разобраться в сложных моментах.  </p>\n<p>Доступ к следующему уроку вы получите сразу после сдачи задания на проверку.<br/>\nТо есть дожидаться ответа от наставника необязательно, можно сразу идти дальше.<br/>\nНо если в задании вы допустите много ошибок, то наставник может закрыть доступ к следующим урокам, пока вы не разберетесь с практикой.  </p>\n<h3 id="_2">Готовые примеры кода</h3>\n<p>В каждом уроке вы увидите вот такие элементы:  </p>\n<p>[brython-snippet]print(\'Привет, мир!\')[/brython-snippet]</p>\n<p>В них написан готовый программный код, который вы можете запустить нажатием на кнопку <code class="language-python">►</code>.<br/>\nРезультат выполнения кода отобразится сразу под этим элементом.  </p>\n<p>Вы можете самостоятельно вносить изменения в код и запускать его повторно.<br/>\nЭто позволит вам лучше разобраться в том, как работает написанный код.  </p>\n<p>Практические задания вы будете выполнять не в этих ячейках, а в более удобной среде разработки.<br/>\nПодробнее об этом вы узнаете в блоке “Практика” в конце этого урока.  </p>\n<h3 id="_3">Вопросы наставнику</h3>\n<p>С помощью кнопки “Задать вопрос” вы можете общаться со своим наставником.<br/>\nОн ответит на любые вопросы.  </p>\n<p>Но прежде, чем просить помощи, попробуйте решить проблему самостоятельно.<br/>\nПоиск информации и решений - это важная часть работы программиста.<br/>\nДаже разработчики с опытом 15+ лет постоянно что-то “гуглят” во время работы, изучают документацию и другие источники.  </p>\n<p>Тому, как правильно искать в сети ответы на вопросы, посвящен отдельный урок.<br/>\nНа нем будут показаны основные источники информации и примеры того, как правильно составлять запросы.<br/>\nНо если у вас все-таки не получится самостоятельно решить проблему - не стесняйтесь просить помощи у наставника.  </p>\n<p>На этом инструкция по работе с платформой YtYt заканчивается.<br/>\nПора приступать к обучению.  </p>';
+
+      // const split = content2.split(/\[brython-snippet](.*\n*?)\[\/brython-snippet\]/g);
+      const split = content2.split(/\[brython-snippet](.*\n*?)snippet\]/g);
+
+      return split.map((block) => {
+        if (block.endsWith('[/brython-')) {
+          return {
+            type: 'code',
+            content: block.replace('[/brython-', ''),
+          };
+        } else {
+          return {
+            type: 'text',
+            content: block,
+          };
+        }
+      });
+    },
     async setNextFragment() {
       const { course_lesson: lesson, course_theme: theme } = this.data.meta;
 
