@@ -61,4 +61,9 @@ class InlineCommandExtend:
         """
         code_blocks = self.content.find_all('code', attrs={'class': 'language-brython-snippet'})
         for code_block in code_blocks:
-            code_block.attrs = {}
+
+            brython_snippet = self.content.new_tag('p')
+            brython_snippet.string = '[brython-snippet]%s[/brython-snippet]' % code_block.text
+
+            code_block.parent.replace_with(brython_snippet)
+            code_block.parent.extract()
