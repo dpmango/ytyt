@@ -9,9 +9,9 @@
       <slot></slot>
     </div>
 
-    <button class="modal__close" @click="$emit('input', false)">
+    <!-- <button class="modal__close" @click="$emit('input', false)">
       <UiSvgIcon name="close" />
-    </button>
+    </button> -->
   </vue-final-modal>
 </template>
 
@@ -30,6 +30,8 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+  padding-left: 16px;
+  padding-right: 16px;
 }
 ::v-deep .modal-content {
   position: relative;

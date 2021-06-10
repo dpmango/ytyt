@@ -1,7 +1,11 @@
 <template>
   <NuxtLink
     class="card"
-    :class="[theme.status === 3 && 'is-compleated', [4, 5, 6, 7, 8].includes(theme.status) && 'is-locked']"
+    :class="[
+      theme.status === 3 && 'is-compleated',
+      theme.status === 8 && 'is-not-payed',
+      [4, 5, 6, 7].includes(theme.status) && 'is-locked',
+    ]"
     :to="linkHref"
   >
     <div class="card__status">
@@ -38,6 +42,9 @@ export default {
       const plural = Plurize(this.theme.count_lessons, 'уроков', 'уроков', 'уроков');
       return `${this.theme.completed_count_lessons} / ${this.theme.count_lessons} ${plural} пройдено`;
     },
+  },
+  methods: {
+    handleCardClick() {},
   },
 };
 </script>
@@ -99,6 +106,10 @@ export default {
   &.is-compleated {
     border: 1px solid rgba(23, 24, 24, 0.15);
     background: transparent;
+    box-shadow: none;
+  }
+  &.is-not-payed {
+    background: rgba(#fff, 0.6);
     box-shadow: none;
   }
   &.is-locked {
