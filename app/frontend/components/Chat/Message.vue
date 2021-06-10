@@ -5,7 +5,10 @@
     :data-read="message.date_read ? 'true' : 'false'"
     :class="[isIncoming ? 'message--incoming' : 'message--outcoming']"
   >
-    <div class="message__wrapper">
+    <div class="message__wrapper" :class="[isFile && 'is-file']">
+      <div v-if="message.lesson" class="message__lesson">
+        <span>{{ message.lesson.title }}</span>
+      </div>
       <div
         v-if="message.body"
         ref="content"
@@ -14,8 +17,8 @@
         v-html="messageBody"
       />
 
-      <div v-if="message.file" v-viewer class="message__file" @click="handleFileClick">
-        <div v-if="message.file.type === 2" class="message__file-image">
+      <div v-if="message.file" class="message__file" @click="handleFileClick">
+        <div v-if="message.file.type === 2" v-viewer class="message__file-image">
           <img :src="message.file.url" :alt="message.file.file_name" />
         </div>
         <div v-else class="message__file-icon">
@@ -49,7 +52,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
+import { mapMutations, mapGetters } from 'vuex';
 import { timeToHHMM } from '~/helpers/Date';
 
 export default {
@@ -101,7 +104,9 @@ export default {
     }
   },
   methods: {
-    handleReplyClick() {},
+    handleReplyClick() {
+      this.setReplyId(this.message.id);
+    },
     handleCopyClick() {
       const textArea = document.createElement('textarea');
       textArea.value = this.message.markdown_body;
@@ -124,8 +129,20 @@ export default {
     handleFileClick() {
       if (this.message.file.type !== 2) {
         window.open(this.message.file.url);
+      } else {
+        this.$viewerApi({
+          options: {
+            navbar: false,
+            toolbar: false,
+            movable: false,
+            rotatable: false,
+            zoomOnWheel: false,
+          },
+          images: [this.message.file.url],
+        });
       }
     },
+    ...mapMutations('chat', ['setReplyId']),
   },
 };
 </script>
@@ -146,6 +163,31 @@ export default {
         &__more {
           opacity: 1;
         }
+      }
+    }
+    &.is-file {
+      .message__more {
+        display: none;
+      }
+    }
+  }
+  &__lesson {
+    font-size: 14px;
+    margin-bottom: 5px;
+    opacity: 0.6;
+    transition: opacity 0.25s $ease;
+    span {
+      position: relative;
+      display: inline-block;
+      padding-bottom: 4px;
+      &::after {
+        display: inline-block;
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        border-bottom: 1px dashed currentColor;
       }
     }
   }

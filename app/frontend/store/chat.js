@@ -30,6 +30,9 @@ export const state = () => ({
   messages: [],
   messagesMeta: {},
   dialogsMeta: {},
+  submit: {
+    reply: null,
+  },
   socket: {
     error: null,
     isConnected: false,
@@ -59,6 +62,7 @@ export const getters = {
     }
     return false;
   },
+  replyId: (state) => state.submit.reply,
 };
 
 export const mutations = {
@@ -192,6 +196,9 @@ export const mutations = {
     state.activeDialog = null;
     state.messages = [];
     state.messagesMeta = {};
+  },
+  setReplyId(state, id) {
+    state.submit.reply = id;
   },
 };
 

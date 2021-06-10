@@ -12,6 +12,12 @@
           <UiSvgIcon name="paper-clip" />
         </label>
         <div class="editor__body">
+          <div v-if="replyId" class="editor__reply">
+            <span class="editor__reply-title">Ответ на: {{ replyId }}</span>
+            <div class="editor__reply-delete" @click="handleReplyDelete">
+              <UiSvgIcon name="close" />
+            </div>
+          </div>
           <vue-simplemde
             ref="markdownEditor"
             v-model="text"
@@ -26,7 +32,7 @@
 </template>
 
 <script>
-import { mapActions, mapGetters } from 'vuex';
+import { mapActions, mapMutations, mapGetters } from 'vuex';
 import { bytesToMegaBytes } from '~/helpers/FormatBytes';
 
 export default {
@@ -51,7 +57,7 @@ export default {
     simplemde() {
       return this.$refs.markdownEditor.simplemde;
     },
-    ...mapGetters('chat', ['activeDialog']),
+    ...mapGetters('chat', ['activeDialog', 'replyId']),
   },
   mounted() {
     if (this.simplemde) {
@@ -75,9 +81,14 @@ export default {
       if (this.text.trim().length >= 1) {
         const request = { body: this.text, dialog_id: this.activeDialog };
 
+        // getting lesson id from url
         const loc = window.location.href.split('/');
         if (loc.includes('theme')) {
           request.lesson_id = parseInt(loc[loc.length - 1]);
+        }
+
+        if (this.replyId) {
+          request.reply_id = this.replyId;
         }
 
         this.sendMessage(request);
@@ -124,7 +135,11 @@ export default {
     handleAttachClick() {
       // this.simplemde.drawImage();
     },
+    handleReplyDelete() {
+      this.setReplyId(null);
+    },
     ...mapActions('chat', ['sendMessage', 'uploadFile']),
+    ...mapMutations('chat', ['setReplyId']),
   },
 };
 </script>
@@ -175,6 +190,33 @@ export default {
   align-items: center;
   flex: 1 1 auto;
   padding-left: 10px;
+  &__reply {
+    display: inline-flex;
+    align-items: center;
+    padding-top: 6px;
+    padding-left: 5px;
+    font-size: 14px;
+  }
+  &__reply-title {
+    opacity: 0.6;
+    text-decoration: underline;
+    text-decoration-style: dashed;
+  }
+  &__reply-delete {
+    cursor: pointer;
+    margin-left: 4px;
+    padding: 4px;
+    font-size: 0;
+    opacity: 0.6;
+    transition: opacity 0.25s $ease, color 0.25s $ease;
+    .svg-icon {
+      font-size: 12px;
+    }
+    &:hover {
+      opacity: 1;
+      color: $colorRed;
+    }
+  }
   &__attach {
     flex: 0 0 auto;
     padding: 10px;
