@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from courses.inline_command import InlineCommandExtend
 from courses.models import LessonFragment
 from courses_access.common.serializers import AccessBaseSerializers
 from courses_access.models import Access
@@ -17,7 +18,10 @@ class DetailLessonFragmentSerializers(AccessBaseSerializers):
 
     @staticmethod
     def get_content(obj: LessonFragment) -> str:
-        return obj.get_content()
+        """
+        Метод производит выполнение инлайн-команд перед сериализацией
+        """
+        return InlineCommandExtend(content=obj.get_content()).render()
 
     def to_representation(self, instance: LessonFragment):
         """
