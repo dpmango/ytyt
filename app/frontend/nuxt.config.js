@@ -11,7 +11,7 @@ export default {
       { name: 'robots', content: 'noindex' },
       { hid: 'description', name: 'description', content: '' },
     ],
-    link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
+    link: [{ rel: 'icon', type: 'image/png', href: '/favicon.png' }],
   },
 
   // Global CSS: https://go.nuxtjs.dev/config-css
@@ -25,7 +25,7 @@ export default {
     '~/plugins/event-bus',
     '~/plugins/global-mixins',
     '~plugins/modal',
-    '~plugins/tooltip',
+    '~plugins/lightbox',
     { src: '~plugins/legacy', mode: 'client' },
     { src: '~/plugins/markdown', mode: 'client' },
     { src: '~/plugins/toast', mode: 'client' },

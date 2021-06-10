@@ -337,6 +337,9 @@ export default {
     line-height: 150%;
     color: rgba($fontColor, 0.5);
   }
+  &__price-old {
+    text-decoration: line-through;
+  }
   &.is-active {
     .card__checkbox {
       &::after {

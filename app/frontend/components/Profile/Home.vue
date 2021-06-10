@@ -202,7 +202,7 @@ export default {
         .then((_res) => {
           this.error = null;
           // this.avatarBlob = null;
-          this.$toast.global.default({ message: 'Пользователь обновлен' });
+          this.$toast.global.default({ message: 'Изменения сохранены' });
         })
         .catch((err) => {
           const { data, code } = err;

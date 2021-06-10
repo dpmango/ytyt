@@ -19,13 +19,13 @@ export default {
         }
       });
 
-    return { lesson };
+    return { lesson, name: lesson.title };
   },
   data() {
     return {};
   },
-  head: {
-    title: 'Урок курса',
+  head() {
+    return { title: `${this.name} | YtYt - понятные уроки программирования` };
   },
   methods: {
     async requestFragment({ id }) {

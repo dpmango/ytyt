@@ -13,7 +13,7 @@ export default {
     return { courses };
   },
   head: {
-    title: 'Темы Курса',
+    title: 'Главная | YtYt - понятные уроки программирования',
   },
 };
 </script>

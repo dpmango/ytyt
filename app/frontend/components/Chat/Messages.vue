@@ -50,7 +50,7 @@ export default {
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding: 24px;
+  padding: 24px 24px 16px;
   // &__loader {
 
   // }

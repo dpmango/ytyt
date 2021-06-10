@@ -3,27 +3,35 @@
     class="message"
     :data-id="message.id"
     :data-read="message.date_read ? 'true' : 'false'"
-    :class="[isIncoming ? 'message--incoming' : 'message--outcoming']"
+    :class="[isIncoming ? 'message--incoming' : 'message--outcoming', message.isGhost && 'is-ghost']"
   >
-    <div class="message__wrapper">
+    <div class="message__wrapper" :class="[isFile && 'is-file']">
+      <NuxtLink
+        v-if="message.lesson"
+        :to="`/theme/${message.lesson.course_theme_id}/${message.lesson.id}`"
+        class="message__lesson"
+      >
+        <span>{{ message.lesson.title }}</span>
+      </NuxtLink>
+
       <div
         v-if="message.body"
         ref="content"
         class="message__content markdown-body"
-        :class="[isIncoming && 'dark', isSingleLine && isFile && 'is-single-line']"
-        v-html="message.body"
+        :class="[isIncoming && 'dark', (isSingleLine || isFile) && 'is-single-line']"
+        v-html="messageBody"
       />
 
       <div v-if="message.file" class="message__file" @click="handleFileClick">
-        <div v-if="message.file.type === 2" class="message__file-image">
-          <img :src="message.file.url" :alt="message.file.file_name" />
+        <div v-if="message.file.type === 2" v-viewer class="message__file-image">
+          <img :src="fileImageUrl" :alt="message.file.file_name" />
         </div>
         <div v-else class="message__file-icon">
           <UiSvgIcon name="file" />
         </div>
         <div class="message__file-meta">
           <div class="message__file-title">{{ message.file.file_name }}</div>
-          <div class="message__file-size"></div>
+          <div class="message__file-size">{{ fileSize }}</div>
         </div>
       </div>
 
@@ -34,12 +42,14 @@
         </div> -->
       </div>
       <div class="message__more">
-        <div class="message__more-trigger" @click="handleExpandedClick">
+        <div class="message__more-trigger">
           <UiSvgIcon name="more-dots" />
         </div>
-        <div class="message__more-actions" :class="[isMoreExpanded && 'is-active']">
-          <a @click="handleReplyClick">Ответить</a>
-          <a @click="handleCopyClick">Скопировать</a>
+        <div class="message__more-wrapper">
+          <div class="message__more-actions">
+            <a @click="handleReplyClick">Ответить</a>
+            <a @click="handleCopyClick">Скопировать</a>
+          </div>
         </div>
       </div>
     </div>
@@ -47,21 +57,25 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
+import { mapMutations, mapGetters } from 'vuex';
 import { timeToHHMM } from '~/helpers/Date';
+import { formatBytes } from '~/helpers/FormatBytes';
 
 export default {
   name: 'ChatMessages',
+
   props: {
     message: Object,
   },
   data() {
     return {
-      isMoreExpanded: false,
       isSingleLine: false,
     };
   },
   computed: {
+    messageBody() {
+      return this.message.body;
+    },
     isIncoming() {
       const isSupportMessage = this.message.user.is_support && this.user.is_support;
 
@@ -76,6 +90,15 @@ export default {
     },
     isFile() {
       return this.message.file;
+    },
+    fileImageUrl() {
+      if (this.message.file.thumb) {
+        return this.message.file.thumb.size_100x100;
+      }
+      return this.message.file.url;
+    },
+    fileSize() {
+      return formatBytes(this.message.file.size);
     },
     timestamp() {
       return timeToHHMM(this.message.date_created);
@@ -96,13 +119,12 @@ export default {
     }
   },
   methods: {
-    handleExpandedClick(e) {
-      this.isMoreExpanded = !this.isMoreExpanded;
+    handleReplyClick() {
+      this.setReplyId(this.message.id);
     },
-    handleReplyClick() {},
     handleCopyClick() {
       const textArea = document.createElement('textarea');
-      textArea.value = this.message.body;
+      textArea.value = this.message.markdown_body;
       textArea.style.opacity = '0';
       document.body.appendChild(textArea);
       textArea.focus();
@@ -110,9 +132,7 @@ export default {
 
       try {
         const successful = document.execCommand('copy');
-        if (successful) {
-          this.$toast.global.default({ message: 'Сообщение успешно скопировано ' });
-        } else {
+        if (!successful) {
           this.$toast.global.error({ message: 'Ошибка! Сообщение не скопировано ' });
         }
       } catch (err) {
@@ -122,8 +142,22 @@ export default {
       document.body.removeChild(textArea);
     },
     handleFileClick() {
-      // if (this)
+      if (this.message.file.type !== 2) {
+        window.open(this.message.file.url);
+      } else {
+        this.$viewerApi({
+          options: {
+            navbar: false,
+            toolbar: false,
+            movable: false,
+            rotatable: false,
+            zoomOnWheel: false,
+          },
+          images: [this.message.file.url],
+        });
+      }
     },
+    ...mapMutations('chat', ['setReplyId']),
   },
 };
 </script>
@@ -139,6 +173,42 @@ export default {
     background: #fff;
     box-shadow: 0 6px 24px -4px rgba(23, 24, 24, 0.1);
     border-radius: 8px;
+    &:hover {
+      .message {
+        &__more {
+          opacity: 1;
+        }
+      }
+    }
+    &.is-file {
+      .message__more {
+        display: none;
+      }
+    }
+  }
+  &__lesson {
+    display: inline-block;
+    font-size: 14px;
+    margin-bottom: 5px;
+    opacity: 0.6;
+    transition: opacity 0.25s $ease;
+    span {
+      position: relative;
+      display: inline-block;
+      padding-bottom: 4px;
+      &::after {
+        display: inline-block;
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        border-bottom: 1px dashed currentColor;
+      }
+    }
+    &:hover {
+      opacity: 1;
+    }
   }
   &__content {
     font-size: 15px;
@@ -149,6 +219,9 @@ export default {
     }
     ::v-deep code {
       border-radius: 8px;
+    }
+    ::v-deep pre code {
+      border-radius: 0;
     }
   }
   &__file {
@@ -188,6 +261,7 @@ export default {
     display: flex;
     align-items: center;
     justify-content: center;
+    background: $colorPrimary;
     color: white;
 
     .svg-icon {
@@ -199,7 +273,13 @@ export default {
   }
   &__file-title {
     font-size: 15px;
-    line-height: 150%;
+    line-height: 1.2;
+  }
+  &__file-size {
+    margin-top: 2px;
+    font-size: 13px;
+    line-height: 1.2;
+    opacity: 0.5;
   }
   &__meta {
     margin-top: 2px;
@@ -222,10 +302,19 @@ export default {
   }
   &__more {
     position: absolute;
+    z-index: 2;
     right: 4px;
     top: 8px;
     opacity: 0;
+    will-change: opacity;
+    backface-visibility: hidden;
     transition: opacity 0.25s $ease;
+    &:hover {
+      .message__more-wrapper {
+        // opacity: 1;
+        display: block;
+      }
+    }
   }
   &__more-trigger {
     display: flex;
@@ -236,21 +325,30 @@ export default {
     font-size: 13px;
     cursor: pointer;
   }
-  &__more-actions {
+  &__more-wrapper {
     position: absolute;
-    left: 0;
+    left: -20px;
     top: 100%;
-    z-index: 2;
+    padding-top: 10px;
+    min-width: 160px;
+    display: none;
+  }
+  &__more-actions {
+    position: relative;
     background: #fff;
     border-radius: 8px;
     padding: 8px;
     color: $fontColor;
     box-shadow: 0 6px 24px -4px rgba(23, 24, 24, 0.04);
-    opacity: 0;
-    will-change: opacity;
-    transition: opacity 0.25s $ease;
-    &.is-active {
-      opacity: 1;
+    &::before {
+      display: inline-block;
+      content: '';
+      position: absolute;
+      top: -7px;
+      left: 19px;
+      background: url('~assets/landing/img/help-polygon.svg') no-repeat 50% 50%;
+      width: 22px;
+      height: 14px;
     }
     a {
       display: block;
@@ -263,13 +361,6 @@ export default {
       }
     }
   }
-  &:hover {
-    .message {
-      &__more {
-        opacity: 1;
-      }
-    }
-  }
   &--incoming {
     justify-content: flex-start;
     padding-right: 24px;
@@ -277,12 +368,54 @@ export default {
       background: $colorPrimary;
       color: white;
     }
+    .message__file-icon {
+      background: white;
+      color: $colorPrimary;
+    }
   }
   &--outcoming {
     justify-content: flex-start;
     padding-right: 24px;
     .message__more-trigger {
       color: $colorPrimary;
+    }
+  }
+  &.is-ghost {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+}
+
+.messages__group:last-child .message:last-child {
+  .message {
+    &__more-wrapper {
+      top: auto;
+      bottom: 100%;
+      padding-top: 0;
+      padding-bottom: 10px;
+    }
+    &__more-actions {
+      &::before {
+        top: auto;
+        bottom: -10px;
+        transform: rotate(180deg);
+      }
+    }
+  }
+}
+
+.chat.is-mini {
+  .message {
+    &__more-wrapper {
+      right: -20px;
+      left: auto;
+      min-width: 1px;
+    }
+    &__more-actions {
+      &::before {
+        left: auto;
+        right: 19px;
+      }
     }
   }
 }

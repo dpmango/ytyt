@@ -11,8 +11,8 @@
         <div class="header__messages">
           <NuxtLink to="/messages">
             <UiSvgIcon name="envelope" />
-            <div v-if="notificationCount" class="header__messages-count">
-              <span>{{ notificationCount }}</span>
+            <div v-if="notificationDialogsCount" class="header__messages-count">
+              <span>{{ notificationDialogsCount }}</span>
             </div>
           </NuxtLink>
         </div>
@@ -49,14 +49,40 @@ import { mapGetters, mapActions } from 'vuex';
 export default {
   data() {
     return {
+      tick: 0,
+      pageTitle: null,
       userMenuOpened: false,
     };
   },
   computed: {
+    title(ctx) {
+      return ctx.$root.$meta().refresh().metaInfo.titleChunk;
+    },
     ...mapGetters('auth', ['user']),
-    ...mapGetters('chat', ['notificationCount']),
+    ...mapGetters('chat', ['notificationDialogsCount', 'notificationMessageCount']),
+  },
+  watch: {
+    $route(newVal, oldVal) {
+      this.savedPageTitle = document.querySelector('title').innerHTML;
+    },
   },
   mounted() {
+    this.savedPageTitle = document.querySelector('title').innerHTML;
+
+    setInterval(() => {
+      if (this.notificationMessageCount > 0) {
+        if (this.tick % 2) {
+          document.querySelector('title').innerHTML = this.savedPageTitle;
+        } else {
+          document.querySelector('title').innerHTML = `Новое сообщение (${this.notificationMessageCount})`;
+        }
+      } else {
+        document.querySelector('title').innerHTML = this.savedPageTitle;
+      }
+
+      this.tick++;
+    }, 3000);
+
     this.outsideClickListeners = window.addEventListener('click', this.clickOutside, false);
   },
   destroyed() {

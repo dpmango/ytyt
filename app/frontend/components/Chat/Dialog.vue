@@ -18,7 +18,7 @@
         </div>
         <div class="dialog__time">{{ timestamp }}</div>
       </div>
-      <div class="dialog__description" v-html="message.body" />
+      <div class="dialog__description" v-html="messageContent" />
     </div>
   </div>
 </template>
@@ -34,6 +34,12 @@ export default {
   computed: {
     message() {
       return this.dialog.last_message;
+    },
+    messageContent() {
+      if (this.message.file) {
+        return 'Файл: ' + this.message.file.file_name;
+      }
+      return this.message.body;
     },
     user() {
       return this.dialog.user;
@@ -58,7 +64,7 @@ export default {
 .dialog {
   display: flex;
   border-bottom: 1px solid rgba(147, 149, 152, 0.2);
-  padding: 17px 12px;
+  padding: 16px 12px;
   transition: background 0.25s $ease;
   cursor: pointer;
   &:last-child {
@@ -97,6 +103,7 @@ export default {
     max-width: calc(100% - 40px);
     min-width: 1px;
     padding-left: 12px;
+    min-height: 22px;
   }
   &__title {
     position: relative;

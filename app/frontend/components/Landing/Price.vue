@@ -41,65 +41,74 @@
           </div>
         </div>
         <div class="price__join join-price">
-          <h2 class="join-price__title">Записаться на курс или получить бесплатную консультацию</h2>
-          <client-only>
-            <template slot="placeholder">
-              <UiLoader :loading="true" theme="block" />
-            </template>
+          <template v-if="formSubmited">
+            <div class="payment__form-status">
+              <UiSvgIcon name="status-success" />
+            </div>
+            <div class="payment__form-title">Спасибо за заявку</div>
+            <div class="payment__form-desc">Наш менеджер свяжется с вами в ближайшее время</div>
+          </template>
+          <template v-else>
+            <h2 class="join-price__title">Записаться на курс или получить бесплатную консультацию</h2>
+            <client-only>
+              <template slot="placeholder">
+                <UiLoader :loading="true" theme="block" />
+              </template>
 
-            <ValidationObserver
-              ref="form"
-              v-slot="{ invalid }"
-              tag="form"
-              class="join-price__form form"
-              @submit.prevent="handleSubmit"
-            >
-              <UiError :error="error" />
+              <ValidationObserver
+                ref="form"
+                v-slot="{ invalid }"
+                tag="form"
+                class="join-price__form form"
+                @submit.prevent="handleSubmit"
+              >
+                <UiError :error="error" />
 
-              <ValidationProvider v-slot="{ errors }" class="ui-group" rules="required">
-                <UiInput
-                  :value="name"
-                  theme="dynamic-float"
-                  label="Имя"
-                  type="text"
-                  :error="errors[0]"
-                  @onChange="(v) => (name = v)"
-                />
-              </ValidationProvider>
+                <ValidationProvider v-slot="{ errors }" class="ui-group" rules="required">
+                  <UiInput
+                    :value="name"
+                    theme="dynamic-float"
+                    label="Имя"
+                    type="text"
+                    :error="errors[0]"
+                    @onChange="(v) => (name = v)"
+                  />
+                </ValidationProvider>
 
-              <ValidationProvider v-slot="{ errors }" class="ui-group" rules="email|required">
-                <UiInput
-                  :value="email"
-                  theme="dynamic-float"
-                  label="Email"
-                  type="email"
-                  :error="errors[0]"
-                  @onChange="(v) => (email = v)"
-                />
-              </ValidationProvider>
+                <ValidationProvider v-slot="{ errors }" class="ui-group" rules="email|required">
+                  <UiInput
+                    :value="email"
+                    theme="dynamic-float"
+                    label="Email"
+                    type="email"
+                    :error="errors[0]"
+                    @onChange="(v) => (email = v)"
+                  />
+                </ValidationProvider>
 
-              <ValidationProvider v-slot="{ errors }" class="ui-group" rules="required">
-                <UiInput
-                  v-mask="'+7 (###) ###-####'"
-                  :value="phone"
-                  theme="dynamic-float"
-                  label="Телефон"
-                  type="tel"
-                  :error="errors[0]"
-                  @onChange="(v) => (phone = v)"
-                  @focus="handlePhoneFocus"
-                  @blur="handlePhoneBlur"
-                />
-              </ValidationProvider>
+                <ValidationProvider v-slot="{ errors }" class="ui-group" rules="required">
+                  <UiInput
+                    v-mask="'+7 (###) ###-####'"
+                    :value="phone"
+                    theme="dynamic-float"
+                    label="Телефон"
+                    type="tel"
+                    :error="errors[0]"
+                    @onChange="(v) => (phone = v)"
+                    @focus="handlePhoneFocus"
+                    @blur="handlePhoneBlur"
+                  />
+                </ValidationProvider>
 
-              <UiButton type="submit" block>Отправить заявку</UiButton>
-            </ValidationObserver>
-          </client-only>
+                <UiButton type="submit" block>Отправить заявку</UiButton>
+              </ValidationObserver>
+            </client-only>
 
-          <p class="join-price__extra">
-            Отправляя заявку, вы даете согласие на обработку своих персональных данных в соответствии с
-            <a href="landing/files/confidentiality_policy.pdf" target="_blank">политикой конфиденциальности</a>
-          </p>
+            <p class="join-price__extra">
+              Отправляя заявку, вы даете согласие на обработку своих персональных данных в соответствии с
+              <a href="landing/files/confidentiality_policy.pdf" target="_blank">политикой конфиденциальности</a>
+            </p>
+          </template>
         </div>
       </div>
     </div>
@@ -134,6 +143,7 @@ export default {
       email: null,
       phone: null,
       error: null,
+      formSubmited: false,
     };
   },
 
@@ -164,8 +174,9 @@ export default {
           this.name = '';
           this.email = '';
           this.phone = '';
+          this.formSubmited = true;
 
-          this.$toast.global.default({ message: _res.detail });
+          // this.$toast.global.default({ message: _res.detail });
         })
         .catch((err) => {
           const { data, code } = err;
@@ -373,6 +384,47 @@ export default {
   }
   &__button {
     display: flex;
+  }
+}
+
+.payment {
+  &__form-status {
+    font-size: 0;
+    color: $colorRed;
+    margin-bottom: 24px;
+    .svg-icon {
+      font-size: 100px;
+    }
+  }
+  &__form-title {
+    font-weight: bold;
+    font-size: 32px;
+    line-height: 1.5;
+  }
+  &__form-desc {
+    margin-top: 12px;
+    font-size: 18px;
+    line-height: 1.5;
+  }
+}
+
+@include r($md) {
+  .payment {
+    &__form-status {
+      margin-bottom: 20px;
+      .svg-icon {
+        font-size: 72px;
+      }
+    }
+    &__form-title {
+      font-size: 24px;
+    }
+    &__form-desc {
+      margin-top: 8px;
+      max-width: 280px;
+      margin-left: auto;
+      margin-right: auto;
+    }
   }
 }
 </style>

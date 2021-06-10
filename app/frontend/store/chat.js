@@ -24,11 +24,15 @@ const EVENTS = {
 
 export const state = () => ({
   activeDialog: null,
-  notificationCount: 0,
+  notificationDialogsCount: 0,
+  notificationMessageCount: 0,
   dialogs: [],
   messages: [],
   messagesMeta: {},
   dialogsMeta: {},
+  submit: {
+    reply: null,
+  },
   socket: {
     error: null,
     isConnected: false,
@@ -38,7 +42,8 @@ export const state = () => ({
 
 export const getters = {
   activeDialog: (state) => state.activeDialog,
-  notificationCount: (state) => state.notificationCount,
+  notificationDialogsCount: (state) => state.notificationDialogsCount,
+  notificationMessageCount: (state) => state.notificationMessageCount,
   dialogs: (state) => state.dialogs,
   messages: (state) => state.messages,
   dialogsMeta: (state) => state.dialogsMeta,
@@ -57,6 +62,7 @@ export const getters = {
     }
     return false;
   },
+  replyId: (state) => state.submit.reply,
 };
 
 export const mutations = {
@@ -66,6 +72,10 @@ export const mutations = {
     state.socket.isConnected = true;
     state.socket.error = null;
     state.socket.reconnectError = false;
+
+    state.activeDialog = null;
+    state.messages = [];
+    state.messagesMeta = {};
   },
   SOCKET_ONCLOSE(state, event) {
     console.log('SOCKET_ONCLOSE', event);
@@ -115,6 +125,21 @@ export const mutations = {
           state.messages.push(data);
         }
 
+        state.dialogs = [
+          ...state.dialogs.map((x) =>
+            x.id !== data.dialog
+              ? x
+              : {
+                  ...x,
+                  ...{
+                    last_message: {
+                      body: data.body,
+                    },
+                  },
+                }
+          ),
+        ];
+
         break;
       }
       case EVENTS.READ_MESSAGE: {
@@ -128,12 +153,13 @@ export const mutations = {
         break;
       }
       case EVENTS.NOTIFICATION_COUNT:
-        state.notificationCount = data;
+        state.notificationDialogsCount = data;
         break;
 
       case EVENTS.MESSAGES_COUNT: {
         const { count, dialog_id } = data;
 
+        state.notificationMessageCount = count;
         state.dialogs = [
           ...state.dialogs.map((x) =>
             x.id !== dialog_id
@@ -190,11 +216,21 @@ export const mutations = {
     state.messages = [];
     state.messagesMeta = {};
   },
+  setReplyId(state, id) {
+    state.submit.reply = id;
+  },
+  pushGhostMessage(state, message) {
+    state.messages.push(message);
+  },
+  clearGhostMessage(state) {
+    state.messages = state.messages.filter((x) => x.id !== 9999999);
+  },
 };
 
 export const actions = {
   connect({ commit, dispatch }, request) {
     if (Vue.prototype.$connect) {
+      Vue.prototype.$disconnect();
       Vue.prototype.$connect();
     }
   },
@@ -258,6 +294,26 @@ export const actions = {
       ...request,
     });
   },
+  async createMessageGhost({ commit, rootGetters }, { file, ...request }) {
+    await commit('pushGhostMessage', {
+      isGhost: true,
+      id: 9999999,
+      user: rootGetters['auth/user'],
+      file: {
+        url: null,
+        size: file.size,
+        // type: file.type.split('/')[0] === 'image' ? 2 : 1,
+        type: 1,
+        file_name: file.name,
+      },
+      lesson: null,
+      body: null,
+      text_body: null,
+      markdown_body: null,
+      reply: null,
+      date_created: new Date(),
+    });
+  },
   async uploadFile({ commit }, file) {
     const formData = new FormData();
     formData.append('content', file);
@@ -265,6 +321,8 @@ export const actions = {
     const [err, result] = await filesService(this.$api, formData);
 
     if (err) throw err;
+
+    await commit('clearGhostMessage');
 
     return result;
   },

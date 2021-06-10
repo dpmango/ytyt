@@ -5,7 +5,7 @@
 <script>
 export default {
   head: {
-    title: 'Сообщения',
+    title: 'Сообщения | YtYt - понятные уроки программирования',
   },
 };
 </script>
