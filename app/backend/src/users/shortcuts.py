@@ -4,6 +4,12 @@ from loguru import logger
 from dialogs.models import Dialog
 from users import permissions
 from users.models import User
+from courses_access.models import Access
+from dialogs.models import Dialog, DialogMessage
+from providers.tinkoff.contrib import Tinkoff
+from providers.tinkoff_credit.contrib import TinkoffCredit
+from users import permissions
+from courses.models import Course
 
 
 @transaction.atomic()
@@ -27,3 +33,49 @@ def replace_educator_to_reviewer(user: User) -> None:
 
     user.reviewer = new_reviewer
     user.save()
+
+
+@transaction.atomic()
+def create_access_for_user(user: User) -> None:
+    """
+    Функция создает базовые доступы для пользователя:
+        1. Триал-доступ к курсу
+        2. Назначение преподавателя
+        3. Назначение суппорта
+        4. Создание диалога с преподавателем
+        5. Создание диалога с суппортом
+        6. Отправление приветственного сообщения от суппорта
+        7. Отправление приветственного сообщения от преподавателя
+    :param user: Новый пользователь
+    :return:
+    """
+
+    course = Course.objects.order_by('id').first()
+    if course:
+        access, created = Access.objects.get_or_create(
+            user=user, course=course, status=Access.COURSE_ACCESS_TYPE_TRIAL
+        )
+        if created:
+            access.set_trial()
+
+    educator = User.reviewers.get_less_busy_educator()
+    user.reviewer = educator
+
+    support = User.supports.get_less_busy_support()
+    user.support = support
+    user.save()
+
+    dialog_with_educator = Dialog.objects.create()
+    dialog_with_educator.with_role = permissions.GROUP_EDUCATOR
+    dialog_with_educator.users.add(user, educator)
+    dialog_with_educator.save()
+
+    dialog_with_support = Dialog.objects.create()
+    dialog_with_support.with_role = permissions.GROUP_SUPPORT
+    dialog_with_support.users.add(user, support)
+    dialog_with_support.save()
+
+    DialogMessage.objects.create_hello_support(dialog_with_support, from_user=support, student=user)
+    DialogMessage.objects.create_hello_educator(dialog_with_educator, from_user=educator, student=user)
+
+

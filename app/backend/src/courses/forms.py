@@ -7,6 +7,7 @@ from markdownx.utils import markdownify
 
 from courses.models import CourseLesson, LessonFragment
 from courses.utils import html_to_text
+from courses.inline_command import InlineCommandExtend
 
 
 class CourseLessonCreationForm(forms.ModelForm):
@@ -55,7 +56,7 @@ class CourseLessonCreationForm(forms.ModelForm):
                         cell_source_lines.append('\n')
 
                     elif cell_type == 'code':
-                        cell_source_lines = ['```\n'] + cell_source_lines + ['\n```\n']
+                        cell_source_lines = ['```brython-snippet\n'] + cell_source_lines + ['\n```\n']
 
                     content.extend(cell_source_lines)
 
@@ -77,6 +78,8 @@ class CourseLessonCreationForm(forms.ModelForm):
         split_tag_start_ids = self.get_tag_ids(content, self.Meta.split_tag_start)
         split_tag_end_ids = self.get_tag_ids(content, self.Meta.split_tag_end)
 
+        inline_commands = InlineCommandExtend(content).search_commands(return_str=True)
+
         lesson_fragments = list(instance.lessonfragment_set.all().order_by('date_created'))
         for i in range(len(split_tag_start_ids)):
 
@@ -96,7 +99,7 @@ class CourseLessonCreationForm(forms.ModelForm):
                 lesson_fragment_to_update = LessonFragment.objects.create(course_lesson=instance)
 
             lesson_fragment_to_update.title = title
-            lesson_fragment_to_update.content = fragment_content
+            lesson_fragment_to_update.content = inline_commands + fragment_content
             lesson_fragment_to_update.save()
 
         if len(split_tag_start_ids) < len(lesson_fragments):

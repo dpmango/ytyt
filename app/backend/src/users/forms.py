@@ -8,6 +8,7 @@ from courses_access.models import Access
 from dialogs.models import Dialog, DialogMessage
 from users import permissions
 from users.models import User
+from users.shortcuts import create_access_for_user
 
 
 class UserCreationForm(forms.ModelForm):
@@ -35,32 +36,6 @@ class UserCreationForm(forms.ModelForm):
             user.set_password(self.cleaned_data["password1"])
             user.save()
 
-            course = Course.objects.order_by('id').first()
-            if course:
-                access, created = Access.objects.get_or_create(
-                    user=user, course=course, status=Access.COURSE_ACCESS_TYPE_TRIAL
-                )
-                if created:
-                    access.set_trial()
-
-            educator = User.reviewers.get_less_busy_educator()
-            user.reviewer = educator
-
-            support = User.supports.get_less_busy_support()
-            user.support = support
-            user.save()
-
-            dialog_with_educator = Dialog.objects.create()
-            dialog_with_educator.with_role = permissions.GROUP_EDUCATOR
-            dialog_with_educator.users.add(user, educator)
-            dialog_with_educator.save()
-
-            dialog_with_support = Dialog.objects.create()
-            dialog_with_support.with_role = permissions.GROUP_SUPPORT
-            dialog_with_support.users.add(user, support)
-            dialog_with_support.save()
-
-            DialogMessage.objects.create_hello_educator(dialog_with_educator, from_user=educator, student=user)
-            DialogMessage.objects.create_hello_support(dialog_with_support, from_user=support, student=user)
+            create_access_for_user(user)
 
         return user

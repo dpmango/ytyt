@@ -145,9 +145,11 @@ class DialogEvent:
         :return: typing.Optional[dict]
         """
         dialog = Dialog.objects.filter(id=dialog_id).first()
-        dialog_users = dialog.users.all()
+        if not dialog:
+            return {'to': user, 'data': 'Диалог не указан', 'exception': True}
 
-        if (not dialog or user not in dialog_users) and not user.is_support:
+        dialog_users = dialog.users.all()
+        if user not in dialog_users and not user.is_support:
             return {'to': user, 'data': 'Диалог не принадлежит пользователю', 'exception': True}
 
         file = None
@@ -157,7 +159,7 @@ class DialogEvent:
                 return {'to': user, 'data': 'Файл не принадлежит пользователю', 'exception': True}
 
         if reply_id is not None:
-            if not DialogMessage.objects.filter(reply_id=reply_id, dialog_id=dialog_id).exists():
+            if not DialogMessage.objects.filter(id=reply_id, dialog_id=dialog_id).exists():
                 return {'to': user, 'data': 'Сообщение не принадлежит диалогу', 'exception': True}
 
         message = DialogMessage.objects.create(
