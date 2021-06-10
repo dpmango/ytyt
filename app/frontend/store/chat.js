@@ -72,6 +72,10 @@ export const mutations = {
     state.socket.isConnected = true;
     state.socket.error = null;
     state.socket.reconnectError = false;
+
+    state.activeDialog = null;
+    state.messages = [];
+    state.messagesMeta = {};
   },
   SOCKET_ONCLOSE(state, event) {
     console.log('SOCKET_ONCLOSE', event);
@@ -120,6 +124,21 @@ export const mutations = {
         if (state.activeDialog && data.dialog === state.activeDialog) {
           state.messages.push(data);
         }
+
+        state.dialogs = [
+          ...state.dialogs.map((x) =>
+            x.id !== data.dialog
+              ? x
+              : {
+                  ...x,
+                  ...{
+                    last_message: {
+                      body: data.body,
+                    },
+                  },
+                }
+          ),
+        ];
 
         break;
       }
@@ -211,6 +230,7 @@ export const mutations = {
 export const actions = {
   connect({ commit, dispatch }, request) {
     if (Vue.prototype.$connect) {
+      Vue.prototype.$disconnect();
       Vue.prototype.$connect();
     }
   },

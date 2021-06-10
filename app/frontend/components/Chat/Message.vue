@@ -6,9 +6,13 @@
     :class="[isIncoming ? 'message--incoming' : 'message--outcoming', message.isGhost && 'is-ghost']"
   >
     <div class="message__wrapper" :class="[isFile && 'is-file']">
-      <div v-if="message.lesson" class="message__lesson">
+      <NuxtLink
+        v-if="message.lesson"
+        :to="`/theme/${message.lesson.course_theme_id}/${message.lesson.id}`"
+        class="message__lesson"
+      >
         <span>{{ message.lesson.title }}</span>
-      </div>
+      </NuxtLink>
 
       <div
         v-if="message.body"
@@ -183,6 +187,7 @@ export default {
     }
   }
   &__lesson {
+    display: inline-block;
     font-size: 14px;
     margin-bottom: 5px;
     opacity: 0.6;
@@ -200,6 +205,9 @@ export default {
         right: 0;
         border-bottom: 1px dashed currentColor;
       }
+    }
+    &:hover {
+      opacity: 1;
     }
   }
   &__content {

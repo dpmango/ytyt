@@ -18,7 +18,7 @@
         </div>
         <div class="dialog__time">{{ timestamp }}</div>
       </div>
-      <div class="dialog__description" v-html="message.body" />
+      <div class="dialog__description" v-html="messageContent" />
     </div>
   </div>
 </template>
@@ -34,6 +34,12 @@ export default {
   computed: {
     message() {
       return this.dialog.last_message;
+    },
+    messageContent() {
+      if (this.message.file) {
+        return 'Файл: ' + this.message.file.file_name;
+      }
+      return this.message.body;
     },
     user() {
       return this.dialog.user;
