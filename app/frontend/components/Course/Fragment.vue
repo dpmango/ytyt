@@ -37,9 +37,12 @@
                   class="lesson__section"
                   :class="[fragment.id === activeSection && 'is-active']"
                 >
-                  <div class="lesson__body markdown-body" v-html="fragment.content"></div>
-
-                  <UiBrython :id="`${fragment.id}`" :ready="brythonReady" />
+                  <div class="lesson__body markdown-body">
+                    <span v-for="(block, idx) in fragmentContent(fragment.content)" :key="idx">
+                      <UiBrython v-if="block.type === 'code'" :code="block.content" :ready="brythonReady" />
+                      <span v-else v-html="block.content" />
+                    </span>
+                  </div>
 
                   <div class="lesson__actions">
                     <UiButton @click.prevent="setNextFragment">Продолжить</UiButton>
@@ -97,11 +100,12 @@ export default {
     sectionsCount() {
       return this.sections.length;
     },
+
     currentSectionIndex() {
       return this.sections.findIndex((s) => s.id === this.activeSection);
     },
     nextSectionId() {
-      const section = this.sections[this.currentSectionIndex + 11];
+      const section = this.sections[this.currentSectionIndex + 1];
       return section ? section.id : null;
     },
     prevSectionId() {
@@ -209,6 +213,21 @@ export default {
     }
   },
   methods: {
+    fragmentContent(content) {
+      return content.split(/\[brython-snippet](.*\n*?)snippet\]/g).map((block) => {
+        if (block.endsWith('[/brython-')) {
+          return {
+            type: 'code',
+            content: block.replace('[/brython-', ''),
+          };
+        } else {
+          return {
+            type: 'text',
+            content: block,
+          };
+        }
+      });
+    },
     async setNextFragment() {
       const { course_lesson: lesson, course_theme: theme } = this.data.meta;
 

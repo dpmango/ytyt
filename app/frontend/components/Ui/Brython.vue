@@ -1,6 +1,7 @@
 <template>
   <client-only>
     <div class="brython" :class="[!ready && 'is-loading']">
+      {{ id }}
       <template v-if="!ready">
         <UiLoader :loading="true" theme="block" />
       </template>
@@ -14,28 +15,33 @@
         </div>
 
         <div class="brython__main">
-          <textarea :id="`editor__${id}`" class="editor__block brython__editor-main">print('WOW!')</textarea>
+          <textarea :id="`editor__${id}`" v-model="value" class="editor__block brython__editor-main"></textarea>
           <div class="brython__console">
             <textarea :id="`console__${id}`" class="console__stdout" readonly autocomplete="off"></textarea>
           </div>
         </div>
       </div>
-
-      <!-- <script type="text/python3">
-        from browser import document as doc, window
-        from editor import EditorCodeBlocks
-
-        EditorCodeBlocks(doc, window).declare()
-      </script> -->
     </div>
   </client-only>
 </template>
 
 <script>
+import uniqueId from 'lodash/uniqueId';
+
 export default {
   props: {
     ready: Boolean,
-    id: String,
+    code: String,
+  },
+  data() {
+    return {
+      value: this.code,
+    };
+  },
+  computed: {
+    id() {
+      return uniqueId;
+    },
   },
 };
 </script>
