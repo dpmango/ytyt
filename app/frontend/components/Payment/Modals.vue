@@ -17,7 +17,7 @@
       </div>
 
       <div class="payment-modals__cta">
-        <UiButton theme="outline" @click="$vfm.hide('paymentStart')">Отмена</UiButton>
+        <UiButton theme="outline" @click="$vfm.hide('paymentStart2')">Отмена</UiButton>
         <UiButton @click="$vfm.show('paymentModal')">Перейти к оплате</UiButton>
       </div>
     </UiModal>

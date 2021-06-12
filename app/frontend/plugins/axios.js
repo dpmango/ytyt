@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 
 // https://axios.nuxtjs.org/helpers
-export default function ({ $axios, store, $config, redirect }, inject) {
+export default function ({ $axios, $sentry, store, $config, redirect }, inject) {
   const api = $axios.create({
     baseURL: $config.baseURL,
     headers: {
@@ -18,7 +18,7 @@ export default function ({ $axios, store, $config, redirect }, inject) {
 
   // Interceptors
   api.onRequest((x) => {
-    console.log(`${x.method.toUpperCase()} | ${x.url}`, x.params, x.data);
+    // console.log(`${x.method.toUpperCase()} | ${x.url}`, x.params, x.data);
 
     const token = store.state.auth.token;
     const isOpenEndpoint = ['constants'].find((v) => x.url.includes(v));
@@ -29,16 +29,17 @@ export default function ({ $axios, store, $config, redirect }, inject) {
   });
 
   api.onResponse((x) => {
-    console.log(`${x.status} | ${x.config.url}`, x.data);
+    // console.log(`${x.status} | ${x.config.url}`, x.data);
 
     return x;
   });
 
   api.onError(async (error) => {
     if (parseInt(error.response && error.response.status) === 401) {
-      console.log('unauthorized, logging out ...');
       await store.dispatch('auth/logOut');
     }
+
+    $sentry.captureException(error);
 
     return Promise.reject(error.response);
   });

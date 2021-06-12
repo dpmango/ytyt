@@ -5,12 +5,16 @@
 
 <script>
 export default {
-  async asyncData({ params, store, error }) {
+  async asyncData({ params, $sentry, store, error }) {
     // const list = await store.dispatch('courses/courses');
     // TODO - on MVP there is only one course
-    const courses = await store.dispatch('courses/themes', { id: 1 });
+    try {
+      const courses = await store.dispatch('courses/themes', { id: 1 });
 
-    return { courses };
+      return { courses };
+    } catch (error) {
+      $sentry.captureException(error);
+    }
   },
   head: {
     title: 'Главная | YtYt - понятные уроки программирования',

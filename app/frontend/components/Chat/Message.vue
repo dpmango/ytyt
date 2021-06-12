@@ -13,6 +13,9 @@
       >
         <span>{{ message.lesson.title }}</span>
       </NuxtLink>
+      <div v-if="message.reply" class="message__lesson">
+        <span>{{ message.reply.text_body }}</span>
+      </div>
 
       <div
         v-if="message.body"
@@ -41,7 +44,7 @@
           <UiSvgIcon name="checkmark" />
         </div> -->
       </div>
-      <div class="message__more">
+      <!-- <div class="message__more">
         <div class="message__more-trigger">
           <UiSvgIcon name="more-dots" />
         </div>
@@ -51,7 +54,10 @@
             <a @click="handleCopyClick">Скопировать</a>
           </div>
         </div>
-      </div>
+      </div> -->
+    </div>
+    <div class="message__reply" @click="handleReplyClick">
+      <UiSvgIcon name="reply" />
     </div>
   </div>
 </template>
@@ -122,25 +128,25 @@ export default {
     handleReplyClick() {
       this.setReplyId(this.message.id);
     },
-    handleCopyClick() {
-      const textArea = document.createElement('textarea');
-      textArea.value = this.message.markdown_body;
-      textArea.style.opacity = '0';
-      document.body.appendChild(textArea);
-      textArea.focus();
-      textArea.select();
+    // handleCopyClick() {
+    //   const textArea = document.createElement('textarea');
+    //   textArea.value = this.message.markdown_body;
+    //   textArea.style.opacity = '0';
+    //   document.body.appendChild(textArea);
+    //   textArea.focus();
+    //   textArea.select();
 
-      try {
-        const successful = document.execCommand('copy');
-        if (!successful) {
-          this.$toast.global.error({ message: 'Ошибка! Сообщение не скопировано ' });
-        }
-      } catch (err) {
-        this.$toast.global.error({ message: `Ошибка! ${err.message}` });
-      }
+    //   try {
+    //     const successful = document.execCommand('copy');
+    //     if (!successful) {
+    //       this.$toast.global.error({ message: 'Ошибка! Сообщение не скопировано ' });
+    //     }
+    //   } catch (err) {
+    //     this.$toast.global.error({ message: `Ошибка! ${err.message}` });
+    //   }
 
-      document.body.removeChild(textArea);
-    },
+    //   document.body.removeChild(textArea);
+    // },
     handleFileClick() {
       if (this.message.file.type !== 2) {
         window.open(this.message.file.url);
@@ -166,6 +172,7 @@ export default {
 .message {
   margin: 8px 0;
   display: flex;
+  align-items: center;
   &__wrapper {
     position: relative;
     padding: 14px 16px 7px;
@@ -300,6 +307,21 @@ export default {
       font-size: 8px;
     }
   }
+  &__reply {
+    flex: 0 0 auto;
+    padding: 5px;
+    margin-left: 7px;
+    color: rgba($colorPrimary, 0.5);
+    cursor: pointer;
+    opacity: 0;
+    transition: color 0.25s $ease, opacity 0.25s $ease;
+    .svg-icon {
+      font-size: 14px;
+    }
+    &:hover {
+      color: $colorPrimary;
+    }
+  }
   &__more {
     position: absolute;
     z-index: 2;
@@ -383,6 +405,11 @@ export default {
   &.is-ghost {
     opacity: 0.5;
     pointer-events: none;
+  }
+  &:hover {
+    .message__reply {
+      opacity: 1;
+    }
   }
 }
 

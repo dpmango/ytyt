@@ -241,7 +241,7 @@ export default {
           this.activeSection = nextSection.id;
         } else if (lesson.next.pk && [1, 2, 3].includes(lesson.next.status)) {
           shouldFetch = false;
-          this.$router.push(`/theme/${theme.next.pk}/${lesson.next.pk}`);
+          this.$router.push(`/theme/${lesson.next.course_theme_id}/${lesson.next.pk}`);
         } else if (theme.next.pk && [1, 2, 3].includes(theme.next.status)) {
           shouldFetch = false;
           this.$router.push(`/theme/${theme.next.pk}`);
@@ -255,10 +255,9 @@ export default {
           .then((res) => {
             if (res.id) {
               this.activeSection = res.id;
-            } else if (res.course_id) {
-              // eslint-disable-next-line no-console
-              console.log('end of lesson');
             }
+            // else if (res.course_id) {
+            // }
           })
           .catch((_err) => {});
       }
@@ -273,7 +272,7 @@ export default {
 
       if (this.isPrevAvailable) {
         if (lesson.prev.pk && [1, 2, 3].includes(lesson.prev.status)) {
-          this.$router.push(`/theme/${theme.prev.pk}/${lesson.prev.pk}`);
+          this.$router.push(`/theme/${theme.prev.course_theme_id}/${lesson.prev.pk}`);
         } else if (theme.prev.pk && [1, 2, 3].includes(theme.prev.status)) {
           this.$router.push(`/theme/${theme.prev.pk}`);
         } else {
