@@ -1,7 +1,8 @@
 from django.db.models import Q
 
-from dialogs.models import Dialog
+from dialogs.models import Dialog, DialogMessage
 from users.models import User
+from users import permissions
 
 
 class InsidePlatformNotificationEvent:
@@ -32,9 +33,19 @@ class InsidePlatformNotificationEvent:
         :param kwargs: Возможные дополнительные аргументы
         """
         dialogs_count = []
-        for dialog in user.dialog_users_set.all().prefetch_related('dialogmessage_set'):
 
-            messages_count = dialog.dialogmessage_set.filter(~Q(user=user), date_read__isnull=True).count()
+        if user.is_support:
+            dialogs = Dialog.objects.filter(with_role=permissions.GROUP_SUPPORT).prefetch_related('dialogmessage_set')
+        else:
+            dialogs = user.dialog_users_set.all().prefetch_related('dialogmessage_set')
+
+        for dialog in dialogs:  # TODO: Переписать на sql-запрос
+
+            query = ~Q(user=user) & Q(date_read__isnull=True)
+            if user.is_support:
+                query &= Q(user__is_staff=False)
+
+            messages_count = dialog.dialogmessage_set.filter(query).count()
             messages_count = 1 if messages_count > 0 else 0
             dialogs_count.append(messages_count)
 
@@ -55,14 +66,10 @@ class InsidePlatformNotificationEvent:
     @staticmethod
     def _notifications_dialogs_messages_count(user: User, dialog_id=None, **kwargs) -> dict:
         """
-        Получение количества непрочитанных сообщений для диалогов юзера
+        Получение количества непрочитанных сообщений для диалога
         :param user: Пользователь
         :param dialog_id: ID диалога для которого нужно посчитать количество непрочитанных сообщений
         :param kwargs: Дополнительные аргументы
         """
-        dialog = Dialog.objects.filter(id=dialog_id).first()
-        if not dialog or user not in dialog.users.all():
-            return {'to': user, 'data': 'Диалог не принадлежит пользователю', 'exception': True}
-
-        messages_count = dialog.dialogmessage_set.filter(~Q(user=user), date_read__isnull=True).count()
-        return {'data': {'count': messages_count, 'dialog_id': dialog_id}, 'to': user}
+        count = DialogMessage.objects.filter(~Q(user=user), date_read__isnull=True, dialog_id=dialog_id).count()
+        return {'data': {'count': count, 'dialog_id': dialog_id}, 'to': user}

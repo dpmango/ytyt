@@ -111,8 +111,11 @@ class DialogEvent:
             return {'to': user, 'data': 'Не указан `message_id`', 'exception': True}
 
         dialog = Dialog.objects.filter(id=dialog_id).first()
+        if not dialog:
+            return {'to': user, 'data': 'Диалог не указан', 'exception': True}
+
         dialog_users = dialog.users.all()
-        if (not dialog or user not in dialog_users) and not user.is_support:
+        if user not in dialog_users and not user.is_support:
             return {'to': user, 'data': 'Диалог не принадлежит пользователю', 'exception': True}
 
         message = DialogMessage.objects.get(id=message_id)
