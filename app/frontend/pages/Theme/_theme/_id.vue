@@ -4,22 +4,26 @@
 
 <script>
 export default {
-  async asyncData({ params, store, error, ...context }) {
-    const lesson = await store
-      .dispatch('courses/lesson', {
-        course_id: 1,
-        theme_id: params.theme,
-        fragment_id: params.id,
-      })
-      .catch((err) => {
-        if (err.code === 403) {
-          // this.$toast.global.error({ message: err.data.detail });
-          context.redirect('/course');
-          store.commit('ui/setModalPaymentStart2', true);
-        }
-      });
+  async asyncData({ params, $sentry, store, error, ...context }) {
+    try {
+      const lesson = await store
+        .dispatch('courses/lesson', {
+          course_id: 1,
+          theme_id: params.theme,
+          fragment_id: params.id,
+        })
+        .catch((err) => {
+          if (err.code === 403) {
+            // this.$toast.global.error({ message: err.data.detail });
+            context.redirect('/course');
+            store.commit('ui/setModalPaymentStart2', true);
+          }
+        });
 
-    return { lesson, name: lesson.title };
+      return { lesson, name: lesson.title };
+    } catch (error) {
+      $sentry.captureException(error);
+    }
   },
   data() {
     return {};

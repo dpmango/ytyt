@@ -5,7 +5,7 @@ const UPDATE_INTERVAL = 10 * 60 * 1000; // 10 mins
 async function refreshToken(context) {
   const token = context.store.state.auth.token;
 
-  console.log('refreshing token', token);
+  // console.log('refreshing token', token);
 
   if (token) {
     try {

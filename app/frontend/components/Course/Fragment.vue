@@ -255,10 +255,9 @@ export default {
           .then((res) => {
             if (res.id) {
               this.activeSection = res.id;
-            } else if (res.course_id) {
-              // eslint-disable-next-line no-console
-              console.log('end of lesson');
             }
+            // else if (res.course_id) {
+            // }
           })
           .catch((_err) => {});
       }
