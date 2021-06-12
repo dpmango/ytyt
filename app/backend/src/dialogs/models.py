@@ -133,6 +133,14 @@ class Dialog(models.Model):
     def with_support(self) -> bool:
         return self.with_role == permissions.GROUP_SUPPORT
 
+    def get_student(self) -> User:
+        """
+        Метод вернет пользователя из диалога, который является студентом
+        """
+        for user in self.users.all():
+            if not user.in_stuff_groups and not user.is_staff:
+                return user
+
 
 class DialogMessageManager(models.Manager):
 

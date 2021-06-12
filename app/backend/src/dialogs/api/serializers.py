@@ -120,8 +120,14 @@ class DialogWithLastMessageSerializers(serializers.ModelSerializer):
     def get_user(self, obj: Dialog) -> dict:
         """
         Получение пользователя, с которым ведется диалог
+        Если запрос делается со стороны суппорта, то вернуть нужно студента
         :param obj: Объект диалога
         """
+        context_user = self.context.get('user')
+
+        if context_user.is_support:
+            return UserDialogSmallDetailSerializer(obj.get_student(), context=self.context).data
+
         for user in obj.users.all():
             if user != self.context.get('user'):
                 return UserDialogSmallDetailSerializer(user, context=self.context).data
