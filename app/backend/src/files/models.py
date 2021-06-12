@@ -3,7 +3,7 @@ from urllib.parse import urljoin
 
 from django.db import models
 
-from files.utils import upload_path
+from files.utils import upload_path, upload_course_path
 from users.models import User
 
 
@@ -21,6 +21,15 @@ class File(models.Model):
     content = models.FileField('Файл', upload_to=upload_path)
     type = models.PositiveIntegerField('Тип файла', choices=TYPES, default=TYPE_FILE)
     file_name = models.CharField('Название файла', null=True, blank=True, max_length=250)
+
+    def generate_url(self, base_url: str) -> t.Optional[str]:
+        if self.content:
+            return urljoin(base_url, self.content.url)
+        return None
+
+
+class CourseFile(models.Model):
+    content = models.FileField('Файл', upload_to=upload_course_path)
 
     def generate_url(self, base_url: str) -> t.Optional[str]:
         if self.content:
