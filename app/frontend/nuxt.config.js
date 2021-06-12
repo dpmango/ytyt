@@ -97,7 +97,7 @@ export default {
   },
 
   sentry: {
-    dsn: 'https://e1573d0b7d684f8f9eb591f734bacd01@o836066.ingest.sentry.io/5813325',
+    dsn: process.env.SENTRY_DNS,
 
     config: {
       // Add native Sentry config here
