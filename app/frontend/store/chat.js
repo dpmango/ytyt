@@ -140,6 +140,11 @@ export const mutations = {
           ),
         ];
 
+        state.dialogs = [
+          ...state.dialogs.filter((x) => x.id === data.dialog),
+          ...state.dialogs.filter((x) => x.id !== data.dialog),
+        ];
+
         break;
       }
       case EVENTS.READ_MESSAGE: {
