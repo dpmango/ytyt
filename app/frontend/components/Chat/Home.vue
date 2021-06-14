@@ -180,14 +180,15 @@ export default {
       const dialogsTop = this.$refs.dialogs.getBoundingClientRect().top;
       const messages = this.$refs.dialogs.querySelectorAll('.message--outcoming[data-read="false"]');
 
+      console.log('readMessages called - messages', messages);
       if (!messages) return;
-      if (this.user.is_support) return;
 
       messages.forEach((message) => {
         const rect = message.getBoundingClientRect();
         const isVisible = rect.top - dialogsTop >= 0 && rect.top - rect.height <= offsetHeight;
         const isSupportMessage = message.user.is_support && this.user.is_support;
 
+        console.log(`message ${message.getAttribute('data-id')} is Visible tag`, isVisible);
         if (isVisible && !isSupportMessage) {
           this.readMessage({
             dialog_id: this.activeDialog,
