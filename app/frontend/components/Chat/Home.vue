@@ -91,7 +91,12 @@ export default {
 
       // check read status if no scroll height (scroll event wont be triggered)
       if (scrollHeight <= offsetHeight) {
-        this.readMessages();
+        setTimeout(() => {
+          this.readMessages();
+        }, 200);
+        setTimeout(() => {
+          this.readMessages();
+        }, 500);
       }
     },
   },
@@ -134,7 +139,11 @@ export default {
       }, 200);
     },
     handleClickBack() {
-      this.resetMessages();
+      if (this.isMini) {
+        this.handleClickBackMini();
+      } else {
+        this.resetMessages();
+      }
     },
 
     async handleSidebarScroll() {
@@ -181,12 +190,11 @@ export default {
       const messages = this.$refs.dialogs.querySelectorAll('.message--outcoming[data-read="false"]');
 
       if (!messages) return;
-      if (this.user.is_support) return;
 
       messages.forEach((message) => {
         const rect = message.getBoundingClientRect();
         const isVisible = rect.top - dialogsTop >= 0 && rect.top - rect.height <= offsetHeight;
-        const isSupportMessage = message.user.is_support && this.user.is_support;
+        const isSupportMessage = message.getAttribute('data-support') === 'true' && this.user.is_support;
 
         if (isVisible && !isSupportMessage) {
           this.readMessage({
@@ -344,7 +352,7 @@ export default {
   right: 0;
   bottom: 0;
   width: 100%;
-  max-width: 360px;
+  max-width: 50%;
   box-shadow: 0 6px 24px -4px rgba(23, 24, 24, 0.1);
   transform: translate(100%, 0);
   pointer-events: none;
@@ -374,6 +382,15 @@ export default {
         padding-left: 16px;
         padding-right: 16px;
       }
+    }
+  }
+}
+
+@include r($md) {
+  .chat.is-mini {
+    max-width: 100%;
+    ::v-deep .head__mini-close {
+      display: none;
     }
   }
 }

@@ -153,7 +153,7 @@ export default {
     },
     handlePhoneFocus(e) {
       if (!this.phone) {
-        this.phone = '+7';
+        this.phone = '+7 (';
       }
     },
     handlePhoneBlur(e) {

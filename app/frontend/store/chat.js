@@ -30,8 +30,9 @@ export const state = () => ({
   messages: [],
   messagesMeta: {},
   dialogsMeta: {},
-  submit: {
-    reply: null,
+  reply: {
+    id: null,
+    text: null,
   },
   socket: {
     error: null,
@@ -62,7 +63,7 @@ export const getters = {
     }
     return false;
   },
-  replyId: (state) => state.submit.reply,
+  reply: (state) => state.reply,
 };
 
 export const mutations = {
@@ -221,8 +222,9 @@ export const mutations = {
     state.messages = [];
     state.messagesMeta = {};
   },
-  setReplyId(state, id) {
-    state.submit.reply = id;
+  setReply(state, req) {
+    state.reply.id = req.id;
+    state.reply.text = req.text;
   },
   pushGhostMessage(state, message) {
     state.messages.push(message);

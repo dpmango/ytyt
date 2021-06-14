@@ -96,7 +96,7 @@ export default {
   }
   &__num {
     flex: 0 0 10px;
-    margin-top: 2px;
+    margin-top: -1px;
     font-size: 17px;
     color: #939598;
   }
@@ -122,7 +122,7 @@ export default {
     line-height: 1.4;
   }
   &__description {
-    margin-top: 6px;
+    margin-top: 7px;
     font-size: 14px;
   }
   &.is-compleated {

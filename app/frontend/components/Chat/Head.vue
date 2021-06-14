@@ -10,7 +10,9 @@
         </div>
       </div>
       <div class="head__content">
-        <div class="head__title">{{ title }}</div>
+        <div class="head__title">
+          {{ title }} <span v-if="user.is_support">({{ head.email }})</span>
+        </div>
         <div class="head__status" :class="[head.status_online && 'is-online']">{{ status }}</div>
       </div>
       <div v-if="clickBackMini" class="head__mini-close" @click="clickBackMini">
@@ -21,6 +23,8 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
+
 export default {
   props: {
     head: Object,
@@ -40,6 +44,7 @@ export default {
     status() {
       return this.head.status_online ? 'Онлайн' : 'Оффлайн';
     },
+    ...mapGetters('auth', ['user']),
   },
 };
 </script>
@@ -112,6 +117,9 @@ export default {
     font-weight: 500;
     font-size: 15px;
     margin-right: 6px;
+    span {
+      color: $colorGray;
+    }
   }
   &__status {
     font-size: 14px;
