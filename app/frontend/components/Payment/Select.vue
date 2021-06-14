@@ -43,33 +43,38 @@
             Укажите номер телефона, менеджер свяжется с вами и ответит на все вопросы
           </div>
         </template>
-        <ValidationObserver
-          ref="form"
-          v-slot="{ invalid }"
-          tag="form"
-          class="profile__form"
-          @submit.prevent="handleSubmit"
-        >
-          <UiError :error="error" />
+        <client-only>
+          <template slot="placeholder">
+            <UiLoader :loading="true" theme="block" />
+          </template>
+          <ValidationObserver
+            ref="form"
+            v-slot="{ invalid }"
+            tag="form"
+            class="profile__form"
+            @submit.prevent="handleSubmit"
+          >
+            <UiError :error="error" />
 
-          <ValidationProvider v-slot="{ errors }">
-            <UiInput
-              v-mask="'+7 (###) ###-####'"
-              :value="phone"
-              type="tel"
-              :error="errors[0]"
-              placeholder="+7"
-              @onChange="(v) => (phone = v)"
-            />
-          </ValidationProvider>
-          <div class="payment__cta">
-            <UiButton type="submit" theme="outline" block>Перезвоните мне</UiButton>
-          </div>
-          <div class="payment__cta-mobile">
-            <UiButton type="submit" block>Перезвоните мне</UiButton>
-            <UiButton theme="outline" block @click="resetModals">Отмена</UiButton>
-          </div>
-        </ValidationObserver>
+            <ValidationProvider v-slot="{ errors }">
+              <UiInput
+                v-mask="'+7 (###) ###-####'"
+                :value="phone"
+                type="tel"
+                :error="errors[0]"
+                placeholder="+7"
+                @onChange="(v) => (phone = v)"
+              />
+            </ValidationProvider>
+            <div class="payment__cta">
+              <UiButton type="submit" theme="outline" block>Перезвоните мне</UiButton>
+            </div>
+            <div class="payment__cta-mobile">
+              <UiButton type="submit" block>Перезвоните мне</UiButton>
+              <UiButton theme="outline" block @click="resetModals">Отмена</UiButton>
+            </div>
+          </ValidationObserver>
+        </client-only>
       </div>
     </div>
     <div class="col col-6 col-md-12" :class="[isMobileFormVisible && 'is-mobile-visible']">

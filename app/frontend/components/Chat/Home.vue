@@ -186,8 +186,9 @@ export default {
       messages.forEach((message) => {
         const rect = message.getBoundingClientRect();
         const isVisible = rect.top - dialogsTop >= 0 && rect.top - rect.height <= offsetHeight;
+        const isSupportMessage = message.user.is_support && this.user.is_support;
 
-        if (isVisible) {
+        if (isVisible && !isSupportMessage) {
           this.readMessage({
             dialog_id: this.activeDialog,
             message_id: message.getAttribute('data-id'),

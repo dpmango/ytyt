@@ -2,7 +2,15 @@
   <div class="toggle" :class="[{ 'has-error': error }, theme]">
     <label v-if="label" :for="_uid" class="toggle__label">{{ label }}</label>
     <div class="toggle__input">
-      <input :id="_uid" type="checkbox" :value="value" v-bind="$attrs" v-on="$listeners" @input="setValue" />
+      <input
+        :id="_uid"
+        type="checkbox"
+        :checked="value"
+        :value="value"
+        v-bind="$attrs"
+        v-on="$listeners"
+        @input="setValue"
+      />
       <div class="toggle__input-box"></div>
     </div>
   </div>

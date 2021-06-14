@@ -40,60 +40,66 @@
               </div>
             </div>
             <div class="profile__content">
-              <ValidationObserver
-                ref="form"
-                v-slot="{ invalid }"
-                tag="form"
-                class="profile__form"
-                @submit.prevent="handleSubmit"
-              >
-                <ValidationProvider v-slot="{ errors }" rules="required">
-                  <UiInput
-                    :value="name"
-                    type="text"
-                    placeholder="Имя"
-                    :error="errors[0]"
-                    icon="name"
-                    icon-position="left"
-                    @onChange="(v) => (name = v)"
+              <client-only>
+                <template slot="placeholder">
+                  <UiLoader :loading="true" theme="block" />
+                </template>
+
+                <ValidationObserver
+                  ref="form"
+                  v-slot="{ invalid }"
+                  tag="form"
+                  class="profile__form"
+                  @submit.prevent="handleSubmit"
+                >
+                  <ValidationProvider v-slot="{ errors }" rules="required">
+                    <UiInput
+                      :value="name"
+                      type="text"
+                      placeholder="Имя"
+                      :error="errors[0]"
+                      icon="name"
+                      icon-position="left"
+                      @onChange="(v) => (name = v)"
+                    />
+                  </ValidationProvider>
+
+                  <ValidationProvider v-slot="{ errors }" rules="required">
+                    <UiInput
+                      disabled
+                      :value="email"
+                      type="email"
+                      placeholder="Email"
+                      :error="errors[0]"
+                      icon="email"
+                      icon-position="left"
+                      @onChange="(v) => null"
+                    />
+                  </ValidationProvider>
+
+                  <ValidationProvider v-slot="{ errors }">
+                    <UiInput
+                      :value="github"
+                      type="text"
+                      placeholder="Replit"
+                      icon="repl"
+                      icon-position="left"
+                      @onChange="(v) => (github = v)"
+                    />
+                  </ValidationProvider>
+
+                  <UiToggle
+                    label="Отправлять уведомления о новых сообщениях на email"
+                    :value="notifications"
+                    @onChange="(val) => (notifications = val)"
                   />
-                </ValidationProvider>
 
-                <ValidationProvider v-slot="{ errors }" rules="required">
-                  <UiInput
-                    disabled
-                    :value="email"
-                    type="email"
-                    placeholder="Email"
-                    :error="errors[0]"
-                    icon="email"
-                    icon-position="left"
-                    @onChange="(v) => null"
-                  />
-                </ValidationProvider>
-
-                <ValidationProvider v-slot="{ errors }">
-                  <UiInput
-                    :value="github"
-                    type="text"
-                    placeholder="Replit"
-                    icon="repl"
-                    icon-position="left"
-                    @onChange="(v) => (github = v)"
-                  />
-                </ValidationProvider>
-
-                <UiToggle
-                  label="Отправлять уведомления о новых сообщениях на email"
-                  :value="notifications"
-                  @onChange="(val) => (notifications = val)"
-                />
-
-                <UiButton :is-loading="isLoading" type="submit" block>Сохранить изменения</UiButton>
-                <NuxtLink to="/profile/password">
-                  <UiButton theme="outline" block>Сменить пароль</UiButton>
-                </NuxtLink>
-              </ValidationObserver>
+                  <UiButton :is-loading="isLoading" type="submit" block>Сохранить изменения</UiButton>
+                  <NuxtLink to="/profile/password">
+                    <UiButton theme="outline" block>Сменить пароль</UiButton>
+                  </NuxtLink>
+                </ValidationObserver>
+              </client-only>
             </div>
           </div>
         </div>

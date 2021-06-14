@@ -151,13 +151,16 @@ export default {
       if (this.message.file.type !== 2) {
         window.open(this.message.file.url);
       } else {
-        this.$viewerApi({
+        window.$viewer = this.$viewerApi({
           options: {
             navbar: false,
             toolbar: false,
             movable: false,
             rotatable: false,
             zoomOnWheel: false,
+            title: false,
+            button: false,
+            zoomable: false,
           },
           images: [this.message.file.url],
         });
@@ -254,6 +257,7 @@ export default {
   }
   &__file-image {
     border-radius: 8px;
+    pointer-events: none;
     img {
       position: absolute;
       left: 0;
