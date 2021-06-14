@@ -91,7 +91,12 @@ export default {
 
       // check read status if no scroll height (scroll event wont be triggered)
       if (scrollHeight <= offsetHeight) {
-        this.readMessages();
+        setTimeout(() => {
+          this.readMessages();
+        }, 200);
+        setTimeout(() => {
+          this.readMessages();
+        }, 500);
       }
     },
   },
@@ -134,7 +139,11 @@ export default {
       }, 200);
     },
     handleClickBack() {
-      this.resetMessages();
+      if (this.isMini) {
+        this.handleClickBackMini();
+      } else {
+        this.resetMessages();
+      }
     },
 
     async handleSidebarScroll() {
@@ -180,15 +189,13 @@ export default {
       const dialogsTop = this.$refs.dialogs.getBoundingClientRect().top;
       const messages = this.$refs.dialogs.querySelectorAll('.message--outcoming[data-read="false"]');
 
-      console.log('readMessages called - messages', messages);
       if (!messages) return;
 
       messages.forEach((message) => {
         const rect = message.getBoundingClientRect();
         const isVisible = rect.top - dialogsTop >= 0 && rect.top - rect.height <= offsetHeight;
-        const isSupportMessage = message.user.is_support && this.user.is_support;
+        const isSupportMessage = message.getAttribute('data-support') === 'true' && this.user.is_support;
 
-        console.log(`message ${message.getAttribute('data-id')} is Visible tag`, isVisible);
         if (isVisible && !isSupportMessage) {
           this.readMessage({
             dialog_id: this.activeDialog,
@@ -375,6 +382,15 @@ export default {
         padding-left: 16px;
         padding-right: 16px;
       }
+    }
+  }
+}
+
+@include r($md) {
+  .chat.is-mini {
+    max-width: 100%;
+    ::v-deep .head__mini-close {
+      display: none;
     }
   }
 }

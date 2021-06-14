@@ -3,9 +3,11 @@
     class="message"
     :data-id="message.id"
     :data-read="message.date_read ? 'true' : 'false'"
+    :data-support="message.user.is_support ? 'true' : 'false'"
     :class="[isIncoming ? 'message--incoming' : 'message--outcoming', message.isGhost && 'is-ghost']"
   >
     <div class="message__wrapper" :class="[isFile && 'is-file']">
+      is_support {{ message.user.is_support }}
       <NuxtLink
         v-if="message.lesson"
         :to="`/theme/${message.lesson.course_theme_id}/${message.lesson.id}`"
