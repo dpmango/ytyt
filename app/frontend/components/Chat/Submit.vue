@@ -63,12 +63,15 @@ export default {
     if (this.simplemde) {
       this.simplemde.codemirror.on('keydown', (instance, event) => {
         if ((event.ctrlKey || event.shiftKey) && event.keyCode === 13) {
+          event.preventDefault();
           const cursor = this.simplemde.codemirror.getCursor();
 
-          this.simplemde.codemirror.replaceRange('\n', {
+          this.simplemde.codemirror.replaceRange('\r\n', {
             line: cursor.line,
             ch: cursor.ch,
           });
+
+          this.simplemde.codemirror.scrollIntoView({ line: cursor.line + 1, char: cursor.ch }, 200);
         } else if (event.keyCode === 13) {
           event.preventDefault();
           this.handleSubmit();
@@ -159,11 +162,12 @@ export default {
   .CodeMirror-scroll {
     min-height: 1px;
     height: 100%;
-    max-height: 300px;
+    max-height: 340px;
   }
 
   .CodeMirror {
-    padding: 8px 16px 8px 0;
+    // padding: 8px 16px 8px 0;
+    padding: 0 16px 0 0;
     border: 0;
     font-size: 15px;
     line-height: 1.5;
@@ -182,6 +186,8 @@ export default {
     display: flex;
     align-items: center;
     padding-right: 10px;
+    padding-top: 8px;
+    padding-bottom: 8px;
     input {
       position: absolute;
       left: 0;

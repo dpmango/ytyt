@@ -2,6 +2,7 @@
 // import { loginService } from '~/api/auth';
 import Vue from 'vue';
 import { filesService } from '~/api/chat';
+import { rebuildSocket } from '~/helpers/RebuildSocket';
 
 const EVENTS = {
   DIALOGS: 'dialogs.load',
@@ -68,7 +69,7 @@ export const getters = {
 
 export const mutations = {
   SOCKET_ONOPEN(state, event) {
-    // console.log('SOCKET_ONOPEN', event);
+    console.log('SOCKET_ONOPEN', event);
     this.$socket = event.currentTarget;
     state.socket.isConnected = true;
     state.socket.error = null;
@@ -79,11 +80,19 @@ export const mutations = {
     state.messagesMeta = {};
   },
   SOCKET_ONCLOSE(state, event) {
-    // console.log('SOCKET_ONCLOSE', event);
+    console.log('SOCKET_ONCLOSE', event);
+    try {
+      rebuildSocket({
+        $config: this.$config,
+        $store: this,
+      });
+    } catch (e) {
+      console.log('rebuild err', e);
+    }
     state.socket.isConnected = false;
   },
   SOCKET_ONERROR(state, event) {
-    // console.error('SOCKET_ONERROR', event);
+    console.error('SOCKET_ONERROR', event);
   },
   SOCKET_ONMESSAGE(state, message) {
     // console.log('SOCKET_ONMESSAGE', message);
@@ -207,7 +216,7 @@ export const mutations = {
     }
   },
   SOCKET_RECONNECT(state, count) {
-    // console.info(state, count);
+    console.info(state, count);
   },
   SOCKET_RECONNECT_ERROR(state) {
     state.socket.reconnectError = true;
