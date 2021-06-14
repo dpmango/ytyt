@@ -40,6 +40,25 @@ export default {
       });
     },
   },
+  mounted() {
+    if (document) {
+      document.addEventListener('click', this.hideViewerOnClick, false);
+    }
+  },
+  beforeDestroy() {
+    if (document) {
+      document.removeEventListener('click', this.hideViewerOnClick, false);
+    }
+  },
+  methods: {
+    hideViewerOnClick(e) {
+      if (e.target.closest('.viewer-canvas')) {
+        if (window.$viewer) {
+          window.$viewer.hide();
+        }
+      }
+    },
+  },
 };
 </script>
 
