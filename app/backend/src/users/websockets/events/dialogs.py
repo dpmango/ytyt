@@ -208,5 +208,4 @@ class DialogEvent:
             if user_.email_notifications:
                 mailgun.send_mail(context={**context, 'email': user_.email}, to=user_.email)
 
-        message.pop('text_body', None)
         return {'data': message, 'to': users_to_notification, 'mute': mute}
