@@ -5,11 +5,11 @@
       {{ title }}
     </div>
     <div class="nav__actions">
-      <a href="#" class="nav__actions-prev" :class="[!isPrevAvailable && 'disabled']" @click.prevent="setPrevFragment">
+      <a href="#" class="nav__actions-prev" :class="[!isPrevAvailable && 'disabled']" @click.prevent="setPrevLesson">
         <UiSvgIcon name="arrow-left-filled" />
         <span>Предыдущий урок</span>
       </a>
-      <a href="#" class="nav__actions-next" @click.prevent="setNextFragment">
+      <a href="#" class="nav__actions-next" :class="[!isNextAvailable && 'disabled']" @click.prevent="setNextLesson">
         <span>Следующий урок</span>
         <UiSvgIcon name="arrow-right-filled" />
       </a>
@@ -24,8 +24,9 @@ export default {
     currentSectionIndex: Number,
     sectionsCount: Number,
     isPrevAvailable: Number,
-    setNextFragment: Function,
-    setPrevFragment: Function,
+    isNextAvailable: Number,
+    setNextLesson: Function,
+    setPrevLesson: Function,
   },
 };
 </script>

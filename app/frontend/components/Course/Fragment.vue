@@ -25,9 +25,10 @@
                 :title="data.title"
                 :current-section-index="currentSectionIndex"
                 :sections-count="sectionsCount"
-                :is-prev-available="isPrevAvailable"
-                :set-next-fragment="setNextFragment"
-                :set-prev-fragment="setPrevFragment"
+                :is-prev-available="isPrevLessonAvailable"
+                :is-next-available="isNextLessonAvailable"
+                :set-next-lesson="setNextLesson"
+                :set-prev-lesson="setPrevLesson"
               />
 
               <template v-if="fragmentVisible">
@@ -116,16 +117,29 @@ export default {
       return this.nextSectionId;
     },
     isPrevAvailable() {
-      const { course_lesson: lesson, course_theme: theme } = this.data.meta;
-
       if (this.prevSectionId) {
         return this.prevSectionId;
-      } else if (lesson.prev.pk && [1, 2, 3].includes(lesson.prev.status)) {
+      }
+      return null;
+    },
+    isPrevLessonAvailable() {
+      const { course_lesson: lesson, course_theme: theme } = this.data.meta;
+
+      if (lesson.prev.pk && [1, 2, 3].includes(lesson.prev.status)) {
         return 1;
       } else if (theme.prev.pk && [1, 2, 3].includes(theme.prev.status)) {
         return 1;
       }
+      return null;
+    },
+    isNextLessonAvailable() {
+      const { course_lesson: lesson, course_theme: theme } = this.data.meta;
 
+      if (lesson.next.pk && [1, 2, 3].includes(lesson.next.status)) {
+        return 1;
+      } else if (theme.next.pk && [1, 2, 3].includes(theme.next.status)) {
+        return 1;
+      }
       return null;
     },
     fragmentVisible() {
@@ -229,10 +243,9 @@ export default {
       });
     },
     async setNextFragment() {
-      const { course_lesson: lesson, course_theme: theme } = this.data.meta;
-
       let shouldFetch = true;
       const curIndex = this.sections.findIndex((x) => x.id === this.activeSection);
+      const { course_lesson: lesson, course_theme: theme } = this.data.meta;
 
       if (curIndex !== -1) {
         const nextSection = this.sections[curIndex + 1];
@@ -268,15 +281,29 @@ export default {
       }
     },
     setPrevFragment() {
+      if (this.isPrevAvailable) {
+        this.setFragment(this.prevSectionId, 2);
+      }
+    },
+    setPrevLesson() {
       const { course_lesson: lesson, course_theme: theme } = this.data.meta;
 
-      if (this.isPrevAvailable) {
+      if (this.isPrevLessonAvailable) {
         if (lesson.prev.pk && [1, 2, 3].includes(lesson.prev.status)) {
-          this.$router.push(`/theme/${theme.prev.course_theme_id}/${lesson.prev.pk}`);
+          this.$router.push(`/theme/${lesson.prev.course_theme_id}/${lesson.prev.pk}`);
         } else if (theme.prev.pk && [1, 2, 3].includes(theme.prev.status)) {
           this.$router.push(`/theme/${theme.prev.pk}`);
-        } else {
-          this.setFragment(this.prevSectionId, 2);
+        }
+      }
+    },
+    setNextLesson() {
+      const { course_lesson: lesson, course_theme: theme } = this.data.meta;
+
+      if (this.isNextLessonAvailable) {
+        if (lesson.next.pk && [1, 2, 3].includes(lesson.next.status)) {
+          this.$router.push(`/theme/${lesson.next.course_theme_id}/${lesson.next.pk}`);
+        } else if (theme.next.pk && [1, 2, 3].includes(theme.next.status)) {
+          this.$router.push(`/theme/${theme.next.pk}`);
         }
       }
     },
