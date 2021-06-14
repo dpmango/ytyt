@@ -3,10 +3,6 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 from rest_framework.exceptions import ValidationError
 
-from courses.models import Course
-from courses_access.models import Access
-from dialogs.models import Dialog, DialogMessage
-from users import permissions
 from users.models import User
 from users.shortcuts import create_access_for_user
 

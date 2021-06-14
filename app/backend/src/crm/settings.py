@@ -184,7 +184,7 @@ STATICFILES_DIRS = (
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-MARKDOWNX_MEDIA_PATH = 'uploads/lessons/{}'.format(datetime.datetime.now().strftime('%Y/%m/'))
+MARKDOWNX_MEDIA_PATH = 'uploads/'
 MARKDOWNX_SERVER_CALL_LATENCY = 120000  # 2min
 MARKDOWNX_MARKDOWN_EXTENSIONS = [
     'pymdownx.magiclink',

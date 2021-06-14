@@ -1,8 +1,10 @@
 import re
 import typing as t
+from urllib.parse import urljoin
 
 from bs4 import BeautifulSoup as Bs
 from bs4.element import ResultSet
+from django.conf import settings
 from loguru import logger
 
 
@@ -17,6 +19,7 @@ class InlineCommandExtend:
         """
         Метод извлекает и испольняет все указанные функции из файла, а после удаляет теги
         """
+        self.call_default_commands()
         commands = self.search_commands()
 
         for command_tag in commands:
@@ -31,6 +34,9 @@ class InlineCommandExtend:
                 command_tag.extract()
 
         return self.content.decode().strip()
+
+    def call_default_commands(self):
+        self._command_add_host_to_media()
 
     def search_commands(self, return_str: bool = None) -> t.Union[str, ResultSet]:
         """
@@ -67,3 +73,20 @@ class InlineCommandExtend:
 
             code_block.parent.replace_with(brython_snippet)
             code_block.parent.extract()
+
+    def _command_add_host_to_media(self, arg: str = None) -> None:
+        """
+        Дефолтная команда, которая подставляет базовый хост ко всем медиа-файлам
+        :param arg: Возможный хост
+        """
+        base_url = arg or settings.BASE_URL
+        code_blocks = self.content.find_all('img', attrs={'src': re.compile('/media/')})
+
+        for code_block in code_blocks:
+            src = code_block.attrs.get('src')
+            if not src:
+                continue
+
+            code_block.attrs = {
+                **code_block.attrs, 'src': urljoin(base_url, src)
+            }

@@ -1,6 +1,7 @@
 import typing as t
 from urllib.parse import urljoin
 
+from django.conf import settings
 from django.core.files import File
 from django.utils import timezone
 from sorl.thumbnail import get_thumbnail
@@ -8,6 +9,10 @@ from sorl.thumbnail import get_thumbnail
 
 def upload_path(instance, filename):
     return '%s/%s/%s' % (timezone.now().strftime('%Y/%m'), instance.user.id, filename)
+
+
+def upload_course_path(instance, filename):
+    return '%s/%s' % (settings.MARKDOWNX_MEDIA_PATH.lstrip('/'), filename)
 
 
 def generate_thumb_url(content: File, base_url: str, size: str, quality: int = None) -> t.Optional[str]:

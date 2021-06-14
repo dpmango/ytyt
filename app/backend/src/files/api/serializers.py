@@ -8,20 +8,21 @@ from files.utils import generate_thumb_url
 
 
 class ImageThumbSerializer(serializers.Serializer):
-    size_100x100 = serializers.URLField(read_only=True)
-    size_300x300 = serializers.URLField(read_only=True)
+    size_100x100 = serializers.URLField()
+    size_300x300 = serializers.URLField()
 
-    def to_representation(self, instance):
+    def to_representation(self, obj: 'ImageThumbSerializer'):
+
         for size_field in self.get_fields():
             setattr(
-                instance, size_field, generate_thumb_url(
-                    content=instance,
+                obj, size_field, generate_thumb_url(
+                    content=obj.instance,
                     base_url=self.context.get('base_url') or settings.BASE_URL,
                     size=size_field.replace('size_', ''),
                 )
             )
 
-        return super().to_representation(instance)
+        return super().to_representation(obj)
 
 
 class DefaultFileSerializer(serializers.ModelSerializer):
