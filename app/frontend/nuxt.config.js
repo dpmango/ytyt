@@ -57,6 +57,8 @@ export default {
     '@nuxtjs/toast',
     // https://github.com/microcipcip/cookie-universal/tree/master/packages/cookie-universal-nuxt
     'cookie-universal-nuxt',
+    // https://sentry.nuxtjs.org/guide/setup/
+    '@nuxtjs/sentry',
   ],
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
@@ -92,6 +94,15 @@ export default {
 
   router: {
     middleware: 'global',
+  },
+
+  sentry: {
+    dsn: process.env.SENTRY_DNS,
+
+    config: {
+      // Add native Sentry config here
+      // https://docs.sentry.io/platforms/javascript/guides/vue/configuration/options/
+    },
   },
 
   // target: 'static',

@@ -34,7 +34,7 @@ export default {
   },
   mouted() {
     // eslint-disable-next-line no-console
-    console.log(this.error);
+    this.$sentry.captureException(this.error);
   },
 };
 </script>
