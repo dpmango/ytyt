@@ -345,7 +345,7 @@ export default {
   right: 0;
   bottom: 0;
   width: 100%;
-  max-width: 360px;
+  max-width: 50%;
   box-shadow: 0 6px 24px -4px rgba(23, 24, 24, 0.1);
   transform: translate(100%, 0);
   pointer-events: none;

@@ -12,8 +12,8 @@
           <UiSvgIcon name="paper-clip" />
         </label>
         <div class="editor__body">
-          <div v-if="replyId" class="editor__reply">
-            <span class="editor__reply-title">Ответ на: {{ replyId }}</span>
+          <div v-if="reply.id" class="editor__reply">
+            <span class="editor__reply-title">Ответ на: {{ reply.text }}</span>
             <div class="editor__reply-delete" @click="handleReplyDelete">
               <UiSvgIcon name="close" />
             </div>
@@ -57,7 +57,7 @@ export default {
     simplemde() {
       return this.$refs.markdownEditor.simplemde;
     },
-    ...mapGetters('chat', ['activeDialog', 'replyId']),
+    ...mapGetters('chat', ['activeDialog', 'reply']),
   },
   mounted() {
     if (this.simplemde) {
@@ -87,8 +87,8 @@ export default {
           request.lesson_id = parseInt(loc[loc.length - 1]);
         }
 
-        if (this.replyId) {
-          request.reply_id = this.replyId;
+        if (this.reply.id) {
+          request.reply_id = this.reply.id;
         }
 
         this.sendMessage(request);
@@ -117,6 +117,9 @@ export default {
 
         if (file) {
           await this.createMessageGhost({ file });
+
+          this.$emit('onSubmit');
+
           const res = await this.uploadFile(file).catch((err) => {
             this.$toast.global.error({ message: err.data });
           });
@@ -137,10 +140,13 @@ export default {
       // this.simplemde.drawImage();
     },
     handleReplyDelete() {
-      this.setReplyId(null);
+      this.setReply({
+        id: null,
+        text: null,
+      });
     },
     ...mapActions('chat', ['sendMessage', 'uploadFile', 'createMessageGhost']),
-    ...mapMutations('chat', ['setReplyId']),
+    ...mapMutations('chat', ['setReply']),
   },
 };
 </script>
@@ -159,6 +165,8 @@ export default {
   .CodeMirror {
     padding: 8px 16px 8px 0;
     border: 0;
+    font-size: 15px;
+    line-height: 1.5;
   }
 
   .CodeMirror-scroll {

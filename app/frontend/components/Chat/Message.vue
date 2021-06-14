@@ -13,8 +13,8 @@
       >
         <span>{{ message.lesson.title }}</span>
       </NuxtLink>
-      <div v-if="message.reply" class="message__lesson">
-        <span>{{ message.reply.text_body }}</span>
+      <div v-if="message.reply" class="message__reply-body">
+        <span>{{ message.reply.markdown_body }}</span>
       </div>
 
       <div
@@ -44,17 +44,6 @@
           <UiSvgIcon name="checkmark" />
         </div> -->
       </div>
-      <!-- <div class="message__more">
-        <div class="message__more-trigger">
-          <UiSvgIcon name="more-dots" />
-        </div>
-        <div class="message__more-wrapper">
-          <div class="message__more-actions">
-            <a @click="handleReplyClick">Ответить</a>
-            <a @click="handleCopyClick">Скопировать</a>
-          </div>
-        </div>
-      </div> -->
     </div>
     <div class="message__reply" @click="handleReplyClick">
       <UiSvgIcon name="reply" />
@@ -117,36 +106,16 @@ export default {
         window.hljs.highlightElement(block);
       });
 
-      // if (/\r|\n/.exec(this.message.body)) {
-      //   this.isSingleLine = false;
-      // }
-
       this.isSingleLine = this.$refs.content.offsetHeight < 25;
     }
   },
   methods: {
     handleReplyClick() {
-      this.setReplyId(this.message.id);
+      this.setReply({
+        id: this.message.id,
+        text: this.message.markdown_body,
+      });
     },
-    // handleCopyClick() {
-    //   const textArea = document.createElement('textarea');
-    //   textArea.value = this.message.markdown_body;
-    //   textArea.style.opacity = '0';
-    //   document.body.appendChild(textArea);
-    //   textArea.focus();
-    //   textArea.select();
-
-    //   try {
-    //     const successful = document.execCommand('copy');
-    //     if (!successful) {
-    //       this.$toast.global.error({ message: 'Ошибка! Сообщение не скопировано ' });
-    //     }
-    //   } catch (err) {
-    //     this.$toast.global.error({ message: `Ошибка! ${err.message}` });
-    //   }
-
-    //   document.body.removeChild(textArea);
-    // },
     handleFileClick() {
       if (this.message.file.type !== 2) {
         window.open(this.message.file.url);
@@ -166,7 +135,7 @@ export default {
         });
       }
     },
-    ...mapMutations('chat', ['setReplyId']),
+    ...mapMutations('chat', ['setReply']),
   },
 };
 </script>
@@ -206,6 +175,11 @@ export default {
       position: relative;
       display: inline-block;
       padding-bottom: 4px;
+      max-width: 100%;
+      min-width: 1px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
       &::after {
         display: inline-block;
         content: '';
@@ -218,6 +192,29 @@ export default {
     }
     &:hover {
       opacity: 1;
+    }
+  }
+  &__reply-body {
+    position: relative;
+    display: block;
+    max-width: 100%;
+    min-width: 1px;
+    font-size: 13px;
+    margin-bottom: 5px;
+    padding-left: 10px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    &::before {
+      display: inline-block;
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      top: 0;
+      height: 20px;
+      width: 2px;
+      background: $colorPrimary;
     }
   }
   &__content {
@@ -326,67 +323,7 @@ export default {
       color: $colorPrimary;
     }
   }
-  &__more {
-    position: absolute;
-    z-index: 2;
-    right: 4px;
-    top: 8px;
-    opacity: 0;
-    will-change: opacity;
-    backface-visibility: hidden;
-    transition: opacity 0.25s $ease;
-    &:hover {
-      .message__more-wrapper {
-        // opacity: 1;
-        display: block;
-      }
-    }
-  }
-  &__more-trigger {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 20px;
-    min-height: 20px;
-    font-size: 13px;
-    cursor: pointer;
-  }
-  &__more-wrapper {
-    position: absolute;
-    left: -20px;
-    top: 100%;
-    padding-top: 10px;
-    min-width: 160px;
-    display: none;
-  }
-  &__more-actions {
-    position: relative;
-    background: #fff;
-    border-radius: 8px;
-    padding: 8px;
-    color: $fontColor;
-    box-shadow: 0 6px 24px -4px rgba(23, 24, 24, 0.04);
-    &::before {
-      display: inline-block;
-      content: '';
-      position: absolute;
-      top: -7px;
-      left: 19px;
-      background: url('~assets/landing/img/help-polygon.svg') no-repeat 50% 50%;
-      width: 22px;
-      height: 14px;
-    }
-    a {
-      display: block;
-      padding: 8px;
-      font-size: 15px;
-      cursor: pointer;
-      transition: color 0.25s $ease;
-      &:hover {
-        color: $colorPrimary;
-      }
-    }
-  }
+
   &--incoming {
     justify-content: flex-start;
     padding-right: 24px;
@@ -398,13 +335,13 @@ export default {
       background: white;
       color: $colorPrimary;
     }
+    .message__reply-body::before {
+      background-color: white;
+    }
   }
   &--outcoming {
     justify-content: flex-start;
     padding-right: 24px;
-    .message__more-trigger {
-      color: $colorPrimary;
-    }
   }
   &.is-ghost {
     opacity: 0.5;
@@ -413,40 +350,6 @@ export default {
   &:hover {
     .message__reply {
       opacity: 1;
-    }
-  }
-}
-
-.messages__group:last-child .message:last-child {
-  .message {
-    &__more-wrapper {
-      top: auto;
-      bottom: 100%;
-      padding-top: 0;
-      padding-bottom: 10px;
-    }
-    &__more-actions {
-      &::before {
-        top: auto;
-        bottom: -10px;
-        transform: rotate(180deg);
-      }
-    }
-  }
-}
-
-.chat.is-mini {
-  .message {
-    &__more-wrapper {
-      right: -20px;
-      left: auto;
-      min-width: 1px;
-    }
-    &__more-actions {
-      &::before {
-        left: auto;
-        right: 19px;
-      }
     }
   }
 }

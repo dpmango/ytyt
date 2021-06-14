@@ -85,17 +85,6 @@ export default {
       line-height: 150%;
       color: rgb(#171818, 0.5);
     }
-    &::after {
-      display: inline-block;
-      content: ' ';
-      position: absolute;
-      z-index: 1;
-      right: 0;
-      left: 0;
-      top: 50%;
-      height: 1px;
-      background: rgba(#171818, 0.15);
-    }
   }
 }
 
