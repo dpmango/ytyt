@@ -20,14 +20,11 @@ export default {
       link: [{ rel: 'stylesheet', href: '/landing/jquery.fancybox.min.css' }],
       script: [
         {
-          src: 'https://code.jquery.com/jquery-3.5.1.min.js',
+          src: '/landing/jquery-3.5.1.min.js',
         },
         {
           src: '/landing/jquery.fancybox.min.js',
         },
-        // {
-        //   src: '/landing/jquery.inputmask.bundle.min.js',
-        // },
       ],
     };
   },

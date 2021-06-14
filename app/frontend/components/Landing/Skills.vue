@@ -16,17 +16,17 @@
         <li class="skills__item">Алгоритмы</li>
         <li class="skills__item">Linux</li>
       </ul>
-      <p class="skills__description">
+      <div class="skills__description">
         Этот список - результат анализа 700+ реальных вакансий с hh.ru
-        <span class="skills__help">
+        <div class="skills__help">
           <div class="skills__help-wrapper">
             <span class="skills__help-arrow"></span>
           </div>
           <span class="skills__help-info">
             Вакансии по запросу «Junior Python» по всей РФ за период январь-март 2021 г.
           </span>
-        </span>
-      </p>
+        </div>
+      </div>
       <NuxtLink to="/auth/signup" class="skills__button button">Пройти бесплатный вводный курс</NuxtLink>
     </div>
   </section>
