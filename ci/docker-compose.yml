@@ -57,6 +57,7 @@ services:
     environment:
       BASE_URL: ${BASE_URL}
       SOCKET_URL: ${SOCKET_URL}
+      SENTRY_DSN: ${SENTRY_DSN}
 
   asyns_tasks:
     <<: *backend
