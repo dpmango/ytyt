@@ -58,7 +58,7 @@ class DetailCourseLessonSerializers(DefaultCourseLessonSerializers):
         :param obj: CourseLesson
         """
         user = self.context.get('user')
-        fragments = obj.lessonfragment_set.count()
+        fragments = obj.lessonfragment_set.count() or 1
 
         course_id = get_course_from_struct(obj)
         access = Access.objects.filter(course=course_id, user=user).first()
