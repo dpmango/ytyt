@@ -21,7 +21,7 @@ deploy:master:
     - ssh $SERVER_USER@$SERVER_HOST -p $SERVER_PORT
       "
         cd ${PROJECT_ROOT} &&
-        git checkout master &&
+        git checkout dev &&
         git reset --hard &&
         git pull &&
         cd ci/ &&
@@ -29,4 +29,4 @@ deploy:master:
         docker-compose restart
       "
   only:
-    - master
+    - dev
