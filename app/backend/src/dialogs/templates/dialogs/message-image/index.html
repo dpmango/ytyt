@@ -1,4 +1,5 @@
 {% load static %}
+{% load filter_size %}
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 
@@ -123,7 +124,7 @@
 												<!-- Text -->
 												<tr>
 													<td align="center" valign="top" style="padding: 0 0 24px;">
-                            <img src="{{ file_url }}" width="120" height="120" border="0" alt="file icon" style="vertical-align: top; margin: 0; padding: 0; border: none; border-radius: 8px; line-height: 100%; outline: none; text-decoration: none;" />
+                            <img src="{{ file_url }}" width="{{ file_width|max_size:"120" }}" height="{{ file_height|max_size:"120" }}" border="0" alt="file icon" style="vertical-align: top; margin: 0; padding: 0; border: none; border-radius: 8px; line-height: 100%; outline: none; text-decoration: none;" />
 													</td>
 												</tr>
 
