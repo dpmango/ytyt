@@ -32,7 +32,7 @@ class InsidePlatformNotificationEvent:
         :param user: Пользователь, для кого нужно посчитать непрочитанные диалоги
         :param kwargs: Возможные дополнительные аргументы
         """
-        dialogs_count = []
+        dialogs_count = 0
 
         if user.is_support:
             dialogs = Dialog.objects.filter(with_role=permissions.GROUP_SUPPORT).prefetch_related('dialogmessage_set')
@@ -43,13 +43,12 @@ class InsidePlatformNotificationEvent:
 
             query = ~Q(user=user) & Q(date_read__isnull=True)
             if user.is_support:
-                query &= Q(user__is_staff=False)
+                query &= ~Q(user__groups__in=[permissions.GROUP_SUPPORT])
 
             messages_count = dialog.dialogmessage_set.filter(query).count()
-            messages_count = 1 if messages_count > 0 else 0
-            dialogs_count.append(messages_count)
+            dialogs_count += 1 if messages_count > 0 else 0
 
-        return {'data': sum(dialogs_count), 'to': user}
+        return {'data': dialogs_count, 'to': user}
 
     def get_dialog_messages_count(self, user: User, dialog_id=None, **kwargs) -> dict:
         """
