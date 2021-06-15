@@ -1,6 +1,7 @@
 from adminsortable2.admin import SortableInlineAdminMixin
 from django.contrib import admin
 
+from courses.admin.course_lesson import CourseLessonCreationForm
 from courses.models import CourseTheme, CourseLesson
 from courses_access.tasks import update_user_access
 from courses_access.utils import get_course_from_struct
@@ -11,6 +12,7 @@ class CourseLessonInline(SortableInlineAdminMixin, admin.TabularInline):
     exclude = ('content', 'description')
     extra = 1
     can_delete = False
+    form = CourseLessonCreationForm
 
 
 @admin.register(CourseTheme)
