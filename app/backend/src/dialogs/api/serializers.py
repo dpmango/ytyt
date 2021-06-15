@@ -1,6 +1,6 @@
 import typing as t
 
-from django.db.models import Q
+from jsonpath import jsonpath
 from rest_framework import serializers, exceptions
 
 from courses.api.course_lesson.serializers import CourseLessonInMessageSerializers
@@ -8,6 +8,7 @@ from dialogs.models import Dialog, DialogMessage
 from files.api.serializers import DefaultFileSerializer
 from users.models import User
 from users.serializers import UserDialogSmallDetailSerializer
+from users.websockets.events.notifications import InsidePlatformNotificationEvent as NotificationEvent
 
 
 class CreateDialogMessageSerializers(serializers.Serializer):
@@ -106,9 +107,12 @@ class DialogWithLastMessageSerializers(serializers.ModelSerializer):
         Метод вернет количество непрочитанных сообщений в диалоге
         :param obj: Объект диалога
         """
-        if self.context.get('user').is_support:
-            return None
-        return obj.dialogmessage_set.filter(~Q(user=self.context.get('user')), date_read__isnull=True).count()
+        count_data = NotificationEvent().get_dialog_messages_count(
+            self.context.get('user'), obj.pk
+        )
+        if count_data := jsonpath(count_data, '$.data.count'):
+            return count_data[0]
+        return 0
 
     def get_user(self, obj: Dialog) -> dict:
         """

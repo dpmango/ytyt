@@ -28,7 +28,7 @@ class InsidePlatformNotificationEvent:
     @staticmethod
     def _notifications_dialogs_count(user: User, **kwargs) -> dict:
         """
-        Метод подсччитывает количество диалогов, в которых есть непрочтенные сообщения
+        Метод подсчитывает количество диалогов, в которых есть непрочтенные сообщения
         :param user: Пользователь, для кого нужно посчитать непрочитанные диалоги
         :param kwargs: Возможные дополнительные аргументы
         """
@@ -71,5 +71,9 @@ class InsidePlatformNotificationEvent:
         :param dialog_id: ID диалога для которого нужно посчитать количество непрочитанных сообщений
         :param kwargs: Дополнительные аргументы
         """
-        count = DialogMessage.objects.filter(~Q(user=user), date_read__isnull=True, dialog_id=dialog_id).count()
+        query = ~Q(user=user)
+        if user.is_support:
+            query &= ~Q(user__groups__in=[permissions.GROUP_SUPPORT])
+
+        count = DialogMessage.objects.filter(query, date_read__isnull=True, dialog_id=dialog_id).count()
         return {'data': {'count': count, 'dialog_id': dialog_id}, 'to': user}
