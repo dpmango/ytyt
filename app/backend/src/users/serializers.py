@@ -1,5 +1,3 @@
-from urllib.parse import urljoin
-
 from django.conf import settings
 from django.contrib.auth.tokens import default_token_generator
 from django.db import transaction
@@ -11,9 +9,9 @@ from rest_auth import serializers as rest_auth_serializers
 from rest_auth.registration import serializers as rest_auth_registration_serializers
 from rest_framework import serializers, exceptions
 from rest_framework.exceptions import ValidationError
-from sorl.thumbnail import get_thumbnail
 
 from courses.models import Course
+from files.utils import generate_thumb_url
 from providers.tinkoff.contrib import Tinkoff
 from providers.tinkoff_credit.contrib import TinkoffCredit
 from users.models import User
@@ -79,12 +77,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
         if '/media/static' in obj.avatar.url:
             return None
 
-        request = self.context.get('request')
-
-        thumb = get_thumbnail(obj.avatar, '64x64', crop='center', quality=99)
-        thumb_url = thumb.url
-
-        return request.build_absolute_uri(urljoin(settings.MEDIA_URL, thumb_url))
+        return generate_thumb_url(obj.avatar, settings.BASE_URL, '64x64')
 
     def to_representation(self, instance: User):
         data = super().to_representation(instance)
@@ -122,10 +115,7 @@ class UserDialogSmallDetailSerializer(UserDetailSerializer):
         if '/media/static' in obj.avatar.url:
             return None
 
-        thumb = get_thumbnail(obj.avatar, '64x64', crop='center', quality=99)
-        thumb_url = thumb.url
-
-        return urljoin(settings.MEDIA_URL, thumb_url)
+        return generate_thumb_url(obj.avatar, settings.BASE_URL, '64x64')
 
     def to_representation(self, instance: User):
         data = super().to_representation(instance)

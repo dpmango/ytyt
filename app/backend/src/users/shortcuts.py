@@ -1,15 +1,11 @@
 from django.db import transaction
 from loguru import logger
 
-from dialogs.models import Dialog
-from users import permissions
-from users.models import User
+from courses.models import Course
 from courses_access.models import Access
 from dialogs.models import Dialog, DialogMessage
-from providers.tinkoff.contrib import Tinkoff
-from providers.tinkoff_credit.contrib import TinkoffCredit
 from users import permissions
-from courses.models import Course
+from users.models import User
 
 
 @transaction.atomic()
