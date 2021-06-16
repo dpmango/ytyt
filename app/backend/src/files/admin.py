@@ -38,3 +38,6 @@ class FileAdmin(admin.ModelAdmin):
 class CourseFileAdmin(admin.ModelAdmin):
     form = FilesFomRarCreationForm
 
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        self.form.save_files(obj)
