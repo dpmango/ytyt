@@ -52,7 +52,7 @@ class CourseTheme(CourseBase):
 class CourseLesson(CourseBase):
     course_theme = models.ForeignKey(CourseTheme, on_delete=models.PROTECT)
     title = models.CharField('Название урока', max_length=1000)
-    description = models.CharField('Описание урока', max_length=1000)
+    description = models.CharField('Описание урока', max_length=1000, null=True, blank=True)
 
     content = MarkdownxField('Содержание урока', null=True, blank=True)
     ipynb_file = models.FileField('Урок в формате .ipynb', upload_to=upload_path, null=True, blank=True)
