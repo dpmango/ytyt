@@ -61,17 +61,18 @@ def create_access_for_user(user: User) -> None:
     user.support = support
     user.save()
 
-    dialog_with_educator = Dialog.objects.create()
-    dialog_with_educator.with_role = permissions.GROUP_EDUCATOR
-    dialog_with_educator.users.add(user, educator)
-    dialog_with_educator.save()
+    if support is not None:
+        dialog_with_support = Dialog.objects.create()
+        dialog_with_support.with_role = permissions.GROUP_SUPPORT
+        dialog_with_support.users.add(user, support)
+        dialog_with_support.save()
 
-    dialog_with_support = Dialog.objects.create()
-    dialog_with_support.with_role = permissions.GROUP_SUPPORT
-    dialog_with_support.users.add(user, support)
-    dialog_with_support.save()
+        DialogMessage.objects.create_hello_support(dialog_with_support, from_user=support, student=user)
 
-    DialogMessage.objects.create_hello_support(dialog_with_support, from_user=support, student=user)
-    DialogMessage.objects.create_hello_educator(dialog_with_educator, from_user=educator, student=user)
+    if educator is not None:
+        dialog_with_educator = Dialog.objects.create()
+        dialog_with_educator.with_role = permissions.GROUP_EDUCATOR
+        dialog_with_educator.users.add(user, educator)
+        dialog_with_educator.save()
 
-
+        DialogMessage.objects.create_hello_educator(dialog_with_educator, from_user=educator, student=user)

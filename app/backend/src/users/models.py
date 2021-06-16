@@ -99,19 +99,26 @@ class ReviewersManager(models.Manager):
 
         hyperbola = lambda x: 1 / (x if x != 0 else .001)
         queryset_weights = list(map(lambda reviewer: hyperbola(reviewer.user_set.count() / 10), queryset))
-        return random.choices(queryset, weights=queryset_weights)[0]
+
+        try:
+            return random.choices(queryset, weights=queryset_weights)[0]
+        except IndexError:
+            return None
 
 
 class SupportManager(models.Manager):
 
-    def get_less_busy_support(self) -> 'User':
+    def get_less_busy_support(self) -> typing.Optional['User']:
         """
         Метод вернет случайного суппорта
         """
         random.seed(timezone.now())
         supports = self.filter(groups=Group.objects.get(pk=permissions.GROUP_SUPPORT), is_active=True)
 
-        return random.choices(supports)[0]
+        try:
+            return random.choices(supports)[0]
+        except IndexError:
+            return None
 
     def all(self) -> typing.List['User']:
         return self.filter(groups=Group.objects.get(pk=permissions.GROUP_SUPPORT))
