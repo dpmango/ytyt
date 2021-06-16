@@ -4,6 +4,7 @@ from django.conf import settings
 from django.contrib import admin
 
 from files.api.serializers import DefaultFileSerializer
+from files.forms import FilesFomRarCreationForm
 from files.models import File, CourseFile
 
 
@@ -35,9 +36,5 @@ class FileAdmin(admin.ModelAdmin):
 
 @admin.register(CourseFile)
 class CourseFileAdmin(admin.ModelAdmin):
-    list_display_links = ('id',)
-    list_display = ('id', 'content_url')
+    form = FilesFomRarCreationForm
 
-    @staticmethod
-    def content_url(obj: File):
-        return obj.generate_url(settings.BASE_URL)
