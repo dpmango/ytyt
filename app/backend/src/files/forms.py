@@ -12,7 +12,7 @@ from django.conf import settings
 
 
 class FilesFomRarCreationForm(forms.ModelForm):
-    tree = forms.CharField(widget=forms.Textarea, label='Дерево файлов')
+    tree = forms.CharField(widget=forms.Textarea, label='Дерево файлов', required=False)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
