@@ -42,7 +42,8 @@ class DialogManager(models.Manager):
             FROM (
                 SELECT
                     DISTINCT ON (dd.id)
-                    dd.*
+                    dd.*,
+                    dm.date_created AS date_created_last_message
                 FROM dialogs_dialog dd 
                 INNER JOIN (
                     SELECT 
@@ -67,7 +68,7 @@ class DialogManager(models.Manager):
                     WHERE du.user_id = {{ user_id_ }}
                 {% endif %}
             ) t
-            ORDER BY date_created DESC
+            ORDER BY date_created_last_message DESC
             LIMIT {{ limit_ }}
             OFFSET {{ offset_ }}
         """
