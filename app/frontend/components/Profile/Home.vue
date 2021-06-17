@@ -52,11 +52,14 @@
                   class="profile__form"
                   @submit.prevent="handleSubmit"
                 >
+                  <UiError :error="error" />
+
                   <ValidationProvider v-slot="{ errors }" rules="required">
                     <UiInput
                       :value="name"
+                      theme="dynamic"
                       type="text"
-                      placeholder="Имя"
+                      label="Имя"
                       :error="errors[0]"
                       icon="name"
                       icon-position="left"
@@ -68,8 +71,9 @@
                     <UiInput
                       disabled
                       :value="email"
+                      theme="dynamic"
                       type="email"
-                      placeholder="Email"
+                      label="Email"
                       :error="errors[0]"
                       icon="email"
                       icon-position="left"
@@ -80,8 +84,9 @@
                   <ValidationProvider v-slot="{ errors }">
                     <UiInput
                       :value="github"
+                      theme="dynamic"
                       type="text"
-                      placeholder="Replit"
+                      label="Replit"
                       icon="repl"
                       icon-position="left"
                       @onChange="(v) => (github = v)"

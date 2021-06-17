@@ -69,7 +69,7 @@ export default {
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding: 24px 24px 16px;
+  padding: 24px 24px 8px;
   // &__loader {
 
   // }

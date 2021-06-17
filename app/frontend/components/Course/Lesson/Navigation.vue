@@ -2,7 +2,7 @@
   <div class="lesson__nav nav">
     <div class="nav__title">
       <span class="nav__title-count">{{ currentSectionIndex + 1 }}/{{ sectionsCount }}</span>
-      {{ title }}
+      &nbsp;{{ title }}
     </div>
     <div class="nav__actions">
       <a href="#" class="nav__actions-prev" :class="[!isPrevAvailable && 'disabled']" @click.prevent="setPrevLesson">

@@ -1,5 +1,8 @@
 <template>
-  <div class="input" :class="[{ 'has-error': error && !isFocused }, isFocusedOrNotBlank && 'is-focused', theme]">
+  <div
+    class="input"
+    :class="[{ 'has-error': error && !isFocused }, { 'is-iconed': icon }, isFocusedOrNotBlank && 'is-focused', theme]"
+  >
     <label v-if="label" :for="_uid" class="input__label">{{ getLabel }}</label>
     <div class="input__input" :class="[{ 'is-iconed': icon || clearable, 'is-clearable': isClearable }, iconPosition]">
       <input
@@ -263,42 +266,38 @@ export default {
     }
   }
 
-  &.dynamic,
-  &.dynamic-float {
+  &.dynamic {
     .input__label {
       position: absolute;
-      top: 8px;
+      top: 22px;
       left: 16px;
+      font-size: 18px;
       z-index: 2;
       pointer-events: none;
+      transition: all 0.25s ease-in-out;
     }
     .input__input {
       input,
       textarea {
-        padding-top: 22px;
-        padding-bottom: 9px;
+        padding-top: 25px;
+        padding-bottom: 12px;
       }
-    }
-  }
-  &.dynamic-float {
-    .input__label {
-      top: 22px;
-      left: 16px;
-      font-size: 18px;
-      transition: all 0.25s ease-in-out;
     }
     &.is-focused {
       .input__label {
         top: 8px;
-        left: 16px;
         font-size: 12px;
       }
     }
     &.has-error {
       .input__label {
         top: 8px;
-        left: 16px;
         font-size: 12px;
+      }
+    }
+    &.is-iconed {
+      .input__label {
+        left: 45px;
       }
     }
   }

@@ -41,7 +41,7 @@
                   <div class="lesson__body markdown-body">
                     <span v-for="(block, idx) in fragmentContent(fragment.content)" :key="idx">
                       <UiBrython v-if="block.type === 'code'" :code="block.content" :ready="brythonReady" />
-                      <span v-else v-html="block.content" />
+                      <span v-else class="lesson__body-text" v-html="block.content" />
                     </span>
                   </div>
 
@@ -379,8 +379,11 @@ export default {
   &__body {
     padding: 20px;
   }
-  &__body > ::v-deep * {
+  &__body-text > ::v-deep * {
     max-width: 640px;
+  }
+  &__body-text > ::v-deep *:first-child {
+    margin-top: 0 !important;
   }
   &__actions {
     padding: 20px;

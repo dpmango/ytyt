@@ -35,8 +35,10 @@ export default function ({ $axios, $sentry, store, $config, redirect }, inject) 
   });
 
   api.onError(async (error) => {
-    if (parseInt(error.response && error.response.status) === 401) {
-      await store.dispatch('auth/logOut');
+    if (error.response && !error.response.config.url.includes('rest-auth')) {
+      if (parseInt(error.response && error.response.status) === 401) {
+        await store.dispatch('auth/logout');
+      }
     }
 
     $sentry.captureException(error);
