@@ -43,7 +43,7 @@ class DetailCourseLessonSerializers(DefaultCourseLessonSerializers):
             return []
 
         # Если сущетсвует доступ к уроку, то вернем все фрагменты
-        if access.check_manual_access(obj.__class__.__name__, obj.pk):
+        if access.check_manual_access(obj.__class__.__name__, obj.pk) or user.in_stuff_groups:
             accessible_objects = obj.lessonfragment_set.values_list('pk', flat=True)
         else:
             accessible_objects = access.get_accessible_objects(to_struct='lesson_fragment')
