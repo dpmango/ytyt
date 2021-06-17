@@ -1,9 +1,11 @@
 from django.conf import settings
+from django.contrib.auth.models import Group
 from django.core.management.base import BaseCommand
 from django.db.utils import IntegrityError
 from loguru import logger
 
 from users.models import User
+from users.permissions import GROUP_ADMINISTRATOR
 
 
 class Command(BaseCommand):
@@ -15,6 +17,9 @@ class Command(BaseCommand):
 
         logger.info('sync super admin, email=%s' % self._DEFAULT_EMAIL)
         try:
-            User.objects.create_superuser(email=self._DEFAULT_EMAIL, password=settings.SUPER_ADMIN_PASSWORD)
+            user = User.objects.create_superuser(email=self._DEFAULT_EMAIL, password=settings.SUPER_ADMIN_PASSWORD)
         except IntegrityError:
             pass
+        else:
+            user.groups.add(Group.objects.get(id=GROUP_ADMINISTRATOR))
+            user.save()
