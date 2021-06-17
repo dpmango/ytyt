@@ -5,17 +5,22 @@ from django.conf import settings
 from loguru import logger
 from requests import request, Response
 
+from dicts.models import Dicts
+
 
 class Mailgun:
 
-    def __init__(self, base_url: str, token: str, from_email: str):
+    def __init__(self, base_url: str, token: str):
         self.base_url = base_url
         self.token = token
-        self.from_email = from_email
 
     @property
     def _auth(self):
         return 'api', self.token
+
+    @property
+    def from_email(self) -> str:
+        return Dicts.defaults.from_email()
 
     def send_file(self, to: str, subject: str, files: List[Tuple[str, bytes]], **kwargs):
         """
@@ -82,5 +87,4 @@ class Mailgun:
 mailgun = Mailgun(
     base_url=settings.MAILGUN_HOST,
     token=settings.MAILGUN_TOKEN,
-    from_email=settings.DEFAULT_FROM_EMAIL,
 )

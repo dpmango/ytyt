@@ -19,12 +19,13 @@ class InlineCommandExtend:
         """
         Метод извлекает и испольняет все указанные функции из файла, а после удаляет теги
         """
-        self.call_default_commands()
-        commands = self.search_commands()
+        commands = self.get_commands()
+        self.call_default_commands(commands)
 
-        for command_tag in commands:
-            command = command_tag.text.lower().replace(self.tag_magic_command, '')
-            command, arg = command.split(self.sep_magic_command)
+        for command_item in commands:
+            command_tag = command_item['command_tag']
+            command = command_item['command']
+            arg = command_item['arg']
 
             try:
                 getattr(self, '_command_%s' % command)(arg)
@@ -35,8 +36,44 @@ class InlineCommandExtend:
 
         return self.content.decode().strip()
 
-    def call_default_commands(self):
-        self._command_add_host_to_media()
+    def get_commands(self) -> t.List[dict]:
+        """
+        Метод вернет набор всех команд и аргументов
+        :return:
+        """
+        commands = []
+        for command_tag in self.search_commands():
+            command = command_tag.text.lower().replace(self.tag_magic_command, '')
+            command, arg = command.split(self.sep_magic_command)
+
+            commands.append({
+                'command_tag': command_tag, 'command': command, 'arg': arg
+            })
+
+        return commands
+
+    def call_default_commands(self, commands: t.List[dict]) -> None:
+        """
+        Метод инициализирует дефолтные команды, если они не были указаны
+        :param commands: Набор входящих команд
+        """
+        input_commands = [command_item['command'] for command_item in commands]
+        for atr in self.__dir__():
+
+            func = getattr(self, atr, None)
+            if not callable(func):
+                continue
+
+            default_call = getattr(func, 'default_call', None)
+            if not default_call:
+                continue
+
+            func_name = atr.replace('_command_', '')
+            default_arg = getattr(func, 'default_arg', None)
+
+            if func_name in input_commands:
+                continue
+            func(default_arg)
 
     def search_commands(self, return_str: bool = None) -> t.Union[str, ResultSet]:
         """
@@ -90,3 +127,11 @@ class InlineCommandExtend:
             code_block.attrs = {
                 **code_block.attrs, 'src': urljoin(base_url, src)
             }
+
+    _command_default_language.default_call = True
+    _command_default_language.default_arg = 'python'
+
+    _command_brython_snippets.default_call = True
+    _command_brython_snippets.default_arg = 'true'
+
+    _command_add_host_to_media.default_call = True

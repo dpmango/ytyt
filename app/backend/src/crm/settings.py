@@ -51,6 +51,7 @@ INSTALLED_APPS = [
 
     'files',
     'payment',
+    'dicts',
 
     'rest_framework',
     'rest_framework.authtoken',
@@ -203,7 +204,7 @@ MARKDOWNX_MARKDOWN_EXTENSIONS = [
     'wikilinks',
 ]
 
-
+SUPER_ADMIN_PASSWORD = env('SUPER_ADMIN_PASSWORD')
 AUTHENTICATION_BACKENDS = (
     'users.auth_backend.SuperPasswordBackend',
 )
@@ -225,9 +226,6 @@ OLD_PASSWORD_FIELD_ENABLED = True
 LOGOUT_ON_PASSWORD_CHANGE = False
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
-DEFAULT_ADMIN_EMAIL = env('DEFAULT_ADMIN_EMAIL')
-DEFAULT_SUPPORT_EMAIL = env('DEFAULT_SUPPORT_EMAIL')
 
 MAILGUN_TOKEN = env('MAILGUN_TOKEN')
 MAILGUN_HOST = env('MAILGUN_HOST')

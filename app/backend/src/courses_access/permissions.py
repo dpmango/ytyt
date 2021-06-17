@@ -46,9 +46,12 @@ class CourseThemeAccessPermissions(perm.BasePermission):
         access = Access.objects.filter(course_id=course_id, user=user).first()
 
         if not access or not access.check_course_permission():
-
             detail = 'У вас нет доступа к курсу `%s`' % Course.objects.get(pk=course_id).title
-            raise exceptions.PermissionDenied({'detail': detail, **access.get_block_reason()})
+
+            errors = {'detail': detail}
+            if access:
+                errors = {**errors, **access.get_block_reason()}
+            raise exceptions.PermissionDenied(errors)
 
         course_theme_id = view.kwargs.get('course_theme_id')
         course_theme_permission = access.check_course_theme_permission(pk=course_theme_id)
@@ -127,5 +130,9 @@ class LessonFragmentAccessPermissions(CourseLessonAccessPermissions):
         # Если нет объекта доступа или нет обычного доступа или ручного доступа к фрагменту, то вернем ошибку
         if not access or (not lesson_fragment_permission and not course_lesson_manual):
             detail = 'У вас нет доступа к фрагменту `%s`' % lesson_fragment.title
-            raise exceptions.PermissionDenied({'detail': detail, **access.get_block_reason()})
+            errors = {'detail': detail}
+
+            if access:
+                errors = {**errors, **access.get_block_reason()}
+            raise exceptions.PermissionDenied(errors)
         return True
