@@ -241,7 +241,6 @@ export const actions = {
   async connect({ commit, dispatch }, request) {
     if (Vue.prototype.$connect) {
       Vue.prototype.$disconnect();
-      console.log(Vue.prototype.$connect);
       await Vue.prototype.$connect();
     }
   },
