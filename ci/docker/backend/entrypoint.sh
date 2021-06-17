@@ -9,10 +9,11 @@ dockerize -wait tcp://${DB_HOST}:${DB_PORT}
 # Миграция и синхронизация
 ./manage.py migrate --noinput
 ./manage.py collectstatic --noinput
+./manage.py sync_default_values
 ./manage.py sync_permissions
 ./manage.py sync_reports
 ./manage.py sync_staff
-./manage.py loaddata crm/fixtures/dev.json
+./manage.py sync_super_admin
 ./manage.py loaddata crm/fixtures/courses.json
 
 # Запуск

@@ -1,12 +1,11 @@
 import typing
 
-from django.conf import settings
 from django.db import transaction
 from django.forms.models import model_to_dict
 from django.utils import timezone
 from loguru import logger
+from dicts.models import Dicts
 
-from courses_access.models import Access
 from payment.layout.core import Layout
 from payment.models import Payment
 from providers.tinkoff.contrib import Tinkoff, tinkoff_client
@@ -68,7 +67,7 @@ class PaymentLayout(Layout):
             ),
             Receipt=dict(
                 Email=payment.user.email,
-                EmailCompany=settings.DEFAULT_SUPPORT_EMAIL,
+                EmailCompany=Dicts.defaults.support_email(),
                 Taxation=Tinkoff.TAXATION_USN_INCOME,
                 Items=[
                     dict(

@@ -5,13 +5,16 @@ from django.contrib.auth.base_user import BaseUserManager, AbstractBaseUser
 from django.contrib.auth.models import Group
 from django.contrib.auth.models import PermissionsMixin
 from django.core.cache import cache
+from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
 from django.db import models
 from django.db.models import Q
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from loguru import logger
 from sorl.thumbnail import ImageField
 
+from dicts.models import Dicts
 from users import permissions
 from users.mixins import ReviewersMixins, SupportsMixins
 from users.utils import method_cache_key
@@ -112,12 +115,10 @@ class SupportManager(models.Manager):
         """
         Метод вернет случайного суппорта
         """
-        random.seed(timezone.now())
-        supports = self.filter(groups=Group.objects.get(pk=permissions.GROUP_SUPPORT), is_active=True)
-
         try:
-            return random.choices(supports)[0]
-        except IndexError:
+            return self.get(email=Dicts.defaults.support_email(), is_active=True, is_staff=True)
+        except User.DoesNotExist as e:
+            logger.exception('Ошибка выборки суппорта', e)
             return None
 
     def all(self) -> typing.List['User']:
@@ -250,3 +251,15 @@ class User(AbstractBaseUser,
                 permissions.GROUP_SUPPORT,
             )
         )
+
+    def delete(self, using=None, keep_parents=False):
+        for group in self.groups.all().values_list('id', flat=True):
+
+            if not User.objects.filter(~Q(pk=self.pk), groups__in=[group]).exists():
+                raise ValidationError(
+                    'Удалить %s нельзя, так как других пользователей с группой %s не существует' % (
+                        self.email, group
+                    )
+                )
+
+        return super().delete(using=using, keep_parents=keep_parents)

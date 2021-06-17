@@ -13,11 +13,12 @@ GROUPS = (
     (GROUP_SUPPORT, 'Поддержка'),
 )
 
-GROUPS_SYNC_DEFAULTS_EMAILS = {
-    GROUP_MENTOR: 'mentor@ytyt.ru',
-    GROUP_EDUCATOR: 'educator@ytyt.ru',
-    GROUP_SUPPORT: 'support@ytyt.ru',
-}
+GROUPS_SYNC_DEFAULTS = [
+    (GROUP_MENTOR, 'MENTOR'),
+    (GROUP_EDUCATOR, 'EDUCATOR'),
+    (GROUP_ADMINISTRATOR, 'ADMIN'),
+    (GROUP_SUPPORT, 'SUPPORT'),
+]
 
 
 GROUP_COMMON_RIGHTS = [
