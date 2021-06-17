@@ -144,6 +144,7 @@ export const mutations = {
                   ...{
                     last_message: {
                       body: data.body,
+                      file: data.file,
                     },
                   },
                 }
@@ -244,15 +245,16 @@ export const mutations = {
 };
 
 export const actions = {
-  connect({ commit, dispatch }, request) {
+  async connect({ commit, dispatch }, request) {
     if (Vue.prototype.$connect) {
       Vue.prototype.$disconnect();
-      Vue.prototype.$connect();
+      await Vue.prototype.$connect();
     }
   },
-  disconnect({ commit }, request) {
+  async disconnect({ commit }, request) {
     if (Vue.prototype.$disconnect) {
-      Vue.prototype.$disconnect();
+      console.log('$disconnect method called');
+      await Vue.prototype.$disconnect();
     }
   },
   getDialogs({ commit }, request) {
