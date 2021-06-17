@@ -225,6 +225,20 @@ export const mutations = {
     state.messages = [];
     state.messagesMeta = {};
   },
+  resetOnLogout(state) {
+    state.activeDialog = null;
+    state.messages = [];
+    state.messagesMeta = {};
+
+    state.notificationDialogsCount = 0;
+    state.notificationMessageCount = 0;
+    state.dialog = [];
+    state.dialogsMeta = {};
+    state.reply = {
+      id: null,
+      text: null,
+    };
+  },
   setReply(state, req) {
     state.reply.id = req.id;
     state.reply.text = req.text;
@@ -247,6 +261,8 @@ export const actions = {
   async disconnect({ commit }, request) {
     if (Vue.prototype.$disconnect) {
       await Vue.prototype.$disconnect();
+      commit('resetOnLogout');
+      commit('clearGhostMessage');
     }
   },
   getDialogs({ commit }, request) {

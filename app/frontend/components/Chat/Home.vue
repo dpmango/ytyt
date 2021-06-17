@@ -185,6 +185,7 @@ export default {
       this.readMessages();
     },
     readMessages() {
+      if (!this.$refs.sidebar) return;
       const { offsetHeight } = this.$refs.sidebar;
       const dialogsTop = this.$refs.dialogs.getBoundingClientRect().top;
       const messages = this.$refs.dialogs.querySelectorAll('.message--outcoming[data-read="false"]');
