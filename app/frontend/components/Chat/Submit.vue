@@ -8,7 +8,7 @@
       <div class="editor">
         <input :id="_uid" ref="uploadInput" type="file" @change="handleUpload" />
 
-        <label :for="_uid" class="editor__attach" @click="handleAttachClick">
+        <label :for="_uid" class="editor__attach">
           <UiSvgIcon name="paper-clip" />
         </label>
         <div class="editor__body">
@@ -103,6 +103,8 @@ export default {
       }
     },
     async handleUpload(e) {
+      // cleanup
+
       const files = e.target.files;
 
       if (files && files[0]) {
@@ -113,7 +115,8 @@ export default {
           const sizeInMb = bytesToMegaBytes(file.size);
 
           if (sizeInMb > this.maxSize) {
-            this.$toast.global.error({ message: `Размер файла превышает ${this.maxSize}Мб` });
+            await this.$toast.global.error({ message: `Размер файла превышает ${this.maxSize}Мб` });
+            e.target.value = '';
             return false;
           }
         }
@@ -137,10 +140,9 @@ export default {
         //   };
         //   reader.readAsDataURL(file);
         // }
+
+        e.target.value = '';
       }
-    },
-    handleAttachClick() {
-      // this.simplemde.drawImage();
     },
     handleReplyDelete() {
       this.setReply({
