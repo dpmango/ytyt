@@ -69,7 +69,7 @@ export const getters = {
 
 export const mutations = {
   SOCKET_ONOPEN(state, event) {
-    console.log('SOCKET_ONOPEN', event);
+    // console.log('SOCKET_ONOPEN', event);
     this.$socket = event.currentTarget;
     state.socket.isConnected = true;
     state.socket.error = null;
@@ -80,19 +80,12 @@ export const mutations = {
     state.messagesMeta = {};
   },
   SOCKET_ONCLOSE(state, event) {
-    console.log('SOCKET_ONCLOSE', event);
-    try {
-      rebuildSocket({
-        $config: this.$config,
-        $store: this,
-      });
-    } catch (e) {
-      console.log('rebuild err', e);
-    }
+    // console.log('SOCKET_ONCLOSE', event);
     state.socket.isConnected = false;
   },
   SOCKET_ONERROR(state, event) {
-    console.error('SOCKET_ONERROR', event);
+    // console.error('SOCKET_ONERROR', event);
+    state.socket.error = event;
   },
   SOCKET_ONMESSAGE(state, message) {
     // console.log('SOCKET_ONMESSAGE', message);
@@ -248,12 +241,12 @@ export const actions = {
   async connect({ commit, dispatch }, request) {
     if (Vue.prototype.$connect) {
       Vue.prototype.$disconnect();
+      console.log(Vue.prototype.$connect);
       await Vue.prototype.$connect();
     }
   },
   async disconnect({ commit }, request) {
     if (Vue.prototype.$disconnect) {
-      console.log('$disconnect method called');
       await Vue.prototype.$disconnect();
     }
   },
