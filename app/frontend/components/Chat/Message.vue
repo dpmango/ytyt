@@ -143,7 +143,7 @@ export default {
 
 <style lang="scss" scoped>
 .message {
-  margin: 8px 0;
+  margin: 16px 0;
   display: flex;
   align-items: center;
   &__wrapper {
