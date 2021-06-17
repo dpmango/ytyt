@@ -2,6 +2,8 @@ from urllib.parse import parse_qs
 
 from channels.auth import AuthMiddleware
 from channels.sessions import CookieMiddleware, SessionMiddleware
+from loguru import logger
+from rest_framework import exceptions
 
 from users.auth import WebSocketJSONWebTokenAuthentication
 
@@ -21,7 +23,12 @@ class JWTAuthMiddleware(AuthMiddleware):
 
         self.populate_scope(scope)
         await self.resolve_scope(scope)
-        user = await wt.authenticate(query_params)
+
+        try:
+            user = await wt.authenticate(query_params)
+        except exceptions.AuthenticationFailed:
+            logger.debug('Ошибка декодирования токера в сокете, query_params=%s' % query_params)
+            return
 
         scope.update({**query_params, 'user': user})
         return await super().__call__(scope, receive, send)
