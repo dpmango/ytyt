@@ -67,7 +67,7 @@
                 <ValidationProvider v-slot="{ errors }" class="ui-group" rules="required">
                   <UiInput
                     :value="name"
-                    theme="dynamic-float"
+                    theme="dynamic"
                     label="Имя"
                     type="text"
                     :error="errors[0]"
@@ -78,7 +78,7 @@
                 <ValidationProvider v-slot="{ errors }" class="ui-group" rules="email|required">
                   <UiInput
                     :value="email"
-                    theme="dynamic-float"
+                    theme="dynamic"
                     label="Email"
                     type="email"
                     :error="errors[0]"
@@ -90,7 +90,7 @@
                   <UiInput
                     v-mask="'+7 (###) ###-####'"
                     :value="phone"
-                    theme="dynamic-float"
+                    theme="dynamic"
                     label="Телефон"
                     type="tel"
                     :error="errors[0]"
