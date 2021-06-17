@@ -69,7 +69,7 @@ export const getters = {
 
 export const mutations = {
   SOCKET_ONOPEN(state, event) {
-    console.log('SOCKET_ONOPEN', event);
+    // console.log('SOCKET_ONOPEN', event);
     this.$socket = event.currentTarget;
     state.socket.isConnected = true;
     state.socket.error = null;
@@ -80,19 +80,12 @@ export const mutations = {
     state.messagesMeta = {};
   },
   SOCKET_ONCLOSE(state, event) {
-    console.log('SOCKET_ONCLOSE', event);
-    try {
-      rebuildSocket({
-        $config: this.$config,
-        $store: this,
-      });
-    } catch (e) {
-      console.log('rebuild err', e);
-    }
+    // console.log('SOCKET_ONCLOSE', event);
     state.socket.isConnected = false;
   },
   SOCKET_ONERROR(state, event) {
-    console.error('SOCKET_ONERROR', event);
+    // console.error('SOCKET_ONERROR', event);
+    state.socket.error = event;
   },
   SOCKET_ONMESSAGE(state, message) {
     // console.log('SOCKET_ONMESSAGE', message);
@@ -232,6 +225,20 @@ export const mutations = {
     state.messages = [];
     state.messagesMeta = {};
   },
+  resetOnLogout(state) {
+    state.activeDialog = null;
+    state.messages = [];
+    state.messagesMeta = {};
+
+    state.notificationDialogsCount = 0;
+    state.notificationMessageCount = 0;
+    state.dialog = [];
+    state.dialogsMeta = {};
+    state.reply = {
+      id: null,
+      text: null,
+    };
+  },
   setReply(state, req) {
     state.reply.id = req.id;
     state.reply.text = req.text;
@@ -253,8 +260,9 @@ export const actions = {
   },
   async disconnect({ commit }, request) {
     if (Vue.prototype.$disconnect) {
-      console.log('$disconnect method called');
       await Vue.prototype.$disconnect();
+      commit('resetOnLogout');
+      commit('clearGhostMessage');
     }
   },
   getDialogs({ commit }, request) {

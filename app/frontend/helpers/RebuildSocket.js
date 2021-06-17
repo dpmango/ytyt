@@ -11,7 +11,6 @@ export const rebuildSocket = async ({ $config, $store }) => {
   if (index > -1) {
     Vue._installedPlugins.splice(index, 1);
   }
-  console.log('rebuilding socket', $store.state.auth.token);
 
   const socketWithToken = `${$config.socketURL}?token=${$store.state.auth.token}`;
 
@@ -25,9 +24,7 @@ export const rebuildSocket = async ({ $config, $store }) => {
     reconnectionDelay: 3000,
   });
 
-  console.log('rebuilding - is connected', !$store.getters['chat/isConnected']);
   if (!$store.getters['chat/isConnected']) {
-    console.log('will connect');
     $store.dispatch('chat/connect');
   }
 

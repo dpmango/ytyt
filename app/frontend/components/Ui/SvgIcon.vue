@@ -54,7 +54,7 @@ export default {
       }
     } catch (err) {
       // eslint-disable-next-line no-console
-      console.log(err);
+      console.warn('error loading svg icon', err);
     }
   },
 };
