@@ -85,7 +85,7 @@ export default {
       const scrollBottom = scrollHeight - scrollTop - offsetHeight;
 
       // prevent scrolling if user reading prev. messages or new messages loaded on 'up' scroll
-      if (scrollBottom <= 50 && !oldVal.length === 0) {
+      if (scrollBottom <= 50 && !(oldVal.length === 0)) {
         scrollToEnd(500, this.$refs.dialogs);
       }
 
@@ -196,7 +196,6 @@ export default {
         const rect = message.getBoundingClientRect();
         const isVisible = rect.top - dialogsTop >= 0 && rect.top - rect.height <= offsetHeight;
         const isSupportMessage = message.getAttribute('data-support') === 'true' && this.user.is_support;
-
         if (isVisible && !isSupportMessage) {
           this.readMessage({
             dialog_id: this.activeDialog,

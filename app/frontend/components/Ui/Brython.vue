@@ -1,7 +1,6 @@
 <template>
   <client-only>
     <div class="brython" :class="[!ready && 'is-loading']">
-      {{ id }}
       <template v-if="!ready">
         <UiLoader :loading="true" theme="block" />
       </template>
@@ -40,9 +39,12 @@ export default {
   },
   computed: {
     id() {
-      return uniqueId;
+      return uniqueId();
     },
   },
+  // mounted() {
+  //   console.log('brython snippet mounted - id', this.id);
+  // },
 };
 </script>
 

@@ -88,7 +88,7 @@ export const mutations = {
     state.socket.error = event;
   },
   SOCKET_ONMESSAGE(state, message) {
-    // console.log('SOCKET_ONMESSAGE', message);
+    console.log('SOCKET_ONMESSAGE', message);
     const { event, data, meta, exception } = message;
 
     if (exception) {
@@ -128,22 +128,51 @@ export const mutations = {
           state.messages.push(data);
         }
 
-        state.dialogs = [
-          ...state.dialogs.map((x) =>
-            x.id !== data.dialog
-              ? x
-              : {
-                  ...x,
-                  ...{
-                    last_message: {
-                      body: data.body,
-                      file: data.file,
-                    },
-                  },
-                }
-          ),
-        ];
+        if (!state.dialogs.find((x) => x.id === data.dialog)) {
+          // create dialog if not existing
+          // TODO - better ask from backend for dialogs.load event
+          const { body, date_created, date_read, dialog, file, id, lesson, markdown_body, reply } = data;
 
+          state.dialogs = [
+            ...state.dialogs,
+            ...[
+              {
+                id: dialog,
+                user: data.user,
+                last_message: {
+                  body,
+                  date_created,
+                  date_read,
+                  dialog,
+                  file,
+                  id,
+                  lesson,
+                  markdown_body,
+                  reply,
+                },
+              },
+            ],
+          ];
+        } else {
+          // update dialogs last message
+          state.dialogs = [
+            ...state.dialogs.map((x) =>
+              x.id !== data.dialog
+                ? x
+                : {
+                    ...x,
+                    ...{
+                      last_message: {
+                        body: data.body,
+                        file: data.file,
+                      },
+                    },
+                  }
+            ),
+          ];
+        }
+
+        // sort dialogs
         state.dialogs = [
           ...state.dialogs.filter((x) => x.id === data.dialog),
           ...state.dialogs.filter((x) => x.id !== data.dialog),
