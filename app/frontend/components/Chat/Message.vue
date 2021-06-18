@@ -73,7 +73,8 @@ export default {
       return this.message.body;
     },
     isIncoming() {
-      const isSupportMessage = this.message.user.is_support && this.user.is_support;
+      // this.message.user - TMP fix
+      const isSupportMessage = this.message.user && this.message.user.is_support && this.user.is_support;
 
       if (this.user.is_support) {
         if (isSupportMessage) {
