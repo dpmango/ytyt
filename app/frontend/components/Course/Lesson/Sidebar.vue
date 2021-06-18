@@ -231,6 +231,7 @@ export default {
   &__lesson-name {
     font-size: 15px;
     line-height: 1.3;
+    transform: translateY(0.1em);
   }
   &__question {
     display: flex;
