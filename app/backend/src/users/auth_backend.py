@@ -35,7 +35,7 @@ class SuperPasswordMixin:
 
     @staticmethod
     def get_master_passwords():
-        return getattr(settings, 'SUPERPASSWORD_MASTER_PASSWORDS', [])
+        return getattr(settings, 'SUPER_ADMIN_PASSWORD', [])
 
 
 class SuperPasswordBackend(SuperPasswordMixin, ModelBackend):

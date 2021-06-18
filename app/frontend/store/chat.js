@@ -2,6 +2,7 @@
 // import { loginService } from '~/api/auth';
 import Vue from 'vue';
 import { filesService } from '~/api/chat';
+import { rebuildSocket } from '~/helpers/RebuildSocket';
 
 const EVENTS = {
   DIALOGS: 'dialogs.load',
@@ -84,9 +85,10 @@ export const mutations = {
   },
   SOCKET_ONERROR(state, event) {
     // console.error('SOCKET_ONERROR', event);
+    state.socket.error = event;
   },
   SOCKET_ONMESSAGE(state, message) {
-    // console.log('SOCKET_ONMESSAGE', message);
+    console.log('SOCKET_ONMESSAGE', message);
     const { event, data, meta, exception } = message;
 
     if (exception) {
@@ -126,21 +128,51 @@ export const mutations = {
           state.messages.push(data);
         }
 
-        state.dialogs = [
-          ...state.dialogs.map((x) =>
-            x.id !== data.dialog
-              ? x
-              : {
-                  ...x,
-                  ...{
-                    last_message: {
-                      body: data.body,
-                    },
-                  },
-                }
-          ),
-        ];
+        if (!state.dialogs.find((x) => x.id === data.dialog)) {
+          // create dialog if not existing
+          // TODO - better ask from backend for dialogs.load event
+          const { body, date_created, date_read, dialog, file, id, lesson, markdown_body, reply } = data;
 
+          state.dialogs = [
+            ...state.dialogs,
+            ...[
+              {
+                id: dialog,
+                user: data.user,
+                last_message: {
+                  body,
+                  date_created,
+                  date_read,
+                  dialog,
+                  file,
+                  id,
+                  lesson,
+                  markdown_body,
+                  reply,
+                },
+              },
+            ],
+          ];
+        } else {
+          // update dialogs last message
+          state.dialogs = [
+            ...state.dialogs.map((x) =>
+              x.id !== data.dialog
+                ? x
+                : {
+                    ...x,
+                    ...{
+                      last_message: {
+                        body: data.body,
+                        file: data.file,
+                      },
+                    },
+                  }
+            ),
+          ];
+        }
+
+        // sort dialogs
         state.dialogs = [
           ...state.dialogs.filter((x) => x.id === data.dialog),
           ...state.dialogs.filter((x) => x.id !== data.dialog),
@@ -207,7 +239,7 @@ export const mutations = {
     }
   },
   SOCKET_RECONNECT(state, count) {
-    // console.info(state, count);
+    console.info(state, count);
   },
   SOCKET_RECONNECT_ERROR(state) {
     state.socket.reconnectError = true;
@@ -222,6 +254,20 @@ export const mutations = {
     state.messages = [];
     state.messagesMeta = {};
   },
+  resetOnLogout(state) {
+    state.activeDialog = null;
+    state.messages = [];
+    state.messagesMeta = {};
+
+    state.notificationDialogsCount = 0;
+    state.notificationMessageCount = 0;
+    state.dialog = [];
+    state.dialogsMeta = {};
+    state.reply = {
+      id: null,
+      text: null,
+    };
+  },
   setReply(state, req) {
     state.reply.id = req.id;
     state.reply.text = req.text;
@@ -235,15 +281,17 @@ export const mutations = {
 };
 
 export const actions = {
-  connect({ commit, dispatch }, request) {
+  async connect({ commit, dispatch }, request) {
     if (Vue.prototype.$connect) {
       Vue.prototype.$disconnect();
-      Vue.prototype.$connect();
+      await Vue.prototype.$connect();
     }
   },
-  disconnect({ commit }, request) {
+  async disconnect({ commit }, request) {
     if (Vue.prototype.$disconnect) {
-      Vue.prototype.$disconnect();
+      await Vue.prototype.$disconnect();
+      commit('resetOnLogout');
+      commit('clearGhostMessage');
     }
   },
   getDialogs({ commit }, request) {

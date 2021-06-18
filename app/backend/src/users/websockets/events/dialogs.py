@@ -192,6 +192,8 @@ class DialogEvent:
         else:
             if file.type == File.TYPE_IMAGE:
                 email_template_name = 'dialogs/message-image/index.html'
+                context = {**context, 'file_width': file.width, 'file_height': file.height}
+
             else:
                 email_template_name = 'dialogs/message-file/index.html'
 

@@ -7,7 +7,6 @@
     :class="[isIncoming ? 'message--incoming' : 'message--outcoming', message.isGhost && 'is-ghost']"
   >
     <div class="message__wrapper" :class="[isFile && 'is-file']">
-      is_support {{ message.user.is_support }}
       <NuxtLink
         v-if="message.lesson"
         :to="`/theme/${message.lesson.course_theme_id}/${message.lesson.id}`"
@@ -74,7 +73,8 @@ export default {
       return this.message.body;
     },
     isIncoming() {
-      const isSupportMessage = this.message.user.is_support && this.user.is_support;
+      // this.message.user - TMP fix
+      const isSupportMessage = this.message.user && this.message.user.is_support && this.user.is_support;
 
       if (this.user.is_support) {
         if (isSupportMessage) {
@@ -144,7 +144,7 @@ export default {
 
 <style lang="scss" scoped>
 .message {
-  margin: 8px 0;
+  margin: 16px 0;
   display: flex;
   align-items: center;
   &__wrapper {

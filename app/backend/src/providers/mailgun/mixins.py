@@ -4,6 +4,7 @@ from loguru import logger
 
 from constants.context import base_custom_context
 from providers.tasks import send_mail, send_file
+from dicts.models import Dicts
 
 
 class EmailNotificationMixin:
@@ -30,7 +31,7 @@ class EmailNotificationMixin:
         """
         logger.debug('[send_mail] to=%s, context=%s ' % (to, context,))
 
-        to = to if to is not None else settings.DEFAULT_ADMIN_EMAIL
+        to = to if to is not None else Dicts.defaults.admin_email()
         context = {**(context or {}), **base_custom_context()}
         kwargs = {}
 

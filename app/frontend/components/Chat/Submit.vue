@@ -8,7 +8,7 @@
       <div class="editor">
         <input :id="_uid" ref="uploadInput" type="file" @change="handleUpload" />
 
-        <label :for="_uid" class="editor__attach" @click="handleAttachClick">
+        <label :for="_uid" class="editor__attach">
           <UiSvgIcon name="paper-clip" />
         </label>
         <div class="editor__body">
@@ -63,12 +63,15 @@ export default {
     if (this.simplemde) {
       this.simplemde.codemirror.on('keydown', (instance, event) => {
         if ((event.ctrlKey || event.shiftKey) && event.keyCode === 13) {
+          event.preventDefault();
           const cursor = this.simplemde.codemirror.getCursor();
 
-          this.simplemde.codemirror.replaceRange('\n', {
+          this.simplemde.codemirror.replaceRange('\r\n', {
             line: cursor.line,
             ch: cursor.ch,
           });
+
+          this.simplemde.codemirror.scrollIntoView({ line: cursor.line + 1, char: cursor.ch }, 200);
         } else if (event.keyCode === 13) {
           event.preventDefault();
           this.handleSubmit();
@@ -100,6 +103,8 @@ export default {
       }
     },
     async handleUpload(e) {
+      // cleanup
+
       const files = e.target.files;
 
       if (files && files[0]) {
@@ -110,7 +115,8 @@ export default {
           const sizeInMb = bytesToMegaBytes(file.size);
 
           if (sizeInMb > this.maxSize) {
-            this.$toast.global.error({ message: `Размер файла превышает ${this.maxSize}Мб` });
+            await this.$toast.global.error({ message: `Размер файла превышает ${this.maxSize}Мб` });
+            e.target.value = '';
             return false;
           }
         }
@@ -134,10 +140,9 @@ export default {
         //   };
         //   reader.readAsDataURL(file);
         // }
+
+        e.target.value = '';
       }
-    },
-    handleAttachClick() {
-      // this.simplemde.drawImage();
     },
     handleReplyDelete() {
       this.setReply({
@@ -159,11 +164,12 @@ export default {
   .CodeMirror-scroll {
     min-height: 1px;
     height: 100%;
-    max-height: 300px;
+    max-height: 340px;
   }
 
   .CodeMirror {
-    padding: 8px 16px 8px 0;
+    // padding: 8px 16px 8px 0;
+    padding: 0 16px 0 0;
     border: 0;
     font-size: 15px;
     line-height: 1.5;
@@ -182,6 +188,8 @@ export default {
     display: flex;
     align-items: center;
     padding-right: 10px;
+    padding-top: 8px;
+    padding-bottom: 8px;
     input {
       position: absolute;
       left: 0;

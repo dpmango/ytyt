@@ -39,30 +39,36 @@ class DialogManager(models.Manager):
         """
         sql_template = """
             SELECT *
-            FROM dialogs_dialog dd 
-            INNER JOIN (
-                SELECT 
-                    dialog_id, 
-                    max(id) AS last_message_id,
-                    max(date_created) AS date_created
-                FROM dialogs_dialogmessage
-                GROUP BY dialog_id
-            ) dm
-            ON dm.dialog_id = dd.id
-            INNER JOIN dialogs_dialog_users du ON dd.id = du.dialog_id
-            {% if is_support %}
-                WHERE 
-                    dd.with_role = {{ with_role }} AND 
-                    du.user_id IN (
-                        SELECT U0.id
-                        FROM users_user U0
-                        INNER JOIN users_user_groups U1 ON U0.id = U1.user_id
-                        WHERE U1.group_id = {{ with_role }}
-                    )
-            {% else %}
-                WHERE du.user_id = {{ user_id_ }}
-            {% endif %}
-            ORDER BY dm.date_created DESC
+            FROM (
+                SELECT
+                    DISTINCT ON (dd.id)
+                    dd.*,
+                    dm.date_created AS date_created_last_message
+                FROM dialogs_dialog dd 
+                INNER JOIN (
+                    SELECT 
+                        dialog_id, 
+                        max(id) AS last_message_id,
+                        max(date_created) AS date_created
+                    FROM dialogs_dialogmessage
+                    GROUP BY dialog_id
+                ) dm
+                ON dm.dialog_id = dd.id
+                INNER JOIN dialogs_dialog_users du ON dd.id = du.dialog_id
+                {% if is_support %}
+                    WHERE 
+                        dd.with_role = {{ with_role }} AND 
+                        du.user_id IN (
+                            SELECT U0.id
+                            FROM users_user U0
+                            INNER JOIN users_user_groups U1 ON U0.id = U1.user_id
+                            WHERE U1.group_id = {{ with_role }}
+                        )
+                {% else %}
+                    WHERE du.user_id = {{ user_id_ }}
+                {% endif %}
+            ) t
+            ORDER BY date_created_last_message DESC
             LIMIT {{ limit_ }}
             OFFSET {{ offset_ }}
         """

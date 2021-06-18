@@ -142,6 +142,7 @@ export default {
   &__description {
     font-size: 14px;
     color: rgba($fontColor, 0.7);
+    min-height: 22px;
     ::v-deep br {
       display: none;
     }
@@ -150,7 +151,7 @@ export default {
       display: none;
       &:first-child {
         display: block;
-        font-size: 15px !important;
+        font-size: 14px !important;
         margin: 0 !important;
         font-weight: 400 !important;
         @include text-overflow;

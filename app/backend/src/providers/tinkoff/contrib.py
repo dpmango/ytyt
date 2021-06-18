@@ -101,11 +101,10 @@ class Tinkoff(BaseProvider):
         (STATUS_REFUNDED, 'Возвращен полностью'),
     )
 
-    def __init__(self, base_url: str, terminal_key: str, terminal_password: str, admin_email: str):
+    def __init__(self, base_url: str, terminal_key: str, terminal_password: str):
         self.base_url = base_url
         self.terminal_key = terminal_key
         self.terminal_password = terminal_password
-        self.admin_email = admin_email
 
     def init(self, **kwargs):
         """
@@ -157,5 +156,4 @@ tinkoff_client = Tinkoff(
     base_url=settings.TINKOFF_URL,
     terminal_key=settings.TINKOFF_TERMINAL_KEY,
     terminal_password=settings.TINKOFF_TERMINAL_PASSWORD,
-    admin_email=settings.DEFAULT_ADMIN_EMAIL,
 )

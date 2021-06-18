@@ -3,8 +3,8 @@ import VueNativeSock from 'vue-native-websocket';
 import { mutations } from '~/plugins/socket';
 
 // Hack for sockets token update
-export const rebuildSocket = ({ $config, $store }) => {
-  $store.dispatch('chat/disconnect');
+export const rebuildSocket = async ({ $config, $store }) => {
+  await $store.dispatch('chat/disconnect');
 
   const index = Vue._installedPlugins.indexOf(VueNativeSock);
 
