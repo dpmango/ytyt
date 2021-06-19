@@ -221,6 +221,7 @@ export default {
   display: block;
   // &__box {
   // }
+
   &__wrapper {
     display: flex;
     position: relative;
@@ -328,6 +329,10 @@ export default {
           transform: translateX(-50%);
         }
       }
+    }
+    .container {
+      padding-left: 0;
+      padding-right: 0;
     }
     .chat__sidebar {
       z-index: 2;

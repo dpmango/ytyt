@@ -57,9 +57,8 @@
                   <ValidationProvider v-slot="{ errors }" rules="required">
                     <UiInput
                       :value="name"
-                      theme="dynamic"
                       type="text"
-                      label="Имя"
+                      placeholder="Имя"
                       :error="errors[0]"
                       icon="name"
                       icon-position="left"
@@ -71,9 +70,8 @@
                     <UiInput
                       disabled
                       :value="email"
-                      theme="dynamic"
                       type="email"
-                      label="Email"
+                      placeholder="Email"
                       :error="errors[0]"
                       icon="email"
                       icon-position="left"
@@ -84,9 +82,8 @@
                   <ValidationProvider v-slot="{ errors }">
                     <UiInput
                       :value="github"
-                      theme="dynamic"
                       type="text"
-                      label="Replit"
+                      placeholder="Replit"
                       icon="repl"
                       icon-position="left"
                       @onChange="(v) => (github = v)"
