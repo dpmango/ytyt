@@ -151,7 +151,7 @@ export default {
     }
 
     &::after {
-      right: 6px;
+      right: 7px;
       width: 6px;
       border-radius: 10px 0 0 10px;
       box-shadow: 10px 0 0 0 #ededed;
