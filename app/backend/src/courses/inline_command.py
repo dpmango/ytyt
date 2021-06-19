@@ -80,7 +80,8 @@ class InlineCommandExtend:
         Метод возвращает список всех инлайн-команд
         :param return_str: Сообщает в каком формате вернуть результат поиска: в текстовом или массиве
         """
-        tags = self.content.find_all('p', string=re.compile(self.tag_magic_command))
+        regex = r'%s[a-zA-Z]+=[a-zA-Z0-9]+' % self.tag_magic_command
+        tags = self.content.find_all('p', string=re.compile(regex))
 
         if return_str:
             return '\n\n'.join(tag.text for tag in tags) + '\n'

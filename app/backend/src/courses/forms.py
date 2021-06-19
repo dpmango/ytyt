@@ -53,10 +53,10 @@ class CourseLessonCreationForm(forms.ModelForm):
                         continue
 
                     if cell_type == 'markdown':
-                        cell_source_lines.append('\n')
+                        cell_source_lines.append('\n\n')
 
                     elif cell_type == 'code':
-                        cell_source_lines = ['```brython-snippet\n'] + cell_source_lines + ['\n```\n']
+                        cell_source_lines = ['```brython-snippet\n'] + cell_source_lines + ['\n```\n\n']
 
                     content.extend(cell_source_lines)
 
