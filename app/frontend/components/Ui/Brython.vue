@@ -43,7 +43,7 @@ export default {
     },
   },
   // mounted() {
-  //   console.log('brython snippet mounted - id', this.id);
+  //   console.log('brython snippet mounted - id', this.id, this.ready);
   // },
 };
 </script>
@@ -51,7 +51,7 @@ export default {
 <style lang="scss" scoped>
 .brython {
   position: relative;
-  margin: 1em 20px;
+  margin: 1em 0;
   .loader {
     position: absolute;
     background: rgba(white, 0.5);
