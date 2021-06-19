@@ -1,4 +1,4 @@
-from django.db.models import Q
+from django.db.models import Q, Count
 
 from dialogs.models import Dialog, DialogMessage
 from users.models import User
@@ -35,7 +35,10 @@ class InsidePlatformNotificationEvent:
         dialogs_count = 0
 
         if user.is_support:
-            dialogs = Dialog.objects.filter(with_role=permissions.GROUP_SUPPORT).prefetch_related('dialogmessage_set')
+            dialogs = Dialog.objects.\
+                        annotate(cnt=Count('users')).\
+                        filter(with_role=permissions.GROUP_SUPPORT, cnt__gte=2).\
+                        prefetch_related('dialogmessage_set')
         else:
             dialogs = user.dialog_users_set.all().prefetch_related('dialogmessage_set')
 
