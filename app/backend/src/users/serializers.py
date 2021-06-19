@@ -186,8 +186,7 @@ class VerifyEmailSerializer(serializers.Serializer):
 
     def validate(self, attrs):
 
-        from loguru import logger
-        logger.info('attrs: %s' % attrs)
+        print(attrs)
 
         try:
             uid = force_text(uid_decoder(attrs['uid']))
