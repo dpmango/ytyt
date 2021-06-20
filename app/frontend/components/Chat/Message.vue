@@ -3,7 +3,7 @@
     class="message"
     :data-id="message.id"
     :data-read="message.date_read ? 'true' : 'false'"
-    :data-support="message.user.is_support ? 'true' : 'false'"
+    :data-support="isSupportUser ? 'true' : 'false'"
     :class="[isIncoming ? 'message--incoming' : 'message--outcoming', message.isGhost && 'is-ghost']"
   >
     <div class="message__wrapper" :class="[isFile && 'is-file']">
@@ -71,6 +71,9 @@ export default {
   computed: {
     messageBody() {
       return this.message.body;
+    },
+    isSupportUser() {
+      return this.message.user && this.message.user.is_support;
     },
     isIncoming() {
       // this.message.user - TMP fix

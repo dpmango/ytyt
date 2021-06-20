@@ -69,7 +69,7 @@ export const getters = {
 
 export const mutations = {
   SOCKET_ONOPEN(state, event) {
-    // console.log('SOCKET_ONOPEN', event);
+    console.log('SOCKET_ONOPEN', event);
     this.$socket = event.currentTarget;
     state.socket.isConnected = true;
     state.socket.error = null;
@@ -80,7 +80,7 @@ export const mutations = {
     state.messagesMeta = {};
   },
   SOCKET_ONCLOSE(state, event) {
-    // console.log('SOCKET_ONCLOSE', event);
+    console.log('SOCKET_ONCLOSE', event);
     state.socket.isConnected = false;
   },
   SOCKET_ONERROR(state, event) {
@@ -282,6 +282,7 @@ export const mutations = {
 
 export const actions = {
   async connect({ commit, dispatch }, request) {
+    console.log('connect action', Vue.prototype.$connect);
     if (Vue.prototype.$connect) {
       Vue.prototype.$disconnect();
       await Vue.prototype.$connect();
