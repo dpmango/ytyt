@@ -16,17 +16,22 @@ class DialogEvent:
     EVENT_DIALOG_MESSAGES_LOAD = 'dialogs.messages.load'
     EVENT_DIALOG_MESSAGES_CREATE = 'dialogs.messages.create'
     EVENT_DIALOG_MESSAGES_SEEN = 'dialogs.messages.seen'
+    EVENT_DIALOG_MESSAGES_SEARCH_ID = 'dialogs.messages.search.id'
 
     EVENTS = (
         (EVENT_DIALOG_LOAD, 'Загрузка всех диалогов'),
         (EVENT_DIALOG_MESSAGES_LOAD, 'Загрузка сообщений диалога'),
         (EVENT_DIALOG_MESSAGES_CREATE, 'Создание сообщения в диалоге'),
         (EVENT_DIALOG_MESSAGES_SEEN, 'Сделать сообщение прочитанным'),
+        (EVENT_DIALOG_MESSAGES_SEARCH_ID, 'Поиск по id сообщения'),
     )
 
     GENERATING_NOTIFICATIONS_EVENTS = (
         EVENT_DIALOG_MESSAGES_CREATE, EVENT_DIALOG_MESSAGES_SEEN
     )
+
+    _LIMIT_DEFAULT = 20
+    _OFFSET_DEFAULT = 0
 
     @staticmethod
     def generate_meta(limit, offset, total) -> dict:
@@ -70,6 +75,48 @@ class DialogEvent:
 
         return {'data': dialogs, 'to': user, **self.generate_meta(limit, offset, count)}
 
+    def _dialogs_messages_search_id(
+            self,
+            user: User,
+            dialog_id: int = None,
+            message_id: int = None,
+            limit: int = None,
+            **kwargs):
+        """
+        Метод ищет сообщение по его id, учитывая текущий limit.
+        Вернет минимальное количество сообщений для пропуска, чтобы получить пачку сообщений, в которых находится нужное
+        :param user: Пользователь
+        :param dialog_id: Диалог
+        :param message_id: ID сообщения для поиска
+        :param limit: Количество записей для выборки
+        """
+        dialog = Dialog.objects.filter(id=dialog_id).first()
+        if not dialog:
+            return {'to': user, 'data': 'Диалог не указан', 'exception': True}
+
+        dialog_users = dialog.users.all()
+        if user not in dialog_users and not user.is_support:
+            return {'to': user, 'data': 'Диалог не принадлежит пользователю', 'exception': True}
+
+        limit = limit or self._LIMIT_DEFAULT
+
+        count_messages = DialogMessage.objects.filter(dialog_id=dialog_id, id__gte=message_id)
+        count_messages = count_messages.order_by('-date_created').count()
+
+        div, mod = divmod(count_messages, limit)
+
+        # Если количество записей для пропуска при делении на количетсво записей на странице дает 0,
+        # то вернем это значение как offset
+        if mod == 0:
+            offset = count_messages
+
+        # Иначе вернем ближайшее целое, которое будет делиться на limit без остатка, при этом, включающее сообщение
+        # из поиска
+        else:
+            offset = div * limit
+
+        return {'data': {'offset': offset, 'limit': limit, 'to_skip_count': count_messages}, 'to': user}
+
     def _dialogs_messages_load(self, user: User, dialog_id=None, limit=None, offset=None, **kwargs) -> t.Optional[dict]:
         """
         Получение всех сообщений диалога
@@ -78,8 +125,8 @@ class DialogEvent:
         :param limit: Количество записей для выборки
         :param offset: Количество записей для пропуска
         """
-        offset = offset or 0
-        limit = limit or 20
+        offset = offset or self._OFFSET_DEFAULT
+        limit = limit or self._LIMIT_DEFAULT
 
         if not dialog_id:
             return {'to': user, 'data': 'Не указан `dialog_id`', 'exception': True}
@@ -91,7 +138,7 @@ class DialogEvent:
         messages = DialogMessage.objects.filter(dialog=dialog).order_by('-date_created')
 
         messages_count = messages.count()
-        messages = messages[offset:offset+limit]
+        messages = messages[offset:offset + limit]
 
         messages = sorted(messages, key=lambda message: message.date_created)
         context = {'user': user, 'base_url': kwargs.get('base_url')}
@@ -126,8 +173,8 @@ class DialogEvent:
         message = DefaultDialogMessageWithReplySerializers(message, context=context).data
         return {'data': message, 'to': dialog_users}
 
+    @staticmethod
     def _dialogs_messages_create(
-            self,
             user: User,
             dialog_id: int = None,
             body: str = None,
