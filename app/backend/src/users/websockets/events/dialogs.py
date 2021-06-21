@@ -202,7 +202,7 @@ class DialogEvent:
             }
 
         mailgun = EmailNotification(
-            subject_template_raw='Новое сообщение от %s' % user.email,
+            subject_template_raw='Новое сообщение от %s %s' % (user.first_name, user.last_name),
             email_template_name=email_template_name,
         )
 
