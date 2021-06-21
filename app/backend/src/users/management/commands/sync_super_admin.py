@@ -22,4 +22,7 @@ class Command(BaseCommand):
             pass
         else:
             user.groups.add(Group.objects.get(id=GROUP_ADMINISTRATOR))
+            user.first_name = 'admin'
+            user.last_name = 'admin'
+            user.middle_name = 'admin'
             user.save()
