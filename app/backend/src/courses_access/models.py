@@ -1,4 +1,4 @@
-import typing
+import typing as t
 from datetime import timedelta
 
 from django.core.serializers.json import DjangoJSONEncoder
@@ -7,7 +7,8 @@ from django.forms import model_to_dict
 from django.utils import timezone
 
 from courses.models import Course, CourseTheme, CourseLesson, LessonFragment
-from courses_access.utils import force_int_pk, to_snake_case
+from courses_access.utils.any_ import force_int_pk, to_snake_case
+from courses_access.utils import cache_access
 from providers.mailgun.mixins import EmailNotification
 from users.models import User
 
@@ -209,7 +210,7 @@ class Access(models.Model):
         )
 
     @force_int_pk
-    def get_next_course_theme(self, pk: int = None) -> typing.Optional[object]:
+    def get_next_course_theme(self, pk: int = None) -> t.Optional[object]:
         """
         Метод получает следующую тему курса, если она существует
         :param pk: Уникальный id темы от которой идет отсчет
@@ -231,7 +232,7 @@ class Access(models.Model):
         self.set_status_course_lesson(pk=pk, status=self.STATUS_COMPLETED, date_completed=timezone.now())
 
     @force_int_pk
-    def get_next_course_lesson(self, pk: int = None) -> typing.Optional[object]:
+    def get_next_course_lesson(self, pk: int = None) -> t.Optional[object]:
         """
         Метод возвращает информацию по доступу к следующему уроку, если он существует
         :param pk: Уникальный id урока
@@ -250,7 +251,7 @@ class Access(models.Model):
                     return None
         return None
 
-    def get_direction_obj(self, to_struct: str, pk: int, direction) -> typing.Optional[object]:
+    def get_direction_obj(self, to_struct: str, pk: int, direction) -> t.Optional[object]:
         """
         Метод вернет предыдущий/следующий объект для нужной структуры по ее id
         Доступыне стурктуры:
@@ -298,7 +299,7 @@ class Access(models.Model):
         self.set_status_lesson_fragment(pk=pk, status=self.STATUS_COMPLETED, date_completed=timezone.now())
 
     @force_int_pk
-    def get_next_lesson_fragment(self, pk: int = None) -> typing.Optional[object]:
+    def get_next_lesson_fragment(self, pk: int = None) -> t.Optional[object]:
         """
         Метод получает следующий фрагмент урока
         - Если следующего фрагмента не существует — метод вернет None
@@ -403,7 +404,7 @@ class Access(models.Model):
                 self.set__course_lesson__lesson_fragment(pk=_course_lesson['pk'])
                 break
 
-    def update_structs(self) -> None:
+    def update_access_structs(self, ) -> None:
         """
         Метод обновляет все структуры курса для пользователя
         """
@@ -411,17 +412,16 @@ class Access(models.Model):
 
         course_lessons = []
         lesson_fragments = []
-
-        course_themes = self._merge(
-            to_struct='course_theme', new_struct_data=queryset_course_themes
+        course_themes = self._extension_access_struct(
+            to_struct='course_theme', data=queryset_course_themes
         )
 
         for _theme in queryset_course_themes.order_by('order'):
             _course_lessons = _theme.courselesson_set.all().order_by('order')
             course_lessons.extend(
-                self._merge(
+                self._extension_access_struct(
                     to_struct='course_lesson',
-                    new_struct_data=_course_lessons,
+                    data=_course_lessons,
                 )
             )
 
@@ -429,75 +429,27 @@ class Access(models.Model):
                 _lesson_fragments = _course_lesson.lessonfragment_set.all().order_by('id')
 
                 lesson_fragments.extend(
-                    self._merge(
+                    self._extension_access_struct(
                         to_struct='lesson_fragment',
-                        new_struct_data=_lesson_fragments,
+                        data=_lesson_fragments,
                     )
                 )
 
-        self.course_theme = self._update_none_statuses(course_themes)
-        self.course_lesson = self._update_none_statuses(course_lessons)
-        self.lesson_fragment = self._update_none_statuses(lesson_fragments)
+        self.course_theme = self._extension_access_status(course_themes, to_struct='course_theme')
+        self.course_lesson = self._extension_access_status(course_lessons, to_struct='course_lesson')
+        self.lesson_fragment = self._extension_access_status(lesson_fragments, to_struct='lesson_fragment')
 
         self.save(update_fields=['course_theme', 'course_lesson', 'lesson_fragment', 'date_updated'])
 
-    def _update_none_statuses(self, new_struct_data: typing.List[dict]) -> list:
+    def _extension_access_struct(
+            self, to_struct: str, data: t.List[t.Union[CourseTheme, CourseLesson, LessonFragment]]) -> t.List[dict]:
         """
-        Метод обновляет статусы для новых, ранее неизвестных, элементов структуры
-        :param new_struct_data: Данные для обновления
+        Метод расширяет новые данные старыми статусами и дополнительными данными
+        Если объект новый, то ему будет присвоен статус None для последующего определения на основе соседних объектов
+        :param to_struct: Указание с какой структурой работать
+        :param data: Новые для обновления
         """
-        if self.status == self.STATUS_COMPLETED:
-            return [{**item, 'status': self.STATUS_COMPLETED} for item in new_struct_data]
-
-        # Отдаем приоритет первому уроку в прогрессе
-        control_index = None
-        for idx, item in enumerate(new_struct_data):
-            if item['status'] == self.STATUS_IN_PROGRESS:
-                control_index = idx
-
-        # Если уроков в прогрессе нет, то ищем последний доступный
-        if control_index is None:
-            for idx, item in enumerate(new_struct_data):
-                if item['status'] == self.STATUS_AVAILABLE:
-                    control_index = idx
-
-        # Если последнего доступного нет, то ищем последний завершенный (Такого случить не должно, но все-таки)
-        if control_index is None:
-            for idx, item in enumerate(new_struct_data):
-                if item['status'] == self.STATUS_COMPLETED:
-                    control_index = idx
-
-        result = []
-        nasty_status = self.STATUS_COMPLETED
-
-        if control_index == 0:
-            status = new_struct_data[control_index]['status']
-            nasty_status = self.STATUS_AVAILABLE if status is None else status
-
-        for idx, item in enumerate(new_struct_data):
-
-            if idx == control_index:
-                status = new_struct_data[control_index]['status']
-            else:
-                status = self.STATUS_BLOCK if idx > control_index else nasty_status
-
-            result.append({**item, 'status': status, 'date_updated': timezone.now()})
-
-        return result
-
-    def _merge(self, to_struct: str, new_struct_data: typing.List[dict]) -> list:
-        """
-        Метод мерджит новые данные в старые данные структры, перенося новые данные на старые статусы
-        Если структура новая, то ей проставляется статус None, который в дальнейшем доолжен быть доопределен
-        Доступыне стурктуры:
-            - CourseTheme
-            - CourseLesson
-            - LessonFragment
-        :param to_struct: Название структуры
-        :param new_struct_data: Новые данные для структуруы
-        """
-
-        addition_kwargs_mapping = {
+        _extension_funcs_mapping = {
             'course_theme': lambda theme: dict(
                 free_access=theme.free_access, pk=theme.pk
             ),
@@ -511,20 +463,86 @@ class Access(models.Model):
             ),
         }
 
-        get_addition_kwargs = addition_kwargs_mapping.get(to_struct)
+        to_struct = to_snake_case(to_struct)
+        extension_func = _extension_funcs_mapping.get(to_struct)
+        extension_result = []
 
-        # Если старый объект структуры не равен объекту новой структуры и количество объектов не менялось,
-        # то мы можем просто перезаписать новую структуру со старым статусом
-        result = []
-        for object_new_struct in new_struct_data:
-            object_old_struct = self.get_object(to_struct, pk=object_new_struct.pk)
+        for item_struct in data:
+            object_old_struct = self.get_object(to_struct, pk=item_struct.pk)
 
-            status = object_old_struct.status if object_old_struct else None
-            result.append(self._simple_struct(**get_addition_kwargs(object_new_struct), status=status))
+            if object_old_struct:
 
-        return result
+                # Если структура ранее ожидалась на корректировку, то переводим ее немедленную корректировку, а
+                # ожидание корректировки удаляем
+                if cache_access.exists_pending_adjustment(to_struct, item_struct.pk):
+                    cache_access.delete_pending_adjustment(to_struct, item_struct.pk)
+                    kwargs_statuses = dict(status=None)
 
-    def check_manual_access(self, to_struct: str, pk: int) -> typing.Optional[bool]:
+                else:
+                    kwargs_statuses = dict(status=object_old_struct.status)
+            else:
+                kwargs_statuses = dict(status=None)
+
+                # Если структура только добавлена, то ставим на ожидание корректировки
+                cache_access.set_pending_adjustment(to_struct, item_struct.pk)
+
+            extension_result.append(
+                self._simple_struct(
+                    **extension_func(item_struct), **kwargs_statuses,
+                )
+            )
+
+        return extension_result
+
+    def _extension_access_status(self, data: t.List[dict], to_struct: str) -> list:
+        """
+        Метод обновляет статусы для новых, ранее неизвестных, элементов структуры
+        :param data: Данные для обновления статусов
+        :param to_struct: Структура данных, с которой происходит работа
+        """
+
+        # Если курс завершен, то нет смысла что-то проверять, просто открываем доступ к новым/обновленным структурам
+        if self.status == self.STATUS_COMPLETED:
+            return [{**item, 'status': self.STATUS_AVAILABLE} for item in data]
+
+        # Отдаем приоритет первому уроку в прогрессе
+        control_index = None
+        for idx, item in enumerate(data):
+            if item['status'] == self.STATUS_IN_PROGRESS:
+                control_index = idx
+
+        # Если уроков в прогрессе нет, то ищем последний доступный
+        if control_index is None:
+            for idx, item in enumerate(data):
+                if item['status'] == self.STATUS_AVAILABLE:
+                    control_index = idx
+
+        # Если последнего доступного нет, то ищем последний завершенный (Такого случить не должно, но все-таки)
+        if control_index is None:
+            for idx, item in enumerate(data):
+                if item['status'] == self.STATUS_COMPLETED:
+                    control_index = idx
+
+        updated_struct = []
+        nasty_status = self.STATUS_AVAILABLE
+
+        # Если самый первый элемент структуры без статуса, то делаем его просто доступным
+        if control_index == 0:
+            status = data[control_index]['status']
+            nasty_status = self.STATUS_AVAILABLE if status is None else status
+
+        for idx, item in enumerate(data):
+
+            if idx == control_index:
+                status = data[control_index]['status']
+            else:
+                status = self.STATUS_BLOCK if idx > control_index else nasty_status
+
+            updated_struct.append({**item, 'status': status, 'date_updated': timezone.now()})
+
+        return updated_struct
+
+    def check_manual_access(self, to_struct: str, pk: int) -> t.Optional[bool]:
         """
         Метод проверяет ручной доступ к темам/урокам/фрагментам
         Доступыне стурктуры:
@@ -557,7 +575,7 @@ class Access(models.Model):
                 return None
             return self.manual_access.all().filter(id=lesson_fragment.course_lesson_id).exists()
 
-    def count_by_status(self, to_struct: str, status: int = None, _where: typing.Callable = None) -> int:
+    def count_by_status(self, to_struct: str, status: int = None, _where: t.Callable = None) -> int:
         """
         Метод возвращает количество элементов структуры, которые удовлетворяют статусу
         Доступыне стурктуры:
@@ -663,7 +681,7 @@ class Access(models.Model):
                 return self._struct_to_object(**item)
         return None
 
-    def get_learning_speed(self, to_struct: str) -> typing.Optional[dict]:
+    def get_learning_speed(self, to_struct: str) -> t.Optional[dict]:
         """
         Метод считает время прохождения каждого элмента для одной стуркутуры данных:
             - CourseTheme
@@ -821,7 +839,7 @@ class Access(models.Model):
             self.access_type in self.AVAILABLE_ACCESS_TYPES_FULL
         )
 
-    def check_learning_speed(self) -> typing.Optional[dict]:
+    def check_learning_speed(self) -> t.Optional[dict]:
         """
         Проверка скорости прохождения тем курса:
         Условия пропуска проверки:
@@ -883,7 +901,7 @@ class Access(models.Model):
         return type('AccessSimple', (), kwargs)
 
     @staticmethod
-    def _simple_struct(pk: int, status: typing.Optional[int], **kwargs) -> dict:
+    def _simple_struct(pk: int, status: t.Optional[int], **kwargs) -> dict:
         """
         Метод возвращает пустую структкру для записи модели доступа
         :param pk: ID модели

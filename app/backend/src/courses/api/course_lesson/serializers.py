@@ -9,7 +9,7 @@ from courses_access.api.serializers import DetailAccessSerializer, DetailAccessW
 from collections import defaultdict
 from courses_access.common.serializers import AccessBaseSerializers
 from courses_access.models import Access
-from courses_access.utils import get_course_from_struct
+from courses_access.utils.any_ import get_course_from_struct
 
 
 class DefaultCourseLessonSerializers(AccessBaseSerializers):
