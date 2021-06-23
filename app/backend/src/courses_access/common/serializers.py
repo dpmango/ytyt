@@ -3,7 +3,7 @@ from rest_framework import serializers
 
 from courses.models import *
 from courses_access.models import Access
-from courses_access.utils.any_ import get_course_from_struct
+from courses_access.utils.general import get_course_from_struct
 
 
 class AccessBaseSerializers(serializers.ModelSerializer):
