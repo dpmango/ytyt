@@ -17,6 +17,7 @@ class ConsoleOutput:
     def flush(self):
         self.cons.value += self.buf
         self.buf = ''
+        # self.cons.dispatchEvent(new Event('input'))
 
     def __len__(self):
         return len(self.buf)
