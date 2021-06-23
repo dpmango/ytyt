@@ -1,14 +1,28 @@
+import functools
 import typing
+
 from courses.models import *
 
 
 def force_int_pk(func):
+
+    @functools.wraps(func)
     def wrapper(*args, **kwargs):
         if 'pk' in kwargs:
             kwargs['pk'] = int(kwargs['pk'])
 
         return func(*args, **kwargs)
+    return wrapper
 
+
+def force_snake_case(func):
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        if 'to_struct' in kwargs:
+            kwargs['to_struct'] = to_snake_case(kwargs['to_struct'])
+
+        return func(*args, **kwargs)
     return wrapper
 
 
