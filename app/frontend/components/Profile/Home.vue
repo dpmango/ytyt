@@ -81,12 +81,12 @@
 
                   <ValidationProvider v-slot="{ errors }">
                     <UiInput
-                      :value="github"
+                      :value="repl_it"
                       type="text"
                       placeholder="Replit"
                       icon="repl"
                       icon-position="left"
-                      @onChange="(v) => (github = v)"
+                      @onChange="(v) => (repl_it = v)"
                     />
                   </ValidationProvider>
 
@@ -120,12 +120,13 @@ export default {
       isLoading: false,
       email: null,
       name: null,
-      github: null,
+      repl_it: null,
       avatar: null,
       notifications: null,
       avatarFile: null,
       avatarBlob: null,
       avatarError: null,
+      error: null,
     };
   },
   computed: {
@@ -148,7 +149,7 @@ export default {
 
       this.email = user.email;
       this.name = `${clear(user.first_name)} ${clear(user.middle_name)} ${clear(user.last_name)}`.trim();
-      this.github = user.github_url;
+      this.repl_it = user.repl_it_username;
       this.avatar = user.avatar;
       this.notifications = user.email_notifications;
     },
@@ -158,7 +159,7 @@ export default {
         return;
       }
 
-      const { email, name, notifications, github, avatarFile } = this;
+      const { email, name, notifications, repl_it, avatarFile } = this;
 
       const formatName = (str) => {
         const split = str.split(' ');
@@ -191,8 +192,8 @@ export default {
       if (last_name) {
         formData.append('last_name', last_name);
       }
-      if (github) {
-        formData.append('github_url', github);
+      if (repl_it) {
+        formData.append('repl_it_username', repl_it);
       }
 
       if (this.avatarFile) {
