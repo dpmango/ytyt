@@ -151,7 +151,7 @@ export default {
     }
 
     &::after {
-      right: 6px;
+      right: 7px;
       width: 6px;
       border-radius: 10px 0 0 10px;
       box-shadow: 10px 0 0 0 #ededed;
@@ -231,6 +231,7 @@ export default {
   &__lesson-name {
     font-size: 15px;
     line-height: 1.3;
+    transform: translateY(0.1em);
   }
   &__question {
     display: flex;

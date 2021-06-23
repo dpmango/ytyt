@@ -1,6 +1,4 @@
 import sys
-import time
-
 import tb as traceback
 
 
@@ -17,6 +15,7 @@ class ConsoleOutput:
     def flush(self):
         self.cons.value += self.buf
         self.buf = ''
+        # self.cons.dispatchEvent(new Event('input'))
 
     def __len__(self):
         return len(self.buf)
@@ -57,7 +56,6 @@ class EditorCodeBlocks:
         self.change_stdout_by_id(unique_id)
 
         src = codemirror.getValue()
-        time_start = time.perf_counter()
 
         try:
             ns = {'__name__': '__main__'}
@@ -68,7 +66,6 @@ class EditorCodeBlocks:
             state = 0
 
         sys.stdout.flush()
-        print('<completed in %6.2f ms>' % ((time.perf_counter() - time_start) * 1000.0))
         return state
 
     def change_stdout_by_id(self, unique_id):

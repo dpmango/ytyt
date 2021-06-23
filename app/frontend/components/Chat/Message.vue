@@ -3,7 +3,7 @@
     class="message"
     :data-id="message.id"
     :data-read="message.date_read ? 'true' : 'false'"
-    :data-support="message.user.is_support ? 'true' : 'false'"
+    :data-support="isSupportUser ? 'true' : 'false'"
     :class="[isIncoming ? 'message--incoming' : 'message--outcoming', message.isGhost && 'is-ghost']"
   >
     <div class="message__wrapper" :class="[isFile && 'is-file']">
@@ -72,6 +72,9 @@ export default {
     messageBody() {
       return this.message.body;
     },
+    isSupportUser() {
+      return this.message.user && this.message.user.is_support;
+    },
     isIncoming() {
       // this.message.user - TMP fix
       const isSupportMessage = this.message.user && this.message.user.is_support && this.user.is_support;
@@ -113,9 +116,14 @@ export default {
   },
   methods: {
     handleReplyClick() {
+      let replyText = this.message.markdown_body;
+      if (this.message.file) {
+        replyText = `Файл: ${this.message.file.file_name}`;
+      }
+
       this.setReply({
         id: this.message.id,
-        text: this.message.markdown_body,
+        text: replyText,
       });
     },
     handleFileClick() {

@@ -37,5 +37,8 @@ class Command(BaseCommand):
             if is_created:
                 logger.info('sync default group_id=%s, group_name=%s, email=%s' % (group_id, group, default_email))
                 user.set_password(default_password.value)
+                user.first_name = group_name.lower()
+                user.last_name = group_name.lower()
+                user.middle_name = group_name.lower()
                 user.groups.add(group)
                 user.save()

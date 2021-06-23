@@ -16,7 +16,13 @@
         <div class="brython__main">
           <textarea :id="`editor__${id}`" v-model="value" class="editor__block brython__editor-main"></textarea>
           <div class="brython__console">
-            <textarea :id="`console__${id}`" class="console__stdout" readonly autocomplete="off"></textarea>
+            <textarea
+              :id="`console__${id}`"
+              ref="textarea"
+              class="console__stdout"
+              readonly
+              autocomplete="off"
+            ></textarea>
           </div>
         </div>
       </div>
@@ -43,15 +49,35 @@ export default {
     },
   },
   // mounted() {
-  //   console.log('brython snippet mounted - id', this.id);
+  //   console.log('brython snippet mounted - id', this.id, this.ready);
   // },
+  watch: {
+    ready(newVal, oldVal) {
+      if (newVal === true) {
+        if (this.$refs.textarea) {
+          this.$refs.textarea.addEventListener('change', this.handleTextareaChange, false);
+        }
+      }
+    },
+  },
+
+  beforeDestroy() {
+    if (this.$refs.textarea) {
+      this.$refs.textarea.removeEventListener('change', this.handleTextareaChange, false);
+    }
+  },
+  methods: {
+    handleTextareaChange(e) {
+      console.log(e);
+    },
+  },
 };
 </script>
 
 <style lang="scss" scoped>
 .brython {
   position: relative;
-  margin: 1em 20px;
+  margin: 1em 0;
   .loader {
     position: absolute;
     background: rgba(white, 0.5);

@@ -88,6 +88,13 @@ class UserDetailSerializer(serializers.ModelSerializer):
 
         return data
 
+    @staticmethod
+    def validate_repl_it_username(value: str) -> str:
+        if not value.startswith('@'):
+            raise ValidationError('Введите имя пользователя в формате @username')
+
+        return value
+
     class Meta:
         model = User
         fields = (
@@ -95,7 +102,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
             'email',
             'first_name',
             'last_name',
-            'github_url',
+            'repl_it_username',
             'avatar',
             'thumbnail_avatar',
             'email_notifications',
@@ -178,6 +185,8 @@ class VerifyEmailSerializer(serializers.Serializer):
     token = serializers.CharField(required=False)
 
     def validate(self, attrs):
+
+        print(attrs)
 
         try:
             uid = force_text(uid_decoder(attrs['uid']))

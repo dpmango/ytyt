@@ -8,16 +8,18 @@
       <div class="editor">
         <input :id="_uid" ref="uploadInput" type="file" @change="handleUpload" />
 
-        <label :for="_uid" class="editor__attach">
-          <UiSvgIcon name="paper-clip" />
-        </label>
-        <div class="editor__body">
-          <div v-if="reply.id" class="editor__reply">
-            <span class="editor__reply-title">Ответ на: {{ reply.text }}</span>
-            <div class="editor__reply-delete" @click="handleReplyDelete">
-              <UiSvgIcon name="close" />
-            </div>
+        <div v-if="reply.id" class="editor__reply">
+          <div class="editor__reply-delete" @click="handleReplyDelete">
+            <UiSvgIcon name="close-bold" />
           </div>
+          <span class="editor__reply-title">{{ reply.text }}</span>
+        </div>
+
+        <div class="editor__body">
+          <label :for="_uid" class="editor__attach">
+            <UiSvgIcon name="paper-clip" />
+          </label>
+
           <vue-simplemde
             ref="markdownEditor"
             v-model="text"
@@ -58,6 +60,16 @@ export default {
       return this.$refs.markdownEditor.simplemde;
     },
     ...mapGetters('chat', ['activeDialog', 'reply']),
+  },
+  watch: {
+    reply: {
+      deep: true,
+      handler(reply) {
+        if (this.simplemde && reply.id) {
+          this.simplemde.codemirror.focus();
+        }
+      },
+    },
   },
   mounted() {
     if (this.simplemde) {
@@ -185,8 +197,6 @@ export default {
 <style lang="scss" scoped>
 .chat-submit {
   &__form {
-    display: flex;
-    align-items: center;
     padding-right: 10px;
     padding-top: 8px;
     padding-bottom: 8px;
@@ -203,35 +213,53 @@ export default {
 }
 
 .editor {
-  display: flex;
-  align-items: center;
-  flex: 1 1 auto;
   padding-left: 10px;
   &__reply {
     display: inline-flex;
     align-items: center;
-    padding-top: 6px;
-    padding-left: 5px;
-    font-size: 14px;
+    max-width: 100%;
+    min-width: 1px;
+    padding: 8px 10px 12px;
   }
   &__reply-title {
-    opacity: 0.6;
-    text-decoration: underline;
-    text-decoration-style: dashed;
+    display: inline-block;
+    position: relative;
+    font-size: 15px;
+    padding: 2px 10px;
+    @include text-overflow;
+    &::before {
+      display: inline-block;
+      content: ' ';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 2px;
+      height: 26px;
+      background: $colorPrimary;
+      border-radius: 1px;
+    }
   }
   &__reply-delete {
-    cursor: pointer;
-    margin-left: 4px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    min-width: 20px;
+    min-height: 20px;
+    margin-right: 12px;
     padding: 4px;
     font-size: 0;
-    opacity: 0.6;
-    transition: opacity 0.25s $ease, color 0.25s $ease;
+    border: 1px solid $colorGray;
+    border-radius: 50%;
+    color: $colorGray;
+    cursor: pointer;
+    transition: color 0.25s $ease, border 0.25s $ease;
     .svg-icon {
-      font-size: 12px;
+      font-size: 8.57px;
     }
     &:hover {
-      opacity: 1;
       color: $colorRed;
+      border-color: $colorRed;
     }
   }
   &__attach {
@@ -250,6 +278,8 @@ export default {
   }
   &__body {
     position: relative;
+    display: flex;
+    align-items: center;
     flex: 1 1 auto;
   }
 }

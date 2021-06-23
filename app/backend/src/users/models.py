@@ -166,7 +166,7 @@ class User(AbstractBaseUser,
 
     birthday = models.DateField('Дата рождения', blank=True, null=True)
     phone = models.CharField('Телефон', max_length=64, blank=True, null=True)
-    github_url = models.URLField('Гитхаб', null=True, blank=True)
+    repl_it_username = models.CharField('Юзернейм на repl.it', max_length=50, blank=True, null=True)
 
     objects = UserManager()
     reviewers = ReviewersManager()
