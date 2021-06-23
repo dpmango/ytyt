@@ -12,8 +12,8 @@ from courses_access.tasks import update_users_access
 
 def __update_access(signal_name: str, sender: t.Union[models.CourseTheme, models.CourseLesson], created: bool = None):
 
-    # prefix__{model-name}__{signal-name}
-    key = 'update_access__%s__%s' % (sender.__name__, signal_name)
+    # prefix__{signal-name}
+    key = 'update_access__%s' % signal_name
 
     last_update = cache.get(key)
     now = datetime.now().timestamp()
@@ -49,4 +49,9 @@ def update_access_theme_delete(sender, instance, *args, **kwargs):
 
 @receiver(post_delete, sender=models.CourseLesson)
 def update_access_lesson_delete(sender, instance, *args, **kwargs):
+    __update_access('post_delete', sender)
+
+
+@receiver(post_delete, sender=models.LessonFragment)
+def update_access_lesson_fragment_delete(sender, instance, *args, **kwargs):
     __update_access('post_delete', sender)

@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.db.models.signals import post_delete
 
 from courses.forms import CourseLessonCreationForm
 from courses.models import CourseLesson
@@ -19,3 +20,8 @@ class CourseLessonAdmin(admin.ModelAdmin):
         'title',
         'content',
     )
+
+    def delete_model(self, request, obj):
+        model = super().delete_model(request, obj)
+        post_delete.send(instance=None, sender=CourseLesson)
+        return model

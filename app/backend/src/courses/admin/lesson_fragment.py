@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.db.models.signals import post_delete
 
 from courses.models import LessonFragment
 
@@ -33,3 +34,8 @@ class LessonFragmentAdmin(admin.ModelAdmin):
         return obj.course_lesson.course_theme.title
     get_theme_title.short_description = 'Название Темы'
     get_theme_title.admin_order_field = 'course_lesson__course_theme__order'
+
+    def delete_model(self, request, obj):
+        model = super().delete_model(request, obj)
+        post_delete.send(instance=None, sender=LessonFragment)
+        return model
