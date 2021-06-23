@@ -110,6 +110,7 @@ export default {
 
         this.text = '';
         this.simplemde.value('');
+        this.setReply({ id: null, text: null });
         this.$emit('onSubmit');
         // this.simplemde.codemirror.refresh();
       }
