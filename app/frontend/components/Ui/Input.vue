@@ -91,9 +91,25 @@ export default {
       return typeof this.error === 'string' && !this.isFocused ? this.parseVeeError(this.error) : this.label;
     },
   },
+  mounted() {
+    document.addEventListener('onautocomplete', this.handleAutocompleate, false);
+  },
+  beforeDestroy() {
+    if (this.$refs.dialogs) {
+      document.removeEventListener('onautocomplete', this.handleAutocompleate, false);
+    }
+  },
   methods: {
     setValue(e) {
       this.$emit('onChange', e.target.value);
+    },
+    handleAutocompleate(e) {
+      if (parseInt(e.target.getAttribute('id')) === this._uid) {
+        if (e.target.hasAttribute('autocompleted')) {
+          this.isFocused = true;
+        }
+      }
+      // e.preventDefault(); // prevent autocomplete
     },
     handleFocus(e) {
       this.isFocused = true;

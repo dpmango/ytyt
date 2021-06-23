@@ -20,6 +20,11 @@ export default {
       { rel: 'manifest', href: '/favicon/site.webmanifest' },
       { rel: 'mask-icon', color: '#5bbad5', href: '/favicon/safari-pinned-tab.svg' },
     ],
+    script: [
+      {
+        src: 'https://unpkg.com/detect-autofill/dist/detect-autofill.js',
+      },
+    ],
   },
 
   // Global CSS: https://go.nuxtjs.dev/config-css
