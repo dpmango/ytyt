@@ -138,9 +138,9 @@ export default {
         scrollToEnd(0, this.$refs.dialogs);
 
         this.setReply({
-        id: null,
-        text: null,
-      });
+          id: null,
+          text: null,
+        });
       }, 200);
     },
     handleClickBack() {
