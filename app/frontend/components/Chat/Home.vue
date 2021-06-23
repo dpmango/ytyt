@@ -136,6 +136,11 @@ export default {
       this.setActiveDialog(id);
       setTimeout(() => {
         scrollToEnd(0, this.$refs.dialogs);
+
+        this.setReply({
+          id: null,
+          text: null,
+        });
       }, 200);
     },
     handleClickBack() {
@@ -211,7 +216,7 @@ export default {
       scrollToEnd(500, this.$refs.dialogs);
     },
     ...mapActions('chat', ['connect', 'disconnect', 'getDialogs', 'getMessages', 'readMessage']),
-    ...mapMutations('chat', ['setActiveDialog', 'resetMessages']),
+    ...mapMutations('chat', ['setActiveDialog', 'resetMessages', 'setReply']),
   },
 };
 </script>

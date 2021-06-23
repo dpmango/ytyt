@@ -14,6 +14,7 @@ export const rebuildSocket = async ({ $config, $store }) => {
 
   const socketWithToken = `${$config.socketURL}?token=${$store.state.auth.token}`;
 
+  // console.log('rebuilding sockets', socketWithToken);
   Vue.use(VueNativeSock, socketWithToken, {
     store: $store,
     mutations,
@@ -24,6 +25,7 @@ export const rebuildSocket = async ({ $config, $store }) => {
     reconnectionDelay: 3000,
   });
 
+  // console.log('rebuild - should connect socket ? ', !$store.getters['chat/isConnected']);
   if (!$store.getters['chat/isConnected']) {
     $store.dispatch('chat/connect');
   }

@@ -20,6 +20,11 @@ export default {
       { rel: 'manifest', href: '/favicon/site.webmanifest' },
       { rel: 'mask-icon', color: '#5bbad5', href: '/favicon/safari-pinned-tab.svg' },
     ],
+    script: [
+      {
+        src: 'https://unpkg.com/detect-autofill/dist/detect-autofill.js',
+      },
+    ],
   },
 
   // Global CSS: https://go.nuxtjs.dev/config-css
@@ -38,6 +43,7 @@ export default {
     { src: '~/plugins/markdown', mode: 'client' },
     { src: '~/plugins/toast', mode: 'client' },
     { src: '~/plugins/mask', mode: 'client' },
+    { src: '~/plugins/autosize', mode: 'client' },
     { src: '~/plugins/socket', mode: 'client' },
     { src: '~/plugins/vee-validate', mode: 'client' },
     { src: '~/plugins/swiper', mode: 'client', ssr: false },

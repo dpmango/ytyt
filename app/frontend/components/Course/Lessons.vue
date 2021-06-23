@@ -125,6 +125,10 @@ export default {
     margin-top: 7px;
     font-size: 14px;
   }
+  &__title,
+  &__description {
+    max-width: 600px;
+  }
   &.is-compleated {
     border: 1px solid rgba(23, 24, 24, 0.15);
     opacity: 0.6;
