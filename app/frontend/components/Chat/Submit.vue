@@ -61,6 +61,16 @@ export default {
     },
     ...mapGetters('chat', ['activeDialog', 'reply']),
   },
+  watch: {
+    reply: {
+      deep: true,
+      handler(reply) {
+        if (this.simplemde && reply.id) {
+          this.simplemde.codemirror.focus();
+        }
+      },
+    },
+  },
   mounted() {
     if (this.simplemde) {
       this.simplemde.codemirror.on('keydown', (instance, event) => {

@@ -116,9 +116,14 @@ export default {
   },
   methods: {
     handleReplyClick() {
+      let replyText = this.message.markdown_body;
+      if (this.message.file) {
+        replyText = `Файл: ${this.message.file.file_name}`;
+      }
+
       this.setReply({
         id: this.message.id,
-        text: this.message.markdown_body,
+        text: replyText,
       });
     },
     handleFileClick() {
