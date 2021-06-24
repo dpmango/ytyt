@@ -140,7 +140,7 @@ export default {
       });
 
       setTimeout(() => {
-        console.log('speed 0 ');
+        // console.log('speed 0 ');
         scrollToEnd(0, this.$refs.dialogs);
       }, 200);
     },
