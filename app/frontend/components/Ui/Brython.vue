@@ -14,15 +14,14 @@
         </div>
 
         <div class="brython__main">
-          <textarea :id="`editor__${id}`" v-model="value" class="editor__block brython__editor-main"></textarea>
+          <textarea
+            :id="`editor__${id}`"
+            ref="editor"
+            v-model="value"
+            class="editor__block brython__editor-main"
+          ></textarea>
           <div class="brython__console">
-            <textarea
-              :id="`console__${id}`"
-              ref="textarea"
-              class="console__stdout"
-              readonly
-              autocomplete="off"
-            ></textarea>
+            <textarea :id="`console__${id}`" ref="textarea" class="console__stdout" autocomplete="off"></textarea>
           </div>
         </div>
       </div>
@@ -54,25 +53,73 @@ export default {
   watch: {
     ready(newVal, oldVal) {
       if (newVal === true) {
+        if (this.$refs.editor) {
+          setTimeout(() => {
+            const CM = this.$refs.editor.parentElement.querySelector('.CodeMirror');
+            if (CM) {
+              CM.CodeMirror.on('keydown', this.handleTextareaKeydown);
+            }
+          }, 300);
+        }
         if (this.$refs.textarea) {
-          this.$refs.textarea.addEventListener('change', this.handleTextareaChange, false);
+          this.$refs.textarea.addEventListener('stdout_result', this.handleTextareaChange, false);
         }
       }
     },
   },
 
   beforeDestroy() {
+    if (this.$refs.editor) {
+      const CM = this.$refs.editor.parentElement.querySelector('.CodeMirror');
+      if (CM) {
+        CM.CodeMirror.off('keydown', this.handleTextareaKeydown);
+      }
+    }
     if (this.$refs.textarea) {
-      this.$refs.textarea.removeEventListener('change', this.handleTextareaChange, false);
+      this.$refs.textarea.removeEventListener('stdout_result', this.handleTextareaChange, false);
     }
   },
   methods: {
     handleTextareaChange(e) {
-      console.log(e);
+      let rows = e.stdout_rows || 1;
+
+      if (e.stdout_result) {
+        const temp_stdout = document.createElement('div');
+        temp_stdout.innerHTML = e.stdout_result;
+        temp_stdout.classList.add('brython__stdout');
+        document.querySelector('.lesson__box').appendChild(temp_stdout);
+
+        rows = Math.ceil(temp_stdout.offsetHeight / 20);
+        if (rows <= 0) rows = 1;
+        if (rows >= 7) rows = 7;
+
+        temp_stdout.remove();
+      }
+
+      e.target.setAttribute('rows', rows);
+    },
+    handleTextareaKeydown(instance, e) {
+      if ((e.ctrlKey || e.shiftKey) && e.keyCode === 13) {
+        e.preventDefault();
+
+        document.querySelector(`#run__${this.id}`).dispatchEvent(new Event('click'));
+      }
     },
   },
 };
 </script>
+
+<style lang="scss">
+.brython__stdout {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 8px 36px;
+  font-size: 15px;
+  opacity: 0.01;
+}
+</style>
 
 <style lang="scss" scoped>
 .brython {

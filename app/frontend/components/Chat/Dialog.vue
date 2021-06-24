@@ -142,7 +142,7 @@ export default {
   &__description {
     font-size: 14px;
     color: rgba($fontColor, 0.7);
-    min-height: 22px;
+    height: 22px;
     ::v-deep br {
       display: none;
     }
@@ -155,6 +155,19 @@ export default {
         margin: 0 !important;
         font-weight: 400 !important;
         @include text-overflow;
+      }
+    }
+    ::v-deep * {
+      margin: 0 !important;
+    }
+    ::v-deep {
+      ol,
+      ul {
+        margin: 0;
+        padding: 0;
+        li {
+          display: inline-block;
+        }
       }
     }
   }

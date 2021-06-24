@@ -134,13 +134,14 @@ export default {
     async setDialog(id) {
       await this.getMessages({ id });
       this.setActiveDialog(id);
-      setTimeout(() => {
-        scrollToEnd(0, this.$refs.dialogs);
+      this.setReply({
+        id: null,
+        text: null,
+      });
 
-        this.setReply({
-          id: null,
-          text: null,
-        });
+      setTimeout(() => {
+        // console.log('speed 0 ');
+        scrollToEnd(0, this.$refs.dialogs);
       }, 200);
     },
     handleClickBack() {
@@ -201,7 +202,9 @@ export default {
         const rect = message.getBoundingClientRect();
         const isVisible = rect.top - dialogsTop >= 0 && rect.top - rect.height <= offsetHeight;
         const isSupportMessage = message.getAttribute('data-support') === 'true' && this.user.is_support;
+
         if (isVisible && !isSupportMessage) {
+          console.log('reading message', message.getAttribute('data-id'));
           this.readMessage({
             dialog_id: this.activeDialog,
             message_id: message.getAttribute('data-id'),
