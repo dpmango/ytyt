@@ -15,7 +15,8 @@
         <span>{{ message.lesson.title }}</span>
       </NuxtLink>
       <div v-if="message.reply" class="message__reply-body" @click="handleReplyOriginClick">
-        <span>{{ message.reply.markdown_body }}</span>
+        <span v-if="message.reply.file">Файл: {{ message.reply.file.file_name }}</span>
+        <span v-else>{{ message.reply.markdown_body }}</span>
       </div>
 
       <div

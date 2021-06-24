@@ -134,13 +134,14 @@ export default {
     async setDialog(id) {
       await this.getMessages({ id });
       this.setActiveDialog(id);
-      setTimeout(() => {
-        scrollToEnd(0, this.$refs.dialogs);
+      this.setReply({
+        id: null,
+        text: null,
+      });
 
-        this.setReply({
-          id: null,
-          text: null,
-        });
+      setTimeout(() => {
+        console.log('speed 0 ');
+        scrollToEnd(0, this.$refs.dialogs);
       }, 200);
     },
     handleClickBack() {
