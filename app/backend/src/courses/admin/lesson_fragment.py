@@ -1,8 +1,7 @@
 from django.contrib import admin
+from django.db.models.signals import post_delete
 
 from courses.models import LessonFragment
-from courses_access.tasks import update_user_access
-from courses_access.utils import get_course_from_struct
 
 
 @admin.register(LessonFragment)
@@ -36,23 +35,7 @@ class LessonFragmentAdmin(admin.ModelAdmin):
     get_theme_title.short_description = 'Название Темы'
     get_theme_title.admin_order_field = 'course_lesson__course_theme__order'
 
-    def save_model(self, request, obj, form, change):
-        """
-        Переопределенный метод дополнительно обновляет доступы к структурам данных для пользователя
-        """
-        model = super().save_model(request, obj, form, change)
-
-        course_id = get_course_from_struct(obj)
-        update_user_access(course_id=course_id)
-
-        return model
-
     def delete_model(self, request, obj):
-        """
-        Переопределенный метод дополнительно обновляет доступы к структурам данных для пользователя
-        """
-
-        course_id = get_course_from_struct(obj)
-        update_user_access(course_id=course_id)
-
-        return super().delete_model(request, obj)
+        model = super().delete_model(request, obj)
+        post_delete.send(instance=None, sender=LessonFragment)
+        return model

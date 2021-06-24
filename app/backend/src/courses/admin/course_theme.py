@@ -1,10 +1,9 @@
 from adminsortable2.admin import SortableInlineAdminMixin
 from django.contrib import admin
+from django.db.models.signals import post_save, post_delete
 
 from courses.admin.course_lesson import CourseLessonCreationForm
 from courses.models import CourseTheme, CourseLesson
-from courses_access.tasks import update_user_access
-from courses_access.utils import get_course_from_struct
 
 
 class CourseLessonInline(SortableInlineAdminMixin, admin.TabularInline):
@@ -29,27 +28,18 @@ class CourseThemeAdmin(admin.ModelAdmin):
         return obj.course.title
     get_course_title.short_description = 'Название курса'
 
-    def save_model(self, request, obj, form, change):
-        """
-        Переопределенный метод дополнительно обновляет доступы к структурам данных для пользователя
-        """
-        if obj.order in (None, 0):
-            max_order = CourseTheme.objects.order_by('-order').first()
-            obj.order = max_order.order + 1 if max_order else 0
+    def save_formset(self, request, form, formset, change):
+        data = super().save_formset(request, form, formset, change)
 
-        model = super().save_model(request, obj, form, change)
+        print(formset.changed_objects)
 
-        course_id = get_course_from_struct(obj)
-        update_user_access(course_id=course_id)
+        # Дополнительно инициализируем сигнал для изменения порядка следования элементов
+        # Сигнал будет проигнорирован, если ранее были отправлены сигналы с изменениями
+        post_save.send(instance=None, sender=CourseLesson)
 
-        return model
+        return data
 
     def delete_model(self, request, obj):
-        """
-        Переопределенный метод дополнительно обновляет доступы к структурам данных для пользователя
-        """
-
-        course_id = get_course_from_struct(obj)
-        update_user_access(course_id=course_id)
-
-        return super().delete_model(request, obj)
+        model = super().delete_model(request, obj)
+        post_delete.send(instance=None, sender=CourseLesson)
+        return model
