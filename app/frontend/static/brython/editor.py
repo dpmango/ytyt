@@ -71,7 +71,7 @@ class EditorCodeBlocks:
 
     def change_stdout_by_id(self, unique_id):
         console_output = ConsoleOutput(doc=self.doc, console_id='console__%s' % unique_id)
-        console_output.cons.dispatchEvent(DOMEvent('stdout_result'))
+        console_output.cons.dispatchEvent(DOMEvent('stdout_result', {'stdout': 123}))
 
         sys.stdout = console_output
         sys.stderr = console_output

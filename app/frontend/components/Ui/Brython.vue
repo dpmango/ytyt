@@ -49,7 +49,7 @@ export default {
     ready(newVal, oldVal) {
       if (newVal === true) {
         if (this.$refs.textarea) {
-          this.$refs.textarea.addEventListener('change', this.handleTextareaChange, false);
+          this.$refs.textarea.addEventListener('stdout_result', this.handleTextareaChange, false);
           this.$refs.textarea.addEventListener('keydown', this.handleTextareaKeydown, false);
         }
       }
@@ -58,19 +58,29 @@ export default {
 
   beforeDestroy() {
     if (this.$refs.textarea) {
-      this.$refs.textarea.removeEventListener('change', this.handleTextareaChange, false);
+      this.$refs.textarea.removeEventListener('stdout_result', this.handleTextareaChange, false);
       this.$refs.textarea.removeEventListener('keydown', this.handleTextareaKeydown, false);
     }
   },
   methods: {
     handleTextareaChange(e) {
       console.log(e);
+
+      setTimeout(() => {
+        const span = document.createElement('span');
+        span.innerHTML = e.target.value;
+        document.body.appendChild(span);
+
+        console.log(span.offsetHeight);
+
+        e.target.setAttribute('rows', 7);
+      }, 300);
     },
     handleTextareaKeydown(e) {
       if ((e.ctrlKey || e.shiftKey) && e.keyCode === 13) {
         e.preventDefault();
 
-        console.log('should run brython script');
+        document.querySelector(`#run__${this.id}`).dispatchEvent(new Event('click'));
       }
     },
   },
