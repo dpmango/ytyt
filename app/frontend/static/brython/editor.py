@@ -16,6 +16,7 @@ class ConsoleOutput:
     def flush(self):
         self.cons.value += self.buf
         self.buf = ''
+        return self.cons.value
 
     def __len__(self):
         return len(self.buf)
@@ -54,7 +55,7 @@ class EditorCodeBlocks:
         codemirror = self.get_editor(unique_id)
 
         self.clean_console_by_id(unique_id)
-        self.change_stdout_by_id(unique_id)
+        console_output = self.change_stdout_by_id(unique_id)
 
         src = codemirror.getValue()
 
@@ -66,15 +67,18 @@ class EditorCodeBlocks:
             traceback.print_exc(file=sys.stderr)
             state = 0
 
-        sys.stdout.flush()
+        buf = sys.stdout.flush()
+        self.__event_stdout_result(console_output, str(buf))
+
         return state
 
     def change_stdout_by_id(self, unique_id):
         console_output = ConsoleOutput(doc=self.doc, console_id='console__%s' % unique_id)
-        console_output.cons.dispatchEvent(DOMEvent('stdout_result', {'stdout': 123}))
 
         sys.stdout = console_output
         sys.stderr = console_output
+
+        return console_output
 
     def clean_console_by_id(self, unique_id):
         self.doc['console__%s' % unique_id].value = ''
@@ -93,3 +97,9 @@ class EditorCodeBlocks:
 
     def get_unique_id(self, string):
         return string.split('__')[-1]
+
+    def __event_stdout_result(self, element, buf):
+        event = DOMEvent('stdout_result')
+        event.stdout_rows = buf.count('\n')
+        event.stdout = buf
+        element.cons.dispatchEvent(event)
