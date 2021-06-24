@@ -86,18 +86,19 @@ export default {
           padding-bottom: 9px;
         }
       }
-      // &.is-focused {
-      //   .input__label {
-      //     top: 8px;
-      //     font-size: 12px;
-      //   }
-      // }
-      // &.has-error {
-      //   .input__label {
-      //     top: 8px;
-      //     font-size: 12px;
-      //   }
-      // }
+
+      &.is-focused {
+        .input__label {
+          top: 8px;
+          font-size: 12px;
+        }
+      }
+      &.has-error {
+        .input__label {
+          top: 8px;
+          font-size: 12px;
+        }
+      }
     }
   }
 }

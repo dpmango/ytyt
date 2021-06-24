@@ -1,4 +1,12 @@
 export default {
+  // Vue config:  https://nuxtjs.org/docs/2.x/configuration-glossary/configuration-vue-config
+  vue: {
+    config: {
+      productionTip: true,
+      devtools: false,
+    },
+  },
+
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
     title: 'ytyt',
@@ -117,6 +125,10 @@ export default {
       // Add native Sentry config here
       // https://docs.sentry.io/platforms/javascript/guides/vue/configuration/options/
     },
+  },
+
+  alias: {
+    vue: 'vue/dist/vue.min.js',
   },
 
   // target: 'static',
