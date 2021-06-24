@@ -16,13 +16,7 @@
         <div class="brython__main">
           <textarea :id="`editor__${id}`" v-model="value" class="editor__block brython__editor-main"></textarea>
           <div class="brython__console">
-            <textarea
-              :id="`console__${id}`"
-              ref="textarea"
-              class="console__stdout"
-              readonly
-              autocomplete="off"
-            ></textarea>
+            <textarea :id="`console__${id}`" ref="textarea" class="console__stdout" autocomplete="off"></textarea>
           </div>
         </div>
       </div>
@@ -56,6 +50,7 @@ export default {
       if (newVal === true) {
         if (this.$refs.textarea) {
           this.$refs.textarea.addEventListener('change', this.handleTextareaChange, false);
+          this.$refs.textarea.addEventListener('keydown', this.handleTextareaKeydown, false);
         }
       }
     },
@@ -64,11 +59,19 @@ export default {
   beforeDestroy() {
     if (this.$refs.textarea) {
       this.$refs.textarea.removeEventListener('change', this.handleTextareaChange, false);
+      this.$refs.textarea.removeEventListener('keydown', this.handleTextareaKeydown, false);
     }
   },
   methods: {
     handleTextareaChange(e) {
       console.log(e);
+    },
+    handleTextareaKeydown(e) {
+      if ((e.ctrlKey || e.shiftKey) && e.keyCode === 13) {
+        e.preventDefault();
+
+        console.log('should run brython script');
+      }
     },
   },
 };

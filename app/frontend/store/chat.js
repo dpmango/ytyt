@@ -36,7 +36,6 @@ export const state = () => ({
     id: null,
     text: null,
   },
-  searchstamp: null,
   search: null,
   socket: {
     error: null,
@@ -58,7 +57,6 @@ export const getters = {
   head: (state) => {
     if (state.activeDialog) {
       const dialog = state.dialogs.find((x) => x.id === state.activeDialog);
-
       if (dialog) {
         const { first_name, last_name, thumbnail_avatar, status_online, email } = dialog.user;
 
@@ -194,8 +192,6 @@ export const mutations = {
         break;
       }
       case EVENTS.SEARCH:
-        console.log(new Date());
-        state.searchstamp = new Date();
         state.search = { ...data };
         break;
 
