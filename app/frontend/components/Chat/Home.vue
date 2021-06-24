@@ -202,7 +202,7 @@ export default {
         const rect = message.getBoundingClientRect();
         const isVisible = rect.top - dialogsTop >= 0 && rect.top - rect.height <= offsetHeight;
         const isSupportMessage = message.getAttribute('data-support') === 'true' && this.user.is_support;
-        console.log({ isSupportMessage });
+
         if (isVisible && !isSupportMessage) {
           console.log('reading message', message.getAttribute('data-id'));
           this.readMessage({
