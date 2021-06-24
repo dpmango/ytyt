@@ -64,17 +64,24 @@ export default {
   },
   methods: {
     handleTextareaChange(e) {
-      console.log(e);
+      console.log('stdout_result event', e);
 
-      setTimeout(() => {
-        const span = document.createElement('span');
-        span.innerHTML = e.target.value;
-        document.body.appendChild(span);
+      let rows = e.stdout_rows || 1;
 
-        console.log(span.offsetHeight);
+      if (e.stdout_result) {
+        const temp_stdout = document.createElement('div');
+        temp_stdout.innerHTML = e.stdout_result;
+        temp_stdout.classList.add('brython__stdout');
+        document.querySelector('.lesson__box').appendChild(temp_stdout);
 
-        e.target.setAttribute('rows', 7);
-      }, 300);
+        rows = Math.ceil(temp_stdout.offsetHeight / 20);
+        if (rows <= 0) rows = 1;
+        if (rows >= 7) rows = 7;
+
+        temp_stdout.remove();
+      }
+
+      e.target.setAttribute('rows', rows);
     },
     handleTextareaKeydown(e) {
       if ((e.ctrlKey || e.shiftKey) && e.keyCode === 13) {
@@ -86,6 +93,18 @@ export default {
   },
 };
 </script>
+
+<style lang="scss">
+.brython__stdout {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 8px 36px;
+  font-size: 15px;
+  opacity: 0.01;
+}
+</style>
 
 <style lang="scss" scoped>
 .brython {
