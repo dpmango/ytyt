@@ -14,7 +14,7 @@
       >
         <span>{{ message.lesson.title }}</span>
       </NuxtLink>
-      <div v-if="message.reply" class="message__reply-body">
+      <div v-if="message.reply" class="message__reply-body" @click="handleReplyOriginClick">
         <span>{{ message.reply.markdown_body }}</span>
       </div>
 
@@ -53,9 +53,10 @@
 </template>
 
 <script>
-import { mapMutations, mapGetters } from 'vuex';
+import { mapMutations, mapGetters, mapActions } from 'vuex';
 import { timeToHHMM } from '~/helpers/Date';
 import { formatBytes } from '~/helpers/FormatBytes';
+import { ScrollTo } from '~/helpers/Scroll';
 
 export default {
   name: 'ChatMessages',
@@ -126,6 +127,36 @@ export default {
         text: replyText,
       });
     },
+    async handleReplyOriginClick() {
+      const { id, dialog } = this.message.reply;
+
+      let $messageDom = document.querySelector(`.message[data-id="${id}"]`);
+      const $dialogDom = document.querySelector('.chat__dialog');
+
+      const ScrollToMessage = () => {
+        $messageDom = document.querySelector(`.message[data-id="${id}"]`);
+        if (!$messageDom || !$dialogDom) return;
+
+        const messageRect = $messageDom.getBoundingClientRect();
+        const dialogRect = $dialogDom.getBoundingClientRect();
+        const scrollToTarget = messageRect.top + $dialogDom.scrollTop - dialogRect.top - 16;
+
+        ScrollTo(scrollToTarget, 500, $dialogDom);
+      };
+
+      if ($messageDom) {
+        ScrollToMessage();
+      } else {
+        const search = await this.searchMessage({
+          dialog_id: dialog,
+          message_id: id,
+        });
+
+        const messages = await this.getMessages({ id: dialog, offset: search.offset, limit: search.limit });
+
+        setTimeout(ScrollToMessage, 200);
+      }
+    },
     handleFileClick() {
       if (this.message.file.type !== 2) {
         window.open(this.message.file.url);
@@ -146,6 +177,7 @@ export default {
       }
     },
     ...mapMutations('chat', ['setReply']),
+    ...mapActions('chat', ['searchMessage', 'getMessages']),
   },
 };
 </script>
@@ -215,6 +247,9 @@ export default {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    cursor: pointer;
+    transition: opacity 0.25s $ease;
+
     &::before {
       display: inline-block;
       content: '';
@@ -225,6 +260,12 @@ export default {
       height: 20px;
       width: 2px;
       background: $colorPrimary;
+    }
+    &:hover {
+      opacity: 0.7;
+      &::before {
+        background: $colorPrimaryHover;
+      }
     }
   }
   &__content {

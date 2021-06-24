@@ -12,6 +12,7 @@ const EVENTS = {
   NOTIFICATION_COUNT: 'notifications.dialogs.count',
   MESSAGES_COUNT: 'notifications.dialogs.messages.count',
   ONLINE: 'users.status.online',
+  SEARCH: 'dialogs.messages.search.id',
 };
 
 // const ERRORS = {
@@ -35,6 +36,8 @@ export const state = () => ({
     id: null,
     text: null,
   },
+  searchstamp: null,
+  search: null,
   socket: {
     error: null,
     isConnected: false,
@@ -190,6 +193,12 @@ export const mutations = {
         }
         break;
       }
+      case EVENTS.SEARCH:
+        console.log(new Date());
+        state.searchstamp = new Date();
+        state.search = { ...data };
+        break;
+
       case EVENTS.NOTIFICATION_COUNT:
         state.notificationDialogsCount = data;
         break;
@@ -267,6 +276,7 @@ export const mutations = {
       id: null,
       text: null,
     };
+    state.search = null;
   },
   setReply(state, req) {
     state.reply.id = req.id;
@@ -347,6 +357,25 @@ export const actions = {
     this.$socket.sendObj({
       event: EVENTS.SEND_MESSAGE,
       ...request,
+    });
+  },
+  searchMessage({ commit }, { dialog_id, message_id, limit }) {
+    return new Promise((resolve) => {
+      this.$socket.sendObj({
+        event: EVENTS.SEARCH,
+        dialog_id,
+        message_id,
+        limit: limit || 20,
+      });
+
+      this.watch(
+        (state) => {
+          return state.chat.search;
+        },
+        (search) => {
+          resolve(search);
+        }
+      );
     });
   },
   async createMessageGhost({ commit, rootGetters }, { file, ...request }) {

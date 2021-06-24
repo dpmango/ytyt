@@ -51,7 +51,7 @@ export default {
         spellChecker: false,
         status: false,
         toolbar: false,
-        placeholder: 'Сообщение...',
+        placeholder: ' Сообщение...',
       },
     };
   },
@@ -285,9 +285,11 @@ export default {
   }
 }
 
-// .vue-simplemde {
-//   .markdown-body {
-//     padding: 8px 16px 8px 8px !important;
-//   }
-// }
+.vue-simplemde {
+  flex: 1 1 auto;
+  width: 100%;
+  // .markdown-body {
+  //   padding: 8px 16px 8px 8px !important;
+  // }
+}
 </style>
