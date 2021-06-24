@@ -1,5 +1,6 @@
 import sys
 import tb as traceback
+from browser import DOMEvent
 
 
 class ConsoleOutput:
@@ -15,7 +16,6 @@ class ConsoleOutput:
     def flush(self):
         self.cons.value += self.buf
         self.buf = ''
-        # self.cons.dispatchEvent(new Event('input'))
 
     def __len__(self):
         return len(self.buf)
@@ -40,13 +40,14 @@ class EditorCodeBlocks:
 
             self.set_editor(unique_id, editor)
             self.set_options_editor(editor)
-            self.bind_click_to_run_id(unique_id, self._run)
+            self.bind_events_to_run_id(unique_id, self._run)
 
     def set_options_editor(self, editor):
         editor.setOption('mode' 'python')
 
-    def bind_click_to_run_id(self, unique_id, func):
+    def bind_events_to_run_id(self, unique_id, func):
         self.doc['run__%s' % unique_id].bind('click', func)
+        self.doc['run__%s' % unique_id].bind('exec_snippet', func)
 
     def _run(self, event):
         unique_id = self.get_unique_id(event.currentTarget.id)
@@ -70,6 +71,8 @@ class EditorCodeBlocks:
 
     def change_stdout_by_id(self, unique_id):
         console_output = ConsoleOutput(doc=self.doc, console_id='console__%s' % unique_id)
+        console_output.cons.dispatchEvent(DOMEvent('stdout_result'))
+
         sys.stdout = console_output
         sys.stderr = console_output
 

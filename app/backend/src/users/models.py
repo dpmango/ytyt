@@ -242,6 +242,9 @@ class User(AbstractBaseUser,
 
     @property
     def in_stuff_groups(self) -> bool:
+        if self.is_superuser:
+            return True
+
         user_groups = self.groups.all().values_list('id', flat=True)
         return any(
             group in user_groups for group in (
