@@ -338,6 +338,7 @@ export const actions = {
     });
   },
   readMessage({ commit }, request) {
+    console.log(`${EVENTS.READ_MESSAGE} - message ${request.message_id}`);
     this.$socket.sendObj({
       event: EVENTS.READ_MESSAGE,
       dialog_id: request.dialog_id,
