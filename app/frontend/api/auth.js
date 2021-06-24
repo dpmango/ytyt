@@ -113,7 +113,7 @@ export const userService = async ($api) => {
 
 export const updateUserService = async ($api, request) => {
   try {
-    const { data } = await $api.put(endpoints.auth.user, request);
+    const { data } = await $api.patch(endpoints.auth.user, request);
 
     return [null, mapData(data)];
   } catch (error) {
