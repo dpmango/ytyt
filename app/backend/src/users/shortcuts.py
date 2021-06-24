@@ -54,6 +54,9 @@ def create_access_for_user(user: User) -> None:
         if created:
             access.set_trial()
 
+    if user.is_staff:
+        return
+
     educator = User.reviewers.get_less_busy_educator()
     user.reviewer = educator
 
