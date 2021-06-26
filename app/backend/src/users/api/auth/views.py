@@ -14,7 +14,7 @@ from rest_framework.response import Response
 
 from providers.mailgun.mixins import EmailNotificationMixin
 from users.models import User
-from users.serializers import PasswordResetSerializer
+from users.serializers import PasswordResetSerializer, PasswordResetConfirmSerializer
 
 sensitive_post_parameters_m = method_decorator(
     sensitive_post_parameters(
@@ -67,6 +67,8 @@ class UserDetailsView(UserDetailsViewBase):
 
 
 class PasswordResetConfirmViewCustom(PasswordResetConfirmView):
+    serializer_class = PasswordResetConfirmSerializer
+
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)

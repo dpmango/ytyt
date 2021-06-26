@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.contrib.auth.tokens import default_token_generator
+from django.contrib.auth.forms import SetPasswordForm
 from django.db import transaction
 from django.utils.encoding import force_bytes
 from django.utils.encoding import force_text
@@ -16,6 +16,7 @@ from providers.tinkoff.contrib import Tinkoff
 from providers.tinkoff_credit.contrib import TinkoffCredit
 from users.models import User
 from users.shortcuts import create_access_for_user
+from users.tokens import token_generator
 
 
 class UserDetailSerializer(serializers.ModelSerializer):
@@ -174,10 +175,49 @@ class PasswordResetSerializer(serializers.Serializer):
         context = {
             'email': user.email,
             'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-            'token': default_token_generator.make_token(user),
+            'token': token_generator.make_token(user),
         }
 
         return {'to': user.email, 'context': context}
+
+
+class PasswordResetConfirmSerializer(serializers.Serializer):
+    """
+    Serializer for requesting a password reset e-mail.
+    """
+    new_password1 = serializers.CharField(max_length=128)
+    new_password2 = serializers.CharField(max_length=128)
+    uid = serializers.CharField()
+    token = serializers.CharField()
+
+    set_password_form_class = SetPasswordForm
+
+    def custom_validation(self, attrs):
+        pass
+
+    def validate(self, attrs):
+        # Decode the uidb64 to uid to get User object
+        try:
+            uid = force_text(uid_decoder(attrs['uid']))
+            user = User._default_manager.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            raise ValidationError({'uid': ['Invalid value']})
+
+        self.custom_validation(attrs)
+
+        # Construct SetPasswordForm instance
+        self.set_password_form = self.set_password_form_class(user=user, data=attrs)
+
+        if not self.set_password_form.is_valid():
+            raise serializers.ValidationError(self.set_password_form.errors)
+
+        if not token_generator.check_token(user, attrs['token']):
+            raise ValidationError({'token': ['Invalid value']})
+
+        return attrs
+
+    def save(self):
+        return self.set_password_form.save()
 
 
 class VerifyEmailSerializer(serializers.Serializer):
@@ -185,9 +225,6 @@ class VerifyEmailSerializer(serializers.Serializer):
     token = serializers.CharField(required=False)
 
     def validate(self, attrs):
-
-        print(attrs)
-
         try:
             uid = force_text(uid_decoder(attrs['uid']))
             user = User._default_manager.get(pk=uid)
@@ -195,7 +232,7 @@ class VerifyEmailSerializer(serializers.Serializer):
             raise ValidationError({'uid': ['Invalid value']})
 
         token = attrs.get('token')
-        if not token or not default_token_generator.check_token(user, token):
+        if not token or not token_generator.check_token(user, token):
             raise ValidationError({'token': ['Invalid value']})
 
         attrs['user'] = user
@@ -206,7 +243,7 @@ class VerifyEmailSerializer(serializers.Serializer):
             'email': instance.email,
             'first_name': instance.first_name,
             'uid': urlsafe_base64_encode(force_bytes(instance.pk)),
-            'token': default_token_generator.make_token(instance),
+            'token': token_generator.make_token(instance),
         }
 
         return {'to': instance.email, 'context': context}
