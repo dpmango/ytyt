@@ -19,10 +19,16 @@ export default {
       const lessons = await store.dispatch('courses/lessons', { course_id: 1, theme_id: params.id }).catch(handleError);
       const theme = themes.find((x) => x.id === parseInt(route.params.id));
 
+      // console.log('context route', route);
       return { themes, lessons, name: theme.title };
     } catch (error) {
       $sentry.captureException(error);
     }
+  },
+  data() {
+    return {
+      name: '',
+    };
   },
   head() {
     return { title: `${this.name} | YtYt - понятные уроки программирования` };
