@@ -50,20 +50,17 @@ export default {
   data() {
     return {
       tick: 0,
-      pageTitle: null,
+      savedPageTitle: null,
       userMenuOpened: false,
     };
   },
   computed: {
-    title(ctx) {
-      return ctx.$root.$meta().refresh().metaInfo.titleChunk;
-    },
     ...mapGetters('auth', ['user']),
     ...mapGetters('chat', ['notificationDialogsCount', 'notificationMessageCount']),
   },
   watch: {
     $route(newVal, oldVal) {
-      this.savedPageTitle = document.querySelector('title').innerHTML;
+      this.savedPageTitle = newVal.meta && newVal.meta.head && newVal.meta.head.title;
     },
   },
   mounted() {
