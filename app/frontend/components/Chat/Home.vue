@@ -85,9 +85,9 @@ export default {
       const scrollBottom = scrollHeight - scrollTop - offsetHeight;
 
       // prevent scrolling if user reading prev. messages or new messages loaded on 'up' scroll
-      const diff = newVal.length - oldVal.length;
+      const hasChangedDialog = (newVal.length && newVal[0].dialog) !== (oldVal.length && oldVal[0].dialog);
 
-      if (scrollBottom <= 50 && diff >= 1 && diff < 3) {
+      if (scrollBottom <= 50 && !hasChangedDialog) {
         scrollToEnd(500, this.$refs.dialogs);
       }
 
