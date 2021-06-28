@@ -65,7 +65,7 @@ export default {
   },
   mounted() {
     this.savedPageTitle = document.querySelector('title').innerHTML;
-
+    console.log('mounted saving PT', this.savedPageTitle);
     setInterval(() => {
       if (this.notificationMessageCount > 0) {
         if (this.tick % 2) {
