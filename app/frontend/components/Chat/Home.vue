@@ -85,7 +85,9 @@ export default {
       const scrollBottom = scrollHeight - scrollTop - offsetHeight;
 
       // prevent scrolling if user reading prev. messages or new messages loaded on 'up' scroll
-      if (scrollBottom <= 50 && !(oldVal.length === 0)) {
+      const diff = newVal.length - oldVal.length;
+
+      if (scrollBottom <= 50 && diff >= 1 && diff < 3) {
         scrollToEnd(500, this.$refs.dialogs);
       }
 
@@ -139,10 +141,15 @@ export default {
         text: null,
       });
 
+      // FIX with 3 times setting scroll in 300ms for loading content and page re-renders
+      scrollToEnd(0, this.$refs.dialogs);
+
       setTimeout(() => {
-        // console.log('speed 0 ');
         scrollToEnd(0, this.$refs.dialogs);
       }, 200);
+      setTimeout(() => {
+        scrollToEnd(0, this.$refs.dialogs);
+      }, 300);
     },
     handleClickBack() {
       if (this.isMini) {

@@ -70,6 +70,10 @@ export default {
         }
       },
     },
+    activeDialog() {
+      this.text = '';
+      this.simplemde.value('');
+    },
   },
   mounted() {
     if (this.simplemde) {

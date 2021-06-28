@@ -5,7 +5,7 @@ from rest_auth.app_settings import TokenSerializer, JWTSerializer
 from rest_auth.registration.views import RegisterView as RegisterViewBase
 from rest_framework import status
 from rest_framework.generics import CreateAPIView, UpdateAPIView
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from providers.mailgun.mixins import EmailNotificationMixin
@@ -39,7 +39,7 @@ class VerifyEmailView(CreateAPIView, UpdateAPIView, EmailNotificationMixin):
     http_method_names = ['get', 'post', 'patch', 'delete', 'head', 'options', 'trace']
 
     serializer_class = VerifyEmailSerializer
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (AllowAny, )
 
     subject_template_name = 'users/verify_email/verify_email_subject.txt'
     email_template_name = 'users/verify_email/verify_email_body.html'
