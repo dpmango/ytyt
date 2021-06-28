@@ -70,7 +70,7 @@ export const getters = {
 
 export const mutations = {
   SOCKET_ONOPEN(state, event) {
-    console.log('SOCKET_ONOPEN', event);
+    // console.log('SOCKET_ONOPEN', event);
     this.$socket = event.currentTarget;
     state.socket.isConnected = true;
     state.socket.error = null;
@@ -81,7 +81,7 @@ export const mutations = {
     state.messagesMeta = {};
   },
   SOCKET_ONCLOSE(state, event) {
-    console.log('SOCKET_ONCLOSE', event);
+    // console.log('SOCKET_ONCLOSE', event);
     state.socket.isConnected = false;
   },
   SOCKET_ONERROR(state, event) {
@@ -89,7 +89,7 @@ export const mutations = {
     state.socket.error = event;
   },
   SOCKET_ONMESSAGE(state, message) {
-    console.log('SOCKET_ONMESSAGE', message);
+    // console.log('SOCKET_ONMESSAGE', message);
     const { event, data, meta, exception } = message;
 
     if (exception) {
@@ -338,7 +338,7 @@ export const actions = {
     });
   },
   readMessage({ commit }, request) {
-    console.log(`${EVENTS.READ_MESSAGE} - message ${request.message_id}`);
+    // console.log(`${EVENTS.READ_MESSAGE} - message ${request.message_id}`);
     this.$socket.sendObj({
       event: EVENTS.READ_MESSAGE,
       dialog_id: request.dialog_id,

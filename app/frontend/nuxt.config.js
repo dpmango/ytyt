@@ -81,6 +81,8 @@ export default {
     'cookie-universal-nuxt',
     // https://sentry.nuxtjs.org/guide/setup/
     '@nuxtjs/sentry',
+    // https://github.com/dword-design/nuxt-route-meta
+    'nuxt-route-meta',
   ],
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios

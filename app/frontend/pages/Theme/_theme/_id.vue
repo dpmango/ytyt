@@ -26,7 +26,9 @@ export default {
     }
   },
   data() {
-    return {};
+    return {
+      name: '',
+    };
   },
   head() {
     return { title: `${this.name} | YtYt - понятные уроки программирования` };

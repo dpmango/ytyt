@@ -50,34 +50,47 @@ export default {
   data() {
     return {
       tick: 0,
-      pageTitle: null,
+      savedPageTitle: null,
       userMenuOpened: false,
     };
   },
   computed: {
-    title(ctx) {
-      return ctx.$root.$meta().refresh().metaInfo.titleChunk;
-    },
     ...mapGetters('auth', ['user']),
     ...mapGetters('chat', ['notificationDialogsCount', 'notificationMessageCount']),
   },
   watch: {
     $route(newVal, oldVal) {
-      this.savedPageTitle = document.querySelector('title').innerHTML;
+      // console.log('$route changed - newVal', newVal);
+
+      if (newVal.meta && newVal.meta.head) {
+        this.savedPageTitle = newVal.meta.head.title;
+      } else {
+        setTimeout(() => {
+          // console.log('route change', document.querySelector('title').innerHTML);
+          this.savedPageTitle = document.querySelector('title').innerHTML;
+        }, 300);
+      }
     },
   },
   mounted() {
     this.savedPageTitle = document.querySelector('title').innerHTML;
+    // console.log('mounted saving PT', this.savedPageTitle);
 
     setInterval(() => {
+      const setDefaultTitle = () => {
+        const newTitle = this.savedPageTitle || 'YtYt - понятные уроки программирования';
+        // console.log('setDefaultTitle PT', newTitle);
+        document.querySelector('title').innerHTML = newTitle;
+      };
+
       if (this.notificationMessageCount > 0) {
         if (this.tick % 2) {
-          document.querySelector('title').innerHTML = this.savedPageTitle;
+          setDefaultTitle();
         } else {
           document.querySelector('title').innerHTML = `Новое сообщение (${this.notificationMessageCount})`;
         }
       } else {
-        document.querySelector('title').innerHTML = this.savedPageTitle;
+        setDefaultTitle();
       }
 
       this.tick++;
